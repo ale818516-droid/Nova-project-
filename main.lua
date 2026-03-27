@@ -74,4 +74,4 @@ R.RenderStepped:Connect(function()
     end
     -- Auto Click
     if _G.NAC then VU:Button1Down(Vector2.new(0,0), C.CFrame) task.wait() VU:Button1Up(Vector2.new(0,0), C.CFrame) end
-end)
+end) 
