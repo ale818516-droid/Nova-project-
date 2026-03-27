@@ -1,87 +1,102 @@
--- [[ PROYECTO NOVA: v27.0 POWER EDITION ]] --
-local P = game:GetService("Players")
-local R = game:GetService("RunService")
-local L = P.LocalPlayer
-local C = workspace.CurrentCamera
+-- [[ PROYECTO NOVA: ELITE v28.0 - BY NOVADEV ]] --
+-- RÉPLICA PROFESIONAL ESTILO FASTDEX --
 
--- Variables de estado (Todo apagado al inicio)
+local Fluent = loadstring(game:HttpGet("https://github.com/dawid-scripts/Fluent/releases/latest/download/main.lua"))()
+local L = game.Players.LocalPlayer
+local C = workspace.CurrentCamera
+local R = game:GetService("RunService")
+
+-- 1. CREAR TU VENTANA (Personalizada con tu nombre)
+local Window = Fluent:CreateWindow({
+    Title = "Nova - MVS Elite v28.0 - By NovaDev",
+    SubTitle = "FastDex Style Replica",
+    TabWidth = 160,
+    Size = UDim2.fromOffset(580, 460),
+    Acrylic = true, -- Efecto borroso de fondo (Como en la foto)
+    Theme = "Dark",
+    MinimizeKey = Enum.KeyCode.RightShift -- Pulsa Shift Derecho para ocultar
+})
+
+-- Variables de Estado
 _G.NovaESP = false
 _G.NovaAim = false
-_G.NovaSpeed = false
+_G.AimStrength = 70 -- Valor por defecto (70%)
 
--- INTERFAZ QUE NO SE ROMPE
-local G = Instance.new("ScreenGui", L:WaitForChild("PlayerGui"))
-G.Name = "NovaMVS"
-G.ResetOnSpawn = false
+-- 2. PESTAÑAS ( Tabs )
+local Tabs = {
+    Main = Window:AddTab({ Title = "AimAssist", Icon = "target" }),
+    Visuals = Window:AddTab({ Title = "Visuals", Icon = "eye" }),
+    Settings = Window:AddTab({ Title = "Settings", Icon = "settings" })
+}
 
-local M = Instance.new("Frame", G)
-M.Size, M.Position = UDim2.new(0, 150, 0, 220), UDim2.new(0.02, 0, 0.3, 0)
-M.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-M.Active, M.Draggable = true, true
-Instance.new("UICorner", M)
+local Options = Fluent.Options
 
-local Title = Instance.new("TextLabel", M)
-Title.Size, Title.Text = UDim2.new(1, 0, 0, 30), "NOVA ELITE"
-Title.TextColor3, Title.BackgroundTransparency = Color3.fromRGB(0, 255, 150), 1
+-- --- PESTAÑA PRINCIPAL (AimAssist) ---
+-- Esta es la réplica exacta de la interfaz de la foto
 
-local function CrearBoton(txt, y, var)
-    local b = Instance.new("TextButton", M)
-    b.Size, b.Position = UDim2.new(0.9, 0, 0, 40), UDim2.new(0.05, 0, 0, y)
-    b.Text = txt..": OFF"
-    b.BackgroundColor3 = Color3.fromRGB(30, 30, 35)
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Instance.new("UICorner", b)
-    b.MouseButton1Click:Connect(function()
-        _G[var] = not _G[var]
-        b.Text = txt..": "..(_G[var] and "ON" or "OFF")
-        b.BackgroundColor3 = _G[var] and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(30, 30, 35)
-    end)
-end
+Tabs.Main:AddToggle("AimShot", {Title = "Auto Shoot", Default = false})
 
-CrearBoton("ESP PRO", 40, "NovaESP")
-CrearBoton("AUTO SHOT", 90, "NovaAim")
-CrearBoton("SPEED", 140, "NovaSpeed")
-
--- BOTON DE PANICO (Desactiva todo y cierra el menu)
-local X = Instance.new("TextButton", M)
-X.Size, X.Position, X.Text = UDim2.new(0.9, 0, 0, 30), UDim2.new(0.05, 0, 0, 185), "CERRAR SCRIPT"
-X.BackgroundColor3, X.TextColor3 = Color3.fromRGB(150, 0, 0), Color3.fromRGB(255, 255, 255)
-Instance.new("UICorner", X)
-X.MouseButton1Click:Connect(function() G:Destroy() _G.NovaESP = false _G.NovaAim = false _G.NovaSpeed = false end)
-
--- LÓGICA DE ALTA EFECTIVIDAD PARA MVS
-R.RenderStepped:Connect(function()
-    if _G.NovaSpeed and L.Character and L.Character:FindFirstChild("Humanoid") then
-        L.Character.Humanoid.WalkSpeed = 25 -- Velocidad optimizada para MVS
+Tabs.Main:AddSlider("AimStrength", {
+    Title = "Aim Assist Strength",
+    Description = "Ajusta la fuerza del auto-apuntado (70% recomendado)",
+    Default = 70,
+    Min = 1,
+    Max = 100,
+    Rounding = 1,
+    Callback = function(Value)
+        _G.AimStrength = Value
     end
+})
 
-    for _, p in pairs(P:GetPlayers()) do
-        if p ~= L and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local root = p.Character.HumanoidRootPart
-            local head = p.Character:FindFirstChild("Head")
+-- --- PESTAÑA DE VISUALES (Visuals) ---
 
-            -- ESP (Highlight: Lo más efectivo en 2026)
-            if _G.NovaESP and p.Team ~= L.Team then
-                if not root:FindFirstChild("N_ESP") then
-                    local h = Instance.new("Highlight", root)
-                    h.Name, h.FillColor = "N_ESP", Color3.fromRGB(255, 0, 0)
-                end
-            elseif root:FindFirstChild("N_ESP") then root.N_ESP:Destroy() end
+Tabs.Visuals:AddToggle("ESPPor", {
+    Title = "ESP Pro", 
+    Default = false,
+    Callback = function(Value)
+        _G.NovaESP = Value
+    end
+})
 
-            -- AUTO SHOT (Fuerza de Aim al 70%)
-            if _G.NovaAim and p.Team ~= L.Team and head then
-                local _, vis = C:WorldToViewportPoint(head.Position)
-                if vis then
-                    -- Esto fuerza a la cámara a mirar a la cabeza
-                    C.CFrame = C.CFrame:Lerp(CFrame.new(C.CFrame.Position, head.Position), 0.2)
-                    
-                    -- Disparo Automático (Detecta cualquier arma)
-                    local tool = L.Character:FindFirstChildOfClass("Tool")
-                    if tool then
-                        tool:Activate()
+-- 3. MOTOR DE EJECUCIÓN (Lógica de MVS)
+R.RenderStepped:Connect(function()
+    if Options.AimShot.Value or _G.NovaESP then
+        for _, p in pairs(game.Players:GetPlayers()) do
+            if p ~= L and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local root = p.Character.HumanoidRootPart
+                
+                -- ESP Professional (BoxHandle: Lo más cercano a la foto)
+                if _G.NovaESP and p.Team ~= L.Team then
+                    if not root:FindFirstChild("NBox") then
+                        local b = Instance.new("BoxHandleAdornment", root)
+                        b.Name, b.AlwaysOnTop, b.Adornee, b.ZIndex = "NBox", true, root, 10
+                        b.Size, b.Color3, b.Transparency = Vector3.new(4, 6, 1), Color3.fromRGB(255, 0, 0), 0.6
+                    end
+                elseif root:FindFirstChild("NBox") then root.NBox:Destroy() end
+
+                -- AUTO SHOT (Fuerza del Slider - 70% por defecto)
+                if Options.AimShot.Value and p.Team ~= L.Team then
+                    local head = p.Character:FindFirstChild("Head")
+                    if head then
+                        local _, vis = C:WorldToViewportPoint(head.Position)
+                        if vis then
+                            -- Apuntado Smooth (Suave pero Efectivo)
+                            local strength = (_G.AimStrength or 70) / 100
+                            C.CFrame = C.CFrame:Lerp(CFrame.new(C.CFrame.Position, head.Position), strength)
+                            
+                            -- Activar Arma (Pistola o Cuchillo)
+                            local tool = L.Character:FindFirstChildOfClass("Tool")
+                            if tool then tool:Activate() end
+                        end
                     end
                 end
             end
         end
     end
 end)
+
+Fluent:Notify({
+    Title = "Proyecto Nova v28.0",
+    Content = "Iniciado con éxito. Estilo Fluent activado.",
+    Duration = 8
+})
