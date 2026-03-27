@@ -1,94 +1,87 @@
--- [[ PROYECTO NOVA: ELITE v14.0 SINGLE TAP ]] --
+-- [[ PROYECTO NOVA: ELITE v15.0 FINAL FORCE ]] --
 local P = game:GetService("Players")
 local R = game:GetService("RunService")
-local VU = game:GetService("VirtualUser")
 local L = P.LocalPlayer
 local C = workspace.CurrentCamera
 
 _G.NE, _G.NS, _G.NSS = false, false, false
-local LastShot = 0
 
--- Interfaz Nova
-local G = Instance.new("ScreenGui", game:GetService("CoreGui"))
+-- Interfaz en PlayerGui (Más difícil de bloquear)
+local G = Instance.new("ScreenGui", L:WaitForChild("PlayerGui"))
+G.Name = "NovaPanel"
+G.ResetOnSpawn = false
+
 local M = Instance.new("TextButton", G)
-M.Size, M.Position, M.Text = UDim2.new(0, 60, 0, 60), UDim2.new(0.1, 0, 0.5, 0), "N"
-M.BackgroundColor3, M.TextColor3 = Color3.fromRGB(20, 20, 25), Color3.fromRGB(0, 255, 150)
+M.Size, M.Position, M.Text = UDim2.new(0, 50, 0, 50), UDim2.new(0.05, 0, 0.4, 0), "N"
+M.BackgroundColor3, M.TextColor3 = Color3.fromRGB(30, 30, 35), Color3.fromRGB(0, 255, 150)
 Instance.new("UICorner", M).CornerRadius = UDim.new(1, 0)
+M.Active = true
 M.Draggable = true
 
 local F = Instance.new("Frame", M)
-F.Size, F.Position, F.Visible = UDim2.new(0, 160, 0, 160), UDim2.new(1.2, 0, 0, 0), false
-F.BackgroundColor3 = Color3.fromRGB(15, 15, 18)
-Instance.new("UICorner", F).CornerRadius = UDim.new(0, 10)
+F.Size, F.Position, F.Visible = UDim2.new(0, 150, 0, 180), UDim2.new(1.2, 0, 0, 0), false
+F.BackgroundColor3 = Color3.fromRGB(20, 20, 25)
+Instance.new("UICorner", F)
 
-local function CrearB(t, y, v)
+local function Boton(t, y, v)
     local b = Instance.new("TextButton", F)
     b.Size, b.Position = UDim2.new(0.9, 0, 0, 40), UDim2.new(0.05, 0, 0, y)
-    b.Text = t..": OFF"
-    b.BackgroundColor3 = Color3.fromRGB(40, 40, 45)
+    b.Text, b.BackgroundColor3 = t..": OFF", Color3.fromRGB(50, 50, 55)
     b.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
+    Instance.new("UICorner", b)
     b.MouseButton1Click:Connect(function()
         _G[v] = not _G[v]
         b.Text = t..": "..(_G[v] and "ON" or "OFF")
-        b.BackgroundColor3 = _G[v] and Color3.fromRGB(0, 255, 120) or Color3.fromRGB(40, 40, 45)
+        b.BackgroundColor3 = _G[v] and Color3.fromRGB(0, 200, 100) or Color3.fromRGB(50, 50, 55)
     end)
 end
 
-CrearB("ESP", 10, "NE")
-CrearB("SMART SHOT", 60, "NSS")
-CrearB("SPEED", 110, "NS")
+Boton("ESP", 10, "NE")
+Boton("SMART SHOT", 60, "NSS")
+Boton("SPEED", 110, "NS")
 
 M.MouseButton1Click:Connect(function() F.Visible = not F.Visible end)
 
--- BUCLE PRINCIPAL
-R.RenderStepped:Connect(function()
-    -- ESP
-    for _, p in pairs(P:GetPlayers()) do
-        if p ~= L and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local root = p.Character.HumanoidRootPart
-            local esp = root:FindFirstChild("NovaESP")
-            if _G.NE and p.Team ~= L.Team then
-                if not esp then
-                    esp = Instance.new("BoxHandleAdornment", root)
-                    esp.Name, esp.AlwaysOnTop, esp.ZIndex, esp.Adornee = "NovaESP", true, 10, root
-                    esp.Size, esp.Color3, esp.Transparency = root.Size * 1.5, Color3.fromRGB(255,0,0), 0.5
-                end
-            elseif esp then esp:Destroy() end
-        end
-    end
-
-    -- SPEED (Velocity Bypass)
+-- Motor del Script
+R.Heartbeat:Connect(function()
+    -- SPEED (Bypass por Posición Relativa)
     if _G.NS and L.Character and L.Character:FindFirstChild("HumanoidRootPart") then
         local hrp = L.Character.HumanoidRootPart
         local hum = L.Character.Humanoid
-        hrp.Velocity = hum.MoveDirection * 100 + Vector3.new(0, hrp.Velocity.Y, 0)
+        if hum.MoveDirection.Magnitude > 0 then
+            hrp.CFrame = hrp.CFrame + (hum.MoveDirection * 1.2)
+        end
     end
 
-    -- SMART SHOT (Fusión Aim + Auto Click 1 Bala)
-    if _G.NSS then
-        local target, dist = nil, 500
-        for _, p in pairs(P:GetPlayers()) do
-            if p ~= L and p.Character and p.Character:FindFirstChild("Head") and p.Team ~= L.Team then
-                local d = (L.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude
-                if d < dist then target, dist = p.Character.Head, d end
-            end
-        end
+    -- ESP Y DISPARO
+    for _, p in pairs(P:GetPlayers()) do
+        if p ~= L and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local root = p.Character.HumanoidRootPart
+            local head = p.Character:FindFirstChild("Head")
+            
+            -- ESP Forzado
+            if _G.NE and p.Team ~= L.Team then
+                if not root:FindFirstChild("NBox") then
+                    local b = Instance.new("BoxHandleAdornment", root)
+                    b.Name, b.AlwaysOnTop, b.ZIndex, b.Adornee = "NBox", true, 10, root
+                    b.Size, b.Color3, b.Transparency = root.Size * 2.2, Color3.fromRGB(255, 0, 0), 0.6
+                end
+            elseif root:FindFirstChild("NBox") then root.NBox:Destroy() end
 
-        if target then
-            local pos, visible = C:WorldToViewportPoint(target.Position)
-            if visible then
-                -- Apuntar suavemente
-                C.CFrame = C.CFrame:Lerp(CFrame.new(C.CFrame.Position, target.Position), 0.2)
-                
-                -- DISPARAR UNA SOLA BALA (con retardo para no vaciar el cargador)
-                if tick() - LastShot > 0.3 then -- Dispara cada 0.3 segundos
-                    VU:Button1Down(Vector2.new(0,0), C.CFrame)
-                    task.wait(0.05)
-                    VU:Button1Up(Vector2.new(0,0), C.CFrame)
-                    LastShot = tick()
+            -- SMART SHOT (Enfoque + 1 Bala)
+            if _G.NSS and head and p.Team ~= L.Team then
+                local _, vis = C:WorldToViewportPoint(head.Position)
+                if vis then
+                    local dist = (L.Character.HumanoidRootPart.Position - root.Position).Magnitude
+                    if dist < 300 then
+                        C.CFrame = CFrame.new(C.CFrame.Position, head.Position)
+                        -- Simulación de toque directo en pantalla
+                        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, true, game, 1)
+                        task.wait(0.05)
+                        game:GetService("VirtualInputManager"):SendMouseButtonEvent(0, 0, 0, false, game, 1)
+                    end
                 end
             end
         end
     end
-end) 
+end)
