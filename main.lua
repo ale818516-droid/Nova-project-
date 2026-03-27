@@ -1,62 +1,54 @@
--- [[ PROYECTO NOVA: INFINITE v31.0 ]] --
--- MVS GLOBAL INSTA-KILL - BY NOVADEV --
+-- [[ PROYECTO NOVA: v32.0 MAGNETIC LOCK ]] --
+-- FUERZA BRUTA PARA MVS - BY NOVADEV --
 
 local Fluent = loadstring(game:HttpGet("https://raw.githubusercontent.com/dawid-scripts/Fluent/main/source.lua"))()
 local L = game.Players.LocalPlayer
 local C = workspace.CurrentCamera
+local R = game:GetService("RunService")
 
 local Window = Fluent:CreateWindow({
-    Title = "Nova Infinite - MVS - By NovaDev",
-    SubTitle = "Global Insta-Kill",
+    Title = "Nova Magnetic - MVS - By NovaDev",
+    SubTitle = "Lock-On Edition",
     TabWidth = 160, Size = UDim2.fromOffset(580, 460), Acrylic = true, Theme = "Dark"
 })
 
-local Tabs = { Main = Window:AddTab({ Title = "Global Combat", Icon = "globe" }) }
+local Tabs = { Main = Window:AddTab({ Title = "Combat", Icon = "zap" }) }
 
-Tabs.Main:AddToggle("GlobalKill", {Title = "Global Insta-Kill (Cualquier lado)", Default = false})
+local LockOn = Tabs.Main:AddToggle("LockOn", {Title = "Imán de Cabezas (Magnetic)", Default = false})
 
--- --- EL MOTOR DE LA BALA MÁGICA ---
--- Busca al enemigo más cercano en 3D, sin importar si lo ves o no.
-
-local function GetClosestGlobal()
+-- --- EL MOTOR MAGNÉTICO ---
+-- Esta función busca al enemigo y PEGA tu cámara a su cabeza
+local function GetTarget()
     local Target = nil
-    local MaxDist = math.huge -- Distancia infinita
-    
+    local shortestDistance = math.huge
+
     for _, p in pairs(game.Players:GetPlayers()) do
         if p ~= L and p.Character and p.Character:FindFirstChild("Head") and p.Team ~= L.Team then
             local dist = (L.Character.HumanoidRootPart.Position - p.Character.Head.Position).Magnitude
-            if dist < MaxDist then
+            if dist < shortestDistance then
                 Target = p.Character.Head
-                MaxDist = dist
+                shortestDistance = dist
             end
         end
     end
     return Target
 end
 
--- HOOKING TOTAL (Intercepción de Balas)
-local OldIndex = nil
-OldIndex = hookmetamethod(game, "__index", function(Self, Index)
-    if not checkcaller() and Fluent.Options.GlobalKill.Value and Index == "Hit" then
-        local Target = GetClosestGlobal()
-        if Target then
-            return Target.CFrame -- La bala se teletransporta a la cabeza
+-- EJECUCIÓN FORZADA (RenderStepped es el más rápido)
+R.RenderStepped:Connect(function()
+    if LockOn.Value then
+        local Tar = GetTarget()
+        if Tar then
+            -- FUERZA MÁXIMA: La cámara se clava en la cabeza
+            C.CFrame = CFrame.new(C.CFrame.Position, Tar.Position)
+            
+            -- DISPARO AUTOMÁTICO
+            local tool = L.Character:FindFirstChildOfClass("Tool")
+            if tool then 
+                tool:Activate() 
+            end
         end
     end
-    return OldIndex(Self, Index)
 end)
 
--- WALL-BANG BYPASS (Atravesar paredes)
-local OldRaycast = nil
-OldRaycast = hookfunction(workspace.Raycast, function(Self, Origin, Direction, Params)
-    if not checkcaller() and Fluent.Options.GlobalKill.Value then
-        local Target = GetClosestGlobal()
-        if Target then
-            -- Redirigir la trayectoria física a través de cualquier objeto
-            Direction = (Target.Position - Origin).Unit * 5000
-        end
-    end
-    return OldRaycast(Self, Origin, Direction, Params)
-end)
-
-Fluent:Notify({Title = "Nova Infinite", Content = "Modo Global Activado. Balas certeras en cualquier lado.", Duration = 8})
+Fluent:Notify({Title = "Nova Magnetic", Content = "Imán de cabezas activado. Saca tu arma.", Duration = 5})
