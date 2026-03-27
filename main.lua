@@ -1,35 +1,4 @@
--- [[ PROYECTO NOVA: FULL ELITE v3 ]] --
-local P = game:GetService("Players")
-local R = game:GetService("RunService")
-local L = P.LocalPlayer
-local C = workspace.CurrentCamera
-local VU = game:GetService("VirtualUser")
 
-_G.NovaE, _G.NovaA, _G.NovaS, _G.NovaAC = false, false, false, false
-
-local G = Instance.new("ScreenGui", game:GetService("CoreGui"))
-local M = Instance.new("TextButton", G)
-M.Size, M.Position, M.Text = UDim2.new(0, 55, 0, 55), UDim2.new(0.1, 0, 0.5, 0), "N"
-M.BackgroundColor3, M.TextColor3 = Color3.fromRGB(15, 15, 20), Color3.fromRGB(0, 255, 150)
-Instance.new("UICorner", M).CornerRadius = UDim.new(1, 0)
-M.Draggable = true
-
-local F = Instance.new("Frame", M)
-F.Size, F.Position, F.Visible = UDim2.new(0, 160, 0, 200), UDim2.new(1.2, 0, 0, 0), false
-F.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
-Instance.new("UICorner", F).CornerRadius = UDim.new(0, 8)
-
-local function CrearB(txt, y, var)
-    local b = Instance.new("TextButton", F)
-    b.Size, b.Position = UDim2.new(0.9, 0, 0, 35), UDim2.new(0.05, 0, 0, y)
-    b.Text, b.BackgroundColor3 = txt..": OFF", Color3.fromRGB(30, 30, 35)
-    b.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 6)
-    b.MouseButton1Click:Connect(function()
-        _G[var] = not _G[var]
-        b.Text = txt..": "..(_G[var] and "ON" or "OFF")
-        b.BackgroundColor3 = _G[var] and Color3.fromRGB(0, 255, 100) or Color3.fromRGB(30, 30, 35)
-    end)
 end
 
 CrearB("ESP", 10, "NovaE")
