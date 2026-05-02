@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Proyecto Nova",
    LoadingTitle = "ALEXX HUB VIP",
-   LoadingSubtitle = "Versión iPhone 14",
+   LoadingSubtitle = "Menú por Separado",
    ConfigurationSaving = { Enabled = false },
    KeySystem = true,
    KeySettings = {
@@ -17,7 +17,9 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- PESTAÑA INICIO
+-- ==========================================
+-- SECCIÓN 1: INICIO (VELOCIDAD)
+-- ==========================================
 local MainTab = Window:CreateTab("Inicio 🏠", 4483362458)
 
 MainTab:CreateToggle({
@@ -31,12 +33,14 @@ MainTab:CreateToggle({
    end,
 })
 
--- PESTAÑA ESPÍA
+-- ==========================================
+-- SECCIÓN 2: ESPÍA (SOLO ENEMIGOS)
+-- ==========================================
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 _G.EspActive = false
 
 SpyTab:CreateToggle({
-   Name = "Solo Enemigos",
+   Name = "Ver Solo Oponentes",
    CurrentValue = false,
    Callback = function(Value)
       _G.EspActive = Value
@@ -44,14 +48,15 @@ SpyTab:CreateToggle({
          spawn(function()
             while _G.EspActive do
                for _, player in pairs(game.Players:GetPlayers()) do
-                  if player ~= game.Players.LocalPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-                     -- Solo oponentes
+                  if player ~= game.Players.LocalPlayer and player.Character then
+                     -- Filtro para no marcar a tu propio equipo
                      if player.Team ~= game.Players.LocalPlayer.Team or tostring(player.Team) == "nil" then
-                        local highlight = player.Character:FindFirstChild("NovaESP")
+                        local char = player.Character
+                        local highlight = char:FindFirstChild("NovaESP")
                         if not highlight then
                            highlight = Instance.new("Highlight")
                            highlight.Name = "NovaESP"
-                           highlight.Parent = player.Character
+                           highlight.Parent = char
                            highlight.FillColor = Color3.fromRGB(255, 0, 0)
                            highlight.FillTransparency = 0.5
                         end
@@ -62,13 +67,43 @@ SpyTab:CreateToggle({
             end
          end)
       else
-         -- LIMPIEZA INSTANTÁNEA
+         -- Borrado inmediato al apagar
          for _, player in pairs(game.Players:GetPlayers()) do
-            if player.Character then
-               local h = player.Character:FindFirstChild("NovaESP")
-               if h then h:Destroy() end
+            if player.Character and player.Character:FindFirstChild("NovaESP") then
+               player.Character.NovaESP:Destroy()
             end
          end
+      end
+   end,
+})
+
+-- ==========================================
+-- SECCIÓN 3: EVENTO (AUTO FARM SEPARADO)
+-- ==========================================
+local EventTab = Window:CreateTab("Evento 💀", 4483362458)
+local farmEnabled = false
+
+EventTab:CreateToggle({
+   Name = "Auto Farm Cinco de Mayo",
+   CurrentValue = false,
+   Callback = function(Value)
+      farmEnabled = Value
+      if farmEnabled then
+         spawn(function()
+            while farmEnabled do
+               -- Busca las calaveras en todo el mapa
+               for _, obj in pairs(game.Workspace:GetDescendants()) do
+                  if farmEnabled and (obj.Name == "Calavera" or obj.Name == "Skull") and obj:IsA("BasePart") then
+                     local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                     if root then
+                        root.CFrame = obj.CFrame
+                        task.wait(0.5) -- Tiempo para que el juego registre que la tocaste
+                     end
+                  end
+               end
+               task.wait(1)
+            end
+         end)
       end
    end,
 })
