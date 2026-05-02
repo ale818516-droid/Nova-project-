@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Proyecto Nova",
    LoadingTitle = "ALEXX HUB VIP",
-   LoadingSubtitle = "Versión Final",
+   LoadingSubtitle = "Versión 2.0 - Control Total",
    ConfigurationSaving = { Enabled = false },
    KeySystem = true,
    KeySettings = {
@@ -17,17 +17,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- PESTAÑA INICIO
-local MainTab = Window:CreateTab("Inicio 🏠", 4483362458)
-
-MainTab:CreateButton({
-   Name = "Activar Velocidad",
-   Callback = function()
-      game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 50
-   end,
-})
-
--- PESTAÑA COMBATE (Aquí estará el Autoshoot)
+-- PESTAÑA COMBATE (Autoshoot)
 local CombatTab = Window:CreateTab("Combate ⚔️", 4483362458)
 local autoShootEnabled = false
 local vim = game:GetService("VirtualInputManager")
@@ -56,7 +46,7 @@ CombatTab:CreateToggle({
    end,
 })
 
--- PESTAÑA ESPÍA (Con limpieza al desactivar)
+-- PESTAÑA ESPÍA (Con borrado automático)
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 local espEnabled = false
 
@@ -78,6 +68,7 @@ SpyTab:CreateToggle({
                         highlight.Name = "EspHighlight"
                         highlight.Parent = char
                         highlight.FillColor = Color3.fromRGB(255, 0, 0)
+                        highlight.FillTransparency = 0.5
                      end
                      highlight.Enabled = true
                   end
@@ -86,7 +77,7 @@ SpyTab:CreateToggle({
             end
          end)
       else
-         -- ESTO ELIMINA EL ESPÍA AL DESACTIVAR
+         -- ESTO ELIMINA EL EFECTO AL DESACTIVAR
          for _, player in pairs(game.Players:GetPlayers()) do
             if player.Character and player.Character:FindFirstChild("EspHighlight") then
                player.Character.EspHighlight:Destroy()
