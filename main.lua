@@ -81,15 +81,11 @@ local CombatTab = Window:CreateTab("Combate ⚔️", 4483362458)
 
 local autoShootEnabled = false
 local vim = game:GetService("VirtualInputManager")
--- Variable para controlar el Autoshoot
-local autoShootEnabled = false
-local vim = game:GetService("VirtualInputManager")
 
--- Función de Autoshoot optimizada para móvil
-Tab:CreateToggle({
+CombatTab:CreateToggle({
    Name = "Autoshoot Móvil 🔫",
    CurrentValue = false,
-   Flag = "AutoShootToggle",
+   Flag = "AutoShoot",
    Callback = function(Value)
       autoShootEnabled = Value
       
@@ -99,25 +95,23 @@ Tab:CreateToggle({
             local mouse = player:GetMouse()
             local target = mouse.Target
             
-            -- Detecta si apuntas a un enemigo
+            -- Detecta si la mira está sobre un enemigo (Humanoid)
             if target and target.Parent:FindFirstChild("Humanoid") then
-               -- Simula un toque en la pantalla (mejor para iPhone/Android)
+               -- Simulación de toque para iPhone 14
                vim:SendMouseButtonEvent(0, 0, 0, true, game, 1)
                task.wait(0.05)
                vim:SendMouseButtonEvent(0, 0, 0, false, game, 1)
             end
-            task.wait(0.1) -- Ajusta la velocidad aquí
+            task.wait(0.1) -- Velocidad de escaneo
          end
       end)
 
       if Value then
          Rayfield:Notify({
             Title = "ALEXX HUB VIP",
-            Content = "Autoshoot Móvil Activado",
+            Content = "Autoshoot activado en pestaña separada",
             Duration = 3,
          })
       end
    end,
 })
-
-
