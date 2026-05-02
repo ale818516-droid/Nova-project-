@@ -68,31 +68,45 @@ SpyTab:CreateToggle({
       end
    end,
 })
--- PESTAÑA EVENTO (ALEXX HUB VIP - ESCÁNER TOTAL)
+-- PESTAÑA EVENTO (RECOLECCIÓN TOTAL)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.AutoFarmEvent = false
 
 EventTab:CreateToggle({
-   Name = "Farm Remoto (Ultra)",
+   Name = "Farm Masivo Remoto",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoFarmEvent = Value
       if _G.AutoFarmEvent then
          spawn(function()
             while _G.AutoFarmEvent do
+               -- Escaneo profundo en todo el juego
                for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  -- BUSCADOR POR COMPONENTES (Más efectivo que el nombre)
-                  if _G.AutoFarmEvent and (obj:FindFirstChild("TouchInterest") or obj:IsA("ProximityPrompt")) then
-                     -- Filtro visual para asegurar que es del evento Cinco de Mayo
-                     if obj.Name:lower():find("skull") or obj.Name:lower():find("calavera") or obj.Parent.Name:lower():find("event") then
+                  if _G.AutoFarmEvent then
+                     -- Busca cualquier cosa que parezca del evento (Calavera, Skull, Event)
+                     if obj.Name:lower():find("skull") or obj.Name:lower():find("calavera") or obj.Name:lower():find("event") then
+                        
                         local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                         if root then
-                           -- Intento de recolección remota por contacto
+                           -- INTENTO 1: Si tiene un ProximityPrompt (Botón de presionar)
+                           local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+                           if prompt then
+                              fireproximityprompt(prompt)
+                           end
+                           
+                           -- INTENTO 2: Si es una parte física (Simular toque)
                            if obj:IsA("BasePart") then
                               firetouchinterest(root, obj, 0)
                               firetouchinterest(root, obj, 1)
-                           elseif obj:IsA("ProximityPrompt") then
-                              fireproximityprompt(obj)
+                           end
+                           
+                           -- INTENTO 3: Si es un modelo, buscar su parte principal
+                           if obj:IsA("Model") then
+                              local p = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
+                              if p then
+                                 firetouchinterest(root, p, 0)
+                                 firetouchinterest(root, p, 1)
+                              end
                            end
                         end
                      end
