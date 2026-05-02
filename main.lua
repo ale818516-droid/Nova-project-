@@ -73,43 +73,43 @@ Tab:CreateToggle({
          end
       end
    end,
-})
--- Variable para controlar el estado del Autoshoot
+}}
+-- Pestaña del ESP (con la lógica de apagado automático que corregimos)
+local Tab = Window:CreateTab("Combate", 4483362458)
+-- Variable para controlar el Autoshoot
 local autoShootEnabled = false
-
--- Función de Autoshoot
+local vim = game:GetService("VirtualInputManager")
+-- Función de Autoshoot optimizada para móvil
 Tab:CreateToggle({
-   Name = "Autoshoot (Disparo Automático) 🔫",
+   Name = "Autoshoot Móvil 🔫",
    CurrentValue = false,
    Flag = "AutoShootToggle",
    Callback = function(Value)
       autoShootEnabled = Value
       
-      -- Bucle principal del Autoshoot
       spawn(function()
          while autoShootEnabled do
             local player = game.Players.LocalPlayer
             local mouse = player:GetMouse()
             local target = mouse.Target
             
-            -- Verifica si el mouse está sobre un personaje enemigo
+            -- Detecta si apuntas a un enemigo
             if target and target.Parent:FindFirstChild("Humanoid") then
-               -- Simula el clic para disparar
-               mouse1click() 
+               -- Simula un toque en la pantalla (mejor para iPhone/Android)
+               vim:SendMouseButtonEvent(0, 0, 0, true, game, 1)
+               task.wait(0.05)
+               vim:SendMouseButtonEvent(0, 0, 0, false, game, 1)
             end
-            task.wait(0.1) -- Ajusta este tiempo para la velocidad de disparo
+            task.wait(0.1) -- Ajusta la velocidad aquí
          end
       end)
 
-      -- Notificación para tu marca ALEXX HUB VIP
       if Value then
          Rayfield:Notify({
             Title = "ALEXX HUB VIP",
-            Content = "Autoshoot Activado",
+            Content = "Autoshoot Móvil Activado",
             Duration = 3,
-            Image = 4483362458,
          })
       end
    end,
 })
-
