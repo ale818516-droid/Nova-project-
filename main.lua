@@ -68,7 +68,7 @@ SpyTab:CreateToggle({
       end
    end,
 })
--- PESTAÑA EVENTO (TELEPORT FARM - ESPECIAL CINCO DE MAYO)
+-- PESTAÑA EVENTO (ESCANEO POR Malla 3D)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.AutoFarmActive = false
 
@@ -80,21 +80,19 @@ EventTab:CreateToggle({
       if _G.AutoFarmActive then
          spawn(function()
             while _G.AutoFarmActive do
-               local recolectado = false
-               for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  -- Busca el modelo de la calavera o el nombre específico del evento
-                  if _G.AutoFarmActive and (obj.Name == "Calavera" or obj.Name == "Skull" or obj:FindFirstChild("TouchInterest")) then
+               local encontrado = false
+               for _, v in pairs(game.Workspace:GetDescendants()) do
+                  -- Detecta el objeto por su forma de calavera (MeshId) o proximidad
+                  if _G.AutoFarmActive and (v:IsA("MeshPart") and (v.MeshId:find("17215357832") or v.Name:lower():find("event"))) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                     if root and obj:IsA("BasePart") then
-                        -- Teletransporte instantáneo a la calavera
-                        root.CFrame = obj.CFrame
-                        recolectado = true
-                        task.wait(0.2) -- Tiempo para que el juego registre que la agarraste
+                     if root then
+                        encontrado = true
+                        root.CFrame = v.CFrame * CFrame.new(0, 2, 0) -- Te pone justo encima
+                        task.wait(0.3) -- Tiempo para recolectar
                      end
                   end
                end
-               -- Si no hay más en el mapa, espera un poco antes de volver a escanear
-               if not recolectado then task.wait(1) end
+               if not encontrado then task.wait(1) end
             end
          end)
       end
