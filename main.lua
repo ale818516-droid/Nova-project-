@@ -61,33 +61,35 @@ SpyTab:CreateToggle({
    end,
 })
 
--- PESTAÑA EVENTO (TWEEN FARM - MÁXIMA COMPATIBILIDAD)
+-- PESTAÑA EVENTO (FORZADO REMOTO)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
-local TweenService = game:GetService("TweenService")
-_G.FarmEvent = false
+_G.FarmActive = false
 
 EventTab:CreateToggle({
-   Name = "Auto-Farm (Deslizamiento)",
+   Name = "Forzar Recolección (Cinco de Mayo)",
    CurrentValue = false,
    Callback = function(Value)
-      _G.FarmEvent = Value
-      if _G.FarmEvent then
+      _G.FarmActive = Value
+      if _G.FarmActive then
          spawn(function()
-            while _G.FarmEvent do
+            while _G.FarmActive do
                for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  if _G.FarmEvent and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
+                  if _G.FarmActive and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                      if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
-                        -- Se desliza rápidamente al sombrero para que el juego lo registre
-                        local info = TweenInfo.new(0.3, Enum.EasingStyle.Linear)
-                        local tween = TweenService:Create(root, info, {CFrame = obj.CFrame})
-                        tween:Play()
-                        tween.Completed:Wait()
-                        task.wait(0.1) -- Tiempo mínimo de recolección
+                        -- Intento de recolección remota múltiple
+                        firetouchinterest(root, obj, 0)
+                        firetouchinterest(root, obj, 1)
+                        
+                        -- Fuerza el click si tiene un botón
+                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then
+                           fireproximityprompt(prompt)
+                        end
                      end
                   end
                end
-               task.wait(0.5)
+               task.wait(0.2)
             end
          end)
       end
