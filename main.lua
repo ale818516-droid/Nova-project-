@@ -17,7 +17,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- PESTAÑA INICIO
+-- PESTAÑA 1: INICIO
 local MainTab = Window:CreateTab("Inicio 🏠", 4483362458)
 MainTab:CreateToggle({
    Name = "Velocidad (32)",
@@ -28,28 +28,72 @@ MainTab:CreateToggle({
    end,
 })
 
--- PESTAÑA EVENTO (TELEPORT FARM FORZADO)
-local EventTab = Window:CreateTab("Evento 💀", 4483362458)
-_G.AutoFarmActive = false
+-- PESTAÑA 2: ESPÍA (ESP)
+local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
+_G.EspActive = false
 
-EventTab:CreateToggle({
-   Name = "Farm de Sombreros (Teleport)",
+SpyTab:CreateToggle({
+   Name = "Ver Jugadores",
    CurrentValue = false,
    Callback = function(Value)
-      _G.AutoFarmActive = Value
-      if _G.AutoFarmActive then
+      _G.EspActive = Value
+      if _G.EspActive then
          spawn(function()
-            while _G.AutoFarmActive do
-               for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  if _G.AutoFarmActive and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
-                     local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                     if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
-                        root.CFrame = obj.CFrame
-                        task.wait(0.2)
+            while _G.EspActive do
+               for _, player in pairs(game.Players:GetPlayers()) do
+                  if player ~= game.Players.LocalPlayer and player.Character then
+                     local highlight = player.Character:FindFirstChild("NovaESP")
+                     if not highlight then
+                        highlight = Instance.new("Highlight")
+                        highlight.Name = "NovaESP"
+                        highlight.Parent = player.Character
+                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
                      end
                   end
                end
-               task.wait(0.5)
+               task.wait(1)
+            end
+         end)
+      else
+         for _, player in pairs(game.Players:GetPlayers()) do
+            if player.Character and player.Character:FindFirstChild("NovaESP") then
+               player.Character.NovaESP:Destroy()
+            end
+         end
+      end
+   end,
+})
+
+-- PESTAÑA 3: EVENTO (FARM REMOTO SIN TELEPORT)
+local EventTab = Window:CreateTab("Evento 💀", 4483362458)
+_G.RemoteFarm = false
+
+EventTab:CreateToggle({
+   Name = "Farm Remoto Invisible",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.RemoteFarm = Value
+      if _G.RemoteFarm then
+         spawn(function()
+            while _G.RemoteFarm do
+               for _, obj in pairs(game.Workspace:GetDescendants()) do
+                  -- Busca sombreros, calaveras u objetos del evento
+                  if _G.RemoteFarm and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
+                     local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                     if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
+                        -- Simula el toque remoto sin mover al personaje
+                        firetouchinterest(root, obj, 0)
+                        firetouchinterest(root, obj, 1)
+                        
+                        -- Activa botones de recolección si existen
+                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then
+                           fireproximityprompt(prompt)
+                        end
+                     end
+                  end
+               end
+               task.wait(0.5) -- Tiempo de escaneo equilibrado
             end
          end)
       end
