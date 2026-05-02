@@ -7,17 +7,16 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = { Enabled = false },
    
    -- CONFIGURACIÓN DEL SISTEMA DE LLAVES
-   KeySystem = true, 
-   KeySettings = {
+      KeySettings = {
       Title = "Nova - Acceso Requerido",
       Subtitle = "Consigue tu llave para entrar",
-      Note = "Usa el enlace de abajo para generar tu clave",
-      FileName = "NovaKey", -- Guarda la key en el dispositivo (iPhone 14 / Android)
-      SaveKey = false,
-      GrabKeyFromSite = true 
-      Key = {"KeyNova_PRO", "Nova2026"} -- Estas son las claves que abren el script
+      Note = "La llave cambia cada 24 horas",
+      FileName = "NovaKey", 
+      SaveKey = false, -- Cambiado a false para que caduque
+      GrabKeyFromSite = true, -- Cambiado a true para leer de GitHub
+      Key = {"https://raw.githubusercontent.com/ale818516-droid/Nova-project-/main/key.txt"} -- El link de tu nuevo archivo
    }
-})
+
 
 -- El enlace de monetización que aparecerá en la ventana de carga
 Rayfield:Notify({
