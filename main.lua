@@ -61,37 +61,33 @@ SpyTab:CreateToggle({
    end,
 })
 
--- PESTAÑA EVENTO (RECOLECCIÓN REMOTA INVISIBLE)
+-- PESTAÑA EVENTO (TWEEN FARM - MÁXIMA COMPATIBILIDAD)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
-_G.RemoteFarm = false
+local TweenService = game:GetService("TweenService")
+_G.FarmEvent = false
 
 EventTab:CreateToggle({
-   Name = "Farm Remoto (Sin Teleport)",
+   Name = "Auto-Farm (Deslizamiento)",
    CurrentValue = false,
    Callback = function(Value)
-      _G.RemoteFarm = Value
-      if _G.RemoteFarm then
+      _G.FarmEvent = Value
+      if _G.FarmEvent then
          spawn(function()
-            while _G.RemoteFarm do
-               -- Escaneo de objetos del evento Cinco de Mayo
+            while _G.FarmEvent do
                for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  if _G.RemoteFarm and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
+                  if _G.FarmEvent and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                      if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
-                        
-                        -- MÉTODO 1: Simulación de contacto remoto
-                        firetouchinterest(root, obj, 0)
-                        firetouchinterest(root, obj, 1)
-                        
-                        -- MÉTODO 2: Activación de botones (ProximityPrompt)
-                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
-                        if prompt then
-                           fireproximityprompt(prompt)
-                        end
+                        -- Se desliza rápidamente al sombrero para que el juego lo registre
+                        local info = TweenInfo.new(0.3, Enum.EasingStyle.Linear)
+                        local tween = TweenService:Create(root, info, {CFrame = obj.CFrame})
+                        tween:Play()
+                        tween.Completed:Wait()
+                        task.wait(0.1) -- Tiempo mínimo de recolección
                      end
                   end
                end
-               task.wait(0.2) -- Velocidad optimizada para evitar lag
+               task.wait(0.5)
             end
          end)
       end
