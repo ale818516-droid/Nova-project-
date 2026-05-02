@@ -3,7 +3,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Proyecto Nova | Sistema de Keys",
    LoadingTitle = "Verificando Acceso...",
-   LoadingSubtitle = "by chucho-cmd",
+   
+LoadingSubtitle = "by chucho-cmd",
    ConfigurationSaving = { Enabled = false },
    
    -- CONFIGURACIÓN DEL SISTEMA DE LLAVES
