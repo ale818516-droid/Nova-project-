@@ -80,32 +80,43 @@ SpyTab:CreateToggle({
 -- ==========================================
 -- SECCIÓN 3: EVENTO (AUTO FARM SEPARADO)
 -- ==========================================
--- PESTAÑA EVENTO (Detección por Distancia y Nombre)
+-- PESTAÑA EVENTO (FUERZA BRUTA)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 local farmEnabled = false
 
 EventTab:CreateToggle({
-   Name = "Auto Farm MASIVO",
+   Name = "Auto Farm MASIVO V2",
    CurrentValue = false,
    Callback = function(Value)
       farmEnabled = Value
       if farmEnabled then
          spawn(function()
             while farmEnabled do
-               local recolectado = false
+               local found = false
                for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  -- Busca nombres comunes: Calavera, Skull, Event, Coin, o objetos con ProximityPrompt
-                  if farmEnabled and (obj.Name:find("Calavera") or obj.Name:find("Skull") or obj:FindFirstChild("TouchInterest")) and obj:IsA("BasePart") then
+                  -- Busca nombres de calavera o cualquier cosa con interacción (ProximityPrompt)
+                  if farmEnabled and (obj.Name:lower():find("skull") or obj.Name:lower():find("calavera")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                     if root then
-                        -- Teletransporte y recolección
-                        root.CFrame = obj.CFrame
-                        recolectado = true
-                        task.wait(0.1) 
+                     
+                     if root and (obj:IsA("BasePart") or obj:IsA("Model")) then
+                        found = true
+                        -- Si es un modelo, busca su parte principal o el centro
+                        local targetCFrame = obj:IsA("Model") and obj:GetModelCFrame() or obj.CFrame
+                        
+                        -- Teletransporte
+                        root.CFrame = targetCFrame
+                        
+                        -- Activa la recolección automática (ProximityPrompt)
+                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+                        if prompt then
+                           fireproximityprompt(prompt)
+                        end
+                        
+                        task.wait(0.2) -- Tiempo de recolección
                      end
                   end
                end
-               if not recolectado then task.wait(0.5) end
+               if not found then task.wait(1) end
             end
          end)
       end
