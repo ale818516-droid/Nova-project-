@@ -80,7 +80,7 @@ SpyTab:CreateToggle({
 -- ==========================================
 -- SECCIÓN 3: EVENTO (AUTO FARM SEPARADO)
 -- ==========================================
--- PESTAÑA EVENTO (MODO RÁPIDO)
+-- PESTAÑA EVENTO (Detección por Distancia y Nombre)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 local farmEnabled = false
 
@@ -94,20 +94,18 @@ EventTab:CreateToggle({
             while farmEnabled do
                local recolectado = false
                for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  if farmEnabled and (obj.Name == "Calavera" or obj.Name == "Skull") and obj:IsA("BasePart") then
+                  -- Busca nombres comunes: Calavera, Skull, Event, Coin, o objetos con ProximityPrompt
+                  if farmEnabled and (obj.Name:find("Calavera") or obj.Name:find("Skull") or obj:FindFirstChild("TouchInterest")) and obj:IsA("BasePart") then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                      if root then
-                        -- Teletransporte instantáneo
+                        -- Teletransporte y recolección
                         root.CFrame = obj.CFrame
                         recolectado = true
-                        task.wait(0.1) -- Tiempo mínimo para registro del juego
+                        task.wait(0.1) 
                      end
                   end
                end
-               -- Si no hay más objetos cerca, espera un poco para no saturar el iPhone
-               if not recolectado then
-                  task.wait(0.5)
-               end
+               if not recolectado then task.wait(0.5) end
             end
          end)
       end
