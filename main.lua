@@ -74,11 +74,17 @@ Tab:CreateToggle({
       end
    end,
 }}
--- Pestaña del Autoshoot (con la lógica de apagado automático que corregimos)
-local Tab = Window:CreateTab("Combate", 4483362458)
+-- ==========================================
+-- SECCIÓN DE COMBATE POR SEPARADO
+-- ==========================================
+local CombatTab = Window:CreateTab("Combate ⚔️", 4483362458)
+
+local autoShootEnabled = false
+local vim = game:GetService("VirtualInputManager")
 -- Variable para controlar el Autoshoot
 local autoShootEnabled = false
 local vim = game:GetService("VirtualInputManager")
+
 -- Función de Autoshoot optimizada para móvil
 Tab:CreateToggle({
    Name = "Autoshoot Móvil 🔫",
@@ -113,3 +119,5 @@ Tab:CreateToggle({
       end
    end,
 })
+
+
