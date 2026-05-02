@@ -68,31 +68,39 @@ SpyTab:CreateToggle({
       end
    end,
 })
--- PESTAÑA EVENTO (ESCANEO POR Malla 3D)
+-- PESTAÑA EVENTO (FORZADO DE SOMBREROS)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.AutoFarmActive = false
 
 EventTab:CreateToggle({
-   Name = "Farm de Calaveras (Activar)",
+   Name = "Farm de Sombreros (Forzado)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoFarmActive = Value
       if _G.AutoFarmActive then
          spawn(function()
             while _G.AutoFarmActive do
-               local encontrado = false
-               for _, v in pairs(game.Workspace:GetDescendants()) do
-                  -- Detecta el objeto por su forma de calavera (MeshId) o proximidad
-                  if _G.AutoFarmActive and (v:IsA("MeshPart") and (v.MeshId:find("17215357832") or v.Name:lower():find("event"))) then
+               for _, obj in pairs(game.Workspace:GetDescendants()) do
+                  -- Busca por nombre de sombrero o carpetas de evento
+                  if _G.AutoFarmActive and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("mayo")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                     if root then
-                        encontrado = true
-                        root.CFrame = v.CFrame * CFrame.new(0, 2, 0) -- Te pone justo encima
-                        task.wait(0.3) -- Tiempo para recolectar
+                     if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
+                        -- Teletransporte directo al sombrero
+                        root.CFrame = obj.CFrame
+                        
+                        -- Simulamos el click de recolección
+                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt")
+                        if prompt then
+                           fireproximityprompt(prompt)
+                        else
+                           firetouchinterest(root, obj, 0)
+                           firetouchinterest(root, obj, 1)
+                        end
+                        task.wait(0.1) -- Velocidad para iPhone 14
                      end
                   end
                end
-               if not encontrado then task.wait(1) end
+               task.wait(0.5)
             end
          end)
       end
