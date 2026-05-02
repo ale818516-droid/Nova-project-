@@ -61,33 +61,37 @@ SpyTab:CreateToggle({
    end,
 })
 
--- PESTAÑA: EVENTO (FARM INVISIBLE)
+-- PESTAÑA EVENTO (RECOLECCIÓN REMOTA INVISIBLE)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.RemoteFarm = false
 
 EventTab:CreateToggle({
-   Name = "Recolección Invisible",
+   Name = "Farm Remoto (Sin Teleport)",
    CurrentValue = false,
    Callback = function(Value)
       _G.RemoteFarm = Value
       if _G.RemoteFarm then
          spawn(function()
             while _G.RemoteFarm do
+               -- Escaneo de objetos del evento Cinco de Mayo
                for _, obj in pairs(game.Workspace:GetDescendants()) do
                   if _G.RemoteFarm and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                      if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
-                        -- Recolección por contacto simulado (Sin Teleport)
+                        
+                        -- MÉTODO 1: Simulación de contacto remoto
                         firetouchinterest(root, obj, 0)
                         firetouchinterest(root, obj, 1)
                         
-                        -- Recolección por botón automático
-                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt")
-                        if prompt then fireproximityprompt(prompt) end
+                        -- MÉTODO 2: Activación de botones (ProximityPrompt)
+                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+                        if prompt then
+                           fireproximityprompt(prompt)
+                        end
                      end
                   end
                end
-               task.wait(0.3)
+               task.wait(0.2) -- Velocidad optimizada para evitar lag
             end
          end)
       end
