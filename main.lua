@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Proyecto Nova",
    LoadingTitle = "ALEXX HUB VIP",
-   LoadingSubtitle = "Versión 2.0 - Control Total",
+   LoadingSubtitle = "Versión Anti-Expulsión",
    ConfigurationSaving = { Enabled = false },
    KeySystem = true,
    KeySettings = {
@@ -17,41 +17,31 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- PESTAÑA COMBATE (Autoshoot)
-local CombatTab = Window:CreateTab("Combate ⚔️", 4483362458)
-local autoShootEnabled = false
-local vim = game:GetService("VirtualInputManager")
+-- PESTAÑA INICIO (Velocidad con Toggle)
+local MainTab = Window:CreateTab("Inicio 🏠", 4483362458)
+local speedEnabled = false
 
-CombatTab:CreateToggle({
-   Name = "Autoshoot Móvil",
+MainTab:CreateToggle({
+   Name = "Velocidad Rápida (32)",
    CurrentValue = false,
-   Flag = "AutoShoot",
+   Flag = "SpeedToggle",
    Callback = function(Value)
-      autoShootEnabled = Value
-      if autoShootEnabled then
-         spawn(function()
-            while autoShootEnabled do
-               local player = game.Players.LocalPlayer
-               local mouse = player:GetMouse()
-               local target = mouse.Target
-               if target and target.Parent:FindFirstChild("Humanoid") then
-                  vim:SendMouseButtonEvent(0, 0, 0, true, game, 1)
-                  task.wait(0.05)
-                  vim:SendMouseButtonEvent(0, 0, 0, false, game, 1)
-               end
-               task.wait(0.1)
-            end
-         end)
+      speedEnabled = Value
+      local player = game.Players.LocalPlayer
+      if speedEnabled then
+         player.Character.Humanoid.WalkSpeed = 32
+      else
+         player.Character.Humanoid.WalkSpeed = 16 -- Velocidad normal de Roblox
       end
    end,
 })
 
--- PESTAÑA ESPÍA (Con borrado automático)
+-- PESTAÑA ESPÍA (Solo Oponentes)
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 local espEnabled = false
 
 SpyTab:CreateToggle({
-   Name = "Ver Jugadores (ESP)",
+   Name = "Ver Enemigos",
    CurrentValue = false,
    Flag = "ESP_Toggle",
    Callback = function(Value)
@@ -60,7 +50,8 @@ SpyTab:CreateToggle({
          spawn(function()
             while espEnabled do
                for _, player in pairs(game.Players:GetPlayers()) do
-                  if player ~= game.Players.LocalPlayer and player.Character then
+                  -- Filtro: Solo jugadores que NO sean tú y que NO estén en tu equipo
+                  if player ~= game.Players.LocalPlayer and player.Team ~= game.Players.LocalPlayer.Team and player.Character then
                      local char = player.Character
                      local highlight = char:FindFirstChild("EspHighlight")
                      if not highlight then
@@ -77,7 +68,7 @@ SpyTab:CreateToggle({
             end
          end)
       else
-         -- ESTO ELIMINA EL EFECTO AL DESACTIVAR
+         -- Limpieza total al desactivar
          for _, player in pairs(game.Players:GetPlayers()) do
             if player.Character and player.Character:FindFirstChild("EspHighlight") then
                player.Character.EspHighlight:Destroy()
