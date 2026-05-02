@@ -3,13 +3,13 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Proyecto Nova",
    LoadingTitle = "ALEXX HUB VIP",
-   LoadingSubtitle = "Edición Evento 2026",
+   LoadingSubtitle = "Versión Final 2026",
    ConfigurationSaving = { Enabled = false },
    KeySystem = true,
    KeySettings = {
-      Title = "Acceso Requerido",
-      Subtitle = "Sistema de Llave",
-      Note = "Key: Yisuhub2006-@",
+      Title = "Sistema de Seguridad",
+      Subtitle = "Ingresa la Llave",
+      Note = "Llave: Yisuhub2006-@",
       FileName = "NovaKey",
       SaveKey = false,
       GrabKeyFromSite = false,
@@ -17,10 +17,10 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- PESTAÑA 1: INICIO
+-- PESTAÑA: INICIO
 local MainTab = Window:CreateTab("Inicio 🏠", 4483362458)
 MainTab:CreateToggle({
-   Name = "Velocidad (32)",
+   Name = "Velocidad Pro (32)",
    CurrentValue = false,
    Callback = function(Value)
       local hum = (game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()):FindFirstChild("Humanoid")
@@ -28,12 +28,12 @@ MainTab:CreateToggle({
    end,
 })
 
--- PESTAÑA 2: ESPÍA (ESP)
+-- PESTAÑA: ESPÍA (ESP)
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 _G.EspActive = false
 
 SpyTab:CreateToggle({
-   Name = "Ver Jugadores",
+   Name = "Rastreo de Jugadores",
    CurrentValue = false,
    Callback = function(Value)
       _G.EspActive = Value
@@ -42,13 +42,10 @@ SpyTab:CreateToggle({
             while _G.EspActive do
                for _, player in pairs(game.Players:GetPlayers()) do
                   if player ~= game.Players.LocalPlayer and player.Character then
-                     local highlight = player.Character:FindFirstChild("NovaESP")
-                     if not highlight then
-                        highlight = Instance.new("Highlight")
-                        highlight.Name = "NovaESP"
-                        highlight.Parent = player.Character
-                        highlight.FillColor = Color3.fromRGB(255, 0, 0)
-                     end
+                     local highlight = player.Character:FindFirstChild("NovaESP") or Instance.new("Highlight")
+                     highlight.Name = "NovaESP"
+                     highlight.Parent = player.Character
+                     highlight.FillColor = Color3.fromRGB(255, 0, 0)
                   end
                end
                task.wait(1)
@@ -64,12 +61,12 @@ SpyTab:CreateToggle({
    end,
 })
 
--- PESTAÑA 3: EVENTO (FARM REMOTO SIN TELEPORT)
+-- PESTAÑA: EVENTO (FARM INVISIBLE)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.RemoteFarm = false
 
 EventTab:CreateToggle({
-   Name = "Farm Remoto Invisible",
+   Name = "Recolección Invisible",
    CurrentValue = false,
    Callback = function(Value)
       _G.RemoteFarm = Value
@@ -77,23 +74,20 @@ EventTab:CreateToggle({
          spawn(function()
             while _G.RemoteFarm do
                for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  -- Busca sombreros, calaveras u objetos del evento
                   if _G.RemoteFarm and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                      if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
-                        -- Simula el toque remoto sin mover al personaje
+                        -- Recolección por contacto simulado (Sin Teleport)
                         firetouchinterest(root, obj, 0)
                         firetouchinterest(root, obj, 1)
                         
-                        -- Activa botones de recolección si existen
+                        -- Recolección por botón automático
                         local prompt = obj:FindFirstChildOfClass("ProximityPrompt")
-                        if prompt then
-                           fireproximityprompt(prompt)
-                        end
+                        if prompt then fireproximityprompt(prompt) end
                      end
                   end
                end
-               task.wait(0.5) -- Tiempo de escaneo equilibrado
+               task.wait(0.3)
             end
          end)
       end
