@@ -26,7 +26,7 @@ MainTab:CreateButton({
    end,
 })
 
--- PESTAÑA DE COMBATE
+-- PESTAÑA DE COMBATE (Autoshoot)
 local CombatTab = Window:CreateTab("Combate ⚔️", 4483362458)
 local autoShootEnabled = false
 local vim = game:GetService("VirtualInputManager")
@@ -55,12 +55,12 @@ CombatTab:CreateToggle({
    end,
 })
 
--- PESTAÑA ESPÍA
+-- PESTAÑA ESPÍA (ESP)
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 local espEnabled = false
 
 SpyTab:CreateToggle({
-   Name = "Ver Jugadores (ESP)",
+   Name = "Ver Jugadores",
    CurrentValue = false,
    Flag = "ESP_Toggle",
    Callback = function(Value)
@@ -91,4 +91,4 @@ SpyTab:CreateToggle({
          end
       end
    end,
-})
+}}
