@@ -80,28 +80,34 @@ SpyTab:CreateToggle({
 -- ==========================================
 -- SECCIÓN 3: EVENTO (AUTO FARM SEPARADO)
 -- ==========================================
+-- PESTAÑA EVENTO (MODO RÁPIDO)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 local farmEnabled = false
 
 EventTab:CreateToggle({
-   Name = "Auto Farm Cinco de Mayo",
+   Name = "Auto Farm MASIVO",
    CurrentValue = false,
    Callback = function(Value)
       farmEnabled = Value
       if farmEnabled then
          spawn(function()
             while farmEnabled do
-               -- Busca las calaveras en todo el mapa
+               local recolectado = false
                for _, obj in pairs(game.Workspace:GetDescendants()) do
                   if farmEnabled and (obj.Name == "Calavera" or obj.Name == "Skull") and obj:IsA("BasePart") then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                      if root then
+                        -- Teletransporte instantáneo
                         root.CFrame = obj.CFrame
-                        task.wait(0.5) -- Tiempo para que el juego registre que la tocaste
+                        recolectado = true
+                        task.wait(0.1) -- Tiempo mínimo para registro del juego
                      end
                   end
                end
-               task.wait(1)
+               -- Si no hay más objetos cerca, espera un poco para no saturar el iPhone
+               if not recolectado then
+                  task.wait(0.5)
+               end
             end
          end)
       end
