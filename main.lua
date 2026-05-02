@@ -17,8 +17,6 @@ local Window = Rayfield:CreateWindow({
       Key = {"https://raw.githubusercontent.com/ale818516-droid/Nova-project-/main/key.txt"}
    }
 })
-
-
 -- El enlace de monetización que aparecerá en la ventana de carga
 Rayfield:Notify({
    Title = "Consigue tu Key",
