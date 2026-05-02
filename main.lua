@@ -68,45 +68,33 @@ SpyTab:CreateToggle({
       end
    end,
 })
--- PESTAÑA EVENTO (FORZADO TOTAL)
+-- PESTAÑA EVENTO (TELEPORT FARM - ESPECIAL CINCO DE MAYO)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
-_G.AutoFarmEvent = false
+_G.AutoFarmActive = false
 
 EventTab:CreateToggle({
-   Name = "Farm Forzado (Pruébame)",
+   Name = "Farm de Calaveras (Activar)",
    CurrentValue = false,
    Callback = function(Value)
-      _G.AutoFarmEvent = Value
-      if _G.AutoFarmEvent then
+      _G.AutoFarmActive = Value
+      if _G.AutoFarmActive then
          spawn(function()
-            while _G.AutoFarmEvent do
-               -- Escaneamos TODO el juego, no solo el Workspace visible
-               for _, obj in pairs(game:GetDescendants()) do
-                  if _G.AutoFarmEvent and (obj.Name:lower():find("skull") or obj.Name:lower():find("calavera")) then
+            while _G.AutoFarmActive do
+               local recolectado = false
+               for _, obj in pairs(game.Workspace:GetDescendants()) do
+                  -- Busca el modelo de la calavera o el nombre específico del evento
+                  if _G.AutoFarmActive and (obj.Name == "Calavera" or obj.Name == "Skull" or obj:FindFirstChild("TouchInterest")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                     
-                     if root then
-                        -- MÉTODO A: ProximityPrompt (Botones de interactuar)
-                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
-                        if prompt then
-                           fireproximityprompt(prompt)
-                        end
-                        
-                        -- MÉTODO B: TouchInterest (Objetos de tocar)
-                        if obj:IsA("BasePart") then
-                           firetouchinterest(root, obj, 0)
-                           firetouchinterest(root, obj, 1)
-                        elseif obj:IsA("Model") then
-                           local p = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
-                           if p then
-                              firetouchinterest(root, p, 0)
-                              firetouchinterest(root, p, 1)
-                           end
-                        end
+                     if root and obj:IsA("BasePart") then
+                        -- Teletransporte instantáneo a la calavera
+                        root.CFrame = obj.CFrame
+                        recolectado = true
+                        task.wait(0.2) -- Tiempo para que el juego registre que la agarraste
                      end
                   end
                end
-               task.wait(0.1) -- Velocidad máxima para tu video
+               -- Si no hay más en el mapa, espera un poco antes de volver a escanear
+               if not recolectado then task.wait(1) end
             end
          end)
       end
