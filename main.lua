@@ -74,3 +74,42 @@ Tab:CreateToggle({
       end
    end,
 })
+-- Variable para controlar el estado del Autoshoot
+local autoShootEnabled = false
+
+-- Función de Autoshoot
+Tab:CreateToggle({
+   Name = "Autoshoot (Disparo Automático) 🔫",
+   CurrentValue = false,
+   Flag = "AutoShootToggle",
+   Callback = function(Value)
+      autoShootEnabled = Value
+      
+      -- Bucle principal del Autoshoot
+      spawn(function()
+         while autoShootEnabled do
+            local player = game.Players.LocalPlayer
+            local mouse = player:GetMouse()
+            local target = mouse.Target
+            
+            -- Verifica si el mouse está sobre un personaje enemigo
+            if target and target.Parent:FindFirstChild("Humanoid") then
+               -- Simula el clic para disparar
+               mouse1click() 
+            end
+            task.wait(0.1) -- Ajusta este tiempo para la velocidad de disparo
+         end
+      end)
+
+      -- Notificación para tu marca ALEXX HUB VIP
+      if Value then
+         Rayfield:Notify({
+            Title = "ALEXX HUB VIP",
+            Content = "Autoshoot Activado",
+            Duration = 3,
+            Image = 4483362458,
+         })
+      end
+   end,
+})
+
