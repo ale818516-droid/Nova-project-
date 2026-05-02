@@ -7,6 +7,7 @@ local Window = Rayfield:CreateWindow({
    ConfigurationSaving = { Enabled = false },
    
    -- CONFIGURACIÓN DEL SISTEMA DE LLAVES
+      KeySystem = true,
       KeySettings = {
       Title = "Nova - Acceso Requerido",
       Subtitle = "Consigue tu llave para entrar",
