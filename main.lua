@@ -3,13 +3,13 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 local Window = Rayfield:CreateWindow({
    Name = "Proyecto Nova",
    LoadingTitle = "ALEXX HUB VIP",
-   LoadingSubtitle = "Versión Final 2026",
+   LoadingSubtitle = "Edición Mobile 2026",
    ConfigurationSaving = { Enabled = false },
    KeySystem = true,
    KeySettings = {
-      Title = "Sistema de Seguridad",
-      Subtitle = "Ingresa la Llave",
-      Note = "Llave: Yisuhub2006-@",
+      Title = "Acceso Requerido",
+      Subtitle = "Sistema de Llave",
+      Note = "Key: Yisuhub2006-@",
       FileName = "NovaKey",
       SaveKey = false,
       GrabKeyFromSite = false,
@@ -17,18 +17,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- PESTAÑA: INICIO
-local MainTab = Window:CreateTab("Inicio 🏠", 4483362458)
-MainTab:CreateToggle({
-   Name = "Velocidad Pro (32)",
-   CurrentValue = false,
-   Callback = function(Value)
-      local hum = (game.Players.LocalPlayer.Character or game.Players.LocalPlayer.CharacterAdded:Wait()):FindFirstChild("Humanoid")
-      if hum then hum.WalkSpeed = Value and 32 or 16 end
-   end,
-})
-
--- PESTAÑA: ESPÍA (ESP)
+-- PESTAÑA: ESPÍA
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 _G.EspActive = false
 
@@ -61,35 +50,32 @@ SpyTab:CreateToggle({
    end,
 })
 
--- PESTAÑA EVENTO (FORZADO REMOTO)
+-- PESTAÑA: EVENTO
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
-_G.FarmActive = false
+_G.RemoteFarm = false
 
 EventTab:CreateToggle({
-   Name = "Forzar Recolección (Cinco de Mayo)",
+   Name = "Farm Remoto (Sin Teleport)",
    CurrentValue = false,
    Callback = function(Value)
-      _G.FarmActive = Value
-      if _G.FarmActive then
+      _G.RemoteFarm = Value
+      if _G.RemoteFarm then
          spawn(function()
-            while _G.FarmActive do
+            while _G.RemoteFarm do
                for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  if _G.FarmActive and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
+                  if _G.RemoteFarm and (obj.Name:lower():find("hat") or obj.Name:lower():find("sombrero") or obj.Name:lower():find("skull")) then
                      local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
                      if root and (obj:IsA("BasePart") or obj:IsA("MeshPart")) then
-                        -- Intento de recolección remota múltiple
+                        -- Intento de recolección invisible
                         firetouchinterest(root, obj, 0)
                         firetouchinterest(root, obj, 1)
                         
-                        -- Fuerza el click si tiene un botón
                         local prompt = obj:FindFirstChildOfClass("ProximityPrompt")
-                        if prompt then
-                           fireproximityprompt(prompt)
-                        end
+                        if prompt then fireproximityprompt(prompt) end
                      end
                   end
                end
-               task.wait(0.2)
+               task.wait(0.3)
             end
          end)
       end
