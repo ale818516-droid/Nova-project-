@@ -74,7 +74,7 @@ Tab:CreateToggle({
       end
    end,
 }}
--- Pestaña del ESP (con la lógica de apagado automático que corregimos)
+-- Pestaña del Autoshoot (con la lógica de apagado automático que corregimos)
 local Tab = Window:CreateTab("Combate", 4483362458)
 -- Variable para controlar el Autoshoot
 local autoShootEnabled = false
