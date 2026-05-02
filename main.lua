@@ -68,51 +68,45 @@ SpyTab:CreateToggle({
       end
    end,
 })
--- PESTAÑA EVENTO (RECOLECCIÓN TOTAL)
+-- PESTAÑA EVENTO (FORZADO TOTAL)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.AutoFarmEvent = false
 
 EventTab:CreateToggle({
-   Name = "Farm Masivo Remoto",
+   Name = "Farm Forzado (Pruébame)",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoFarmEvent = Value
       if _G.AutoFarmEvent then
          spawn(function()
             while _G.AutoFarmEvent do
-               -- Escaneo profundo en todo el juego
-               for _, obj in pairs(game.Workspace:GetDescendants()) do
-                  if _G.AutoFarmEvent then
-                     -- Busca cualquier cosa que parezca del evento (Calavera, Skull, Event)
-                     if obj.Name:lower():find("skull") or obj.Name:lower():find("calavera") or obj.Name:lower():find("event") then
+               -- Escaneamos TODO el juego, no solo el Workspace visible
+               for _, obj in pairs(game:GetDescendants()) do
+                  if _G.AutoFarmEvent and (obj.Name:lower():find("skull") or obj.Name:lower():find("calavera")) then
+                     local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+                     
+                     if root then
+                        -- MÉTODO A: ProximityPrompt (Botones de interactuar)
+                        local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
+                        if prompt then
+                           fireproximityprompt(prompt)
+                        end
                         
-                        local root = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
-                        if root then
-                           -- INTENTO 1: Si tiene un ProximityPrompt (Botón de presionar)
-                           local prompt = obj:FindFirstChildOfClass("ProximityPrompt") or obj:FindFirstChildWhichIsA("ProximityPrompt", true)
-                           if prompt then
-                              fireproximityprompt(prompt)
-                           end
-                           
-                           -- INTENTO 2: Si es una parte física (Simular toque)
-                           if obj:IsA("BasePart") then
-                              firetouchinterest(root, obj, 0)
-                              firetouchinterest(root, obj, 1)
-                           end
-                           
-                           -- INTENTO 3: Si es un modelo, buscar su parte principal
-                           if obj:IsA("Model") then
-                              local p = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
-                              if p then
-                                 firetouchinterest(root, p, 0)
-                                 firetouchinterest(root, p, 1)
-                              end
+                        -- MÉTODO B: TouchInterest (Objetos de tocar)
+                        if obj:IsA("BasePart") then
+                           firetouchinterest(root, obj, 0)
+                           firetouchinterest(root, obj, 1)
+                        elseif obj:IsA("Model") then
+                           local p = obj.PrimaryPart or obj:FindFirstChildWhichIsA("BasePart", true)
+                           if p then
+                              firetouchinterest(root, p, 0)
+                              firetouchinterest(root, p, 1)
                            end
                         end
                      end
                   end
                end
-               task.wait(0.2) -- Velocidad rápida para tu iPhone 14
+               task.wait(0.1) -- Velocidad máxima para tu video
             end
          end)
       end
