@@ -1,28 +1,24 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
-   Name = "Proyecto Nova | Sistema de Keys",
-   LoadingTitle = "Verificando Acceso...",
-   
-LoadingSubtitle = "by chucho-cmd",
-   ConfigurationSaving = { Enabled = false },
-   
-   -- CONFIGURACIÓN DEL SISTEMA DE LLAVES
-         KeySystem = true,
+   Name = "Proyecto Nova",
+   LoadingTitle = "Cargando Script...",
+   LoadingSubtitle = "por ALEXX HUB VIP",
+   ConfigurationSaving = {
+      Enabled = false,
+      FileName = "NovaProject"
+   },
+   KeySystem = true,
    KeySettings = {
-      Title = "Nova - Acceso Requerido",
-      FileName = "NovaKey_V1", 
-      SaveKey = false, 
+      Title = "Acceso Requerido",
+      Subtitle = "Sistema de Llave",
+      Note = "Consigue la key en el enlace de Linkvertise",
+      FileName = "NovaKey",
+      SaveKey = false,
       GrabKeyFromSite = true,
       Key = {"https://raw.githubusercontent.com/ale818516-droid/Nova-project-/main/key.txt"}
    }
--- El enlace de monetización que aparecerá en la ventana de carga
-Rayfield:Notify({
-   Title = "Consigue tu Key",
-   Content = "Enlace: linkvertise.com/tu-link-aqui",
-   Duration = 10
 })
-
 -- Pestaña del ESP (con la lógica de apagado automático que corregimos)
 local Tab = Window:CreateTab("Visuales", 4483362458)
 
