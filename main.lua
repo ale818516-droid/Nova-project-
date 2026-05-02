@@ -8,15 +8,14 @@ LoadingSubtitle = "by chucho-cmd",
    ConfigurationSaving = { Enabled = false },
    
    -- CONFIGURACIÓN DEL SISTEMA DE LLAVES
-      KeySystem = true,
-      KeySettings = {
+         KeySystem = true,
+   KeySettings = {
       Title = "Nova - Acceso Requerido",
-      Subtitle = "Consigue tu llave para entrar",
-      Note = "La llave cambia cada 24 horas",
-      FileName = "NovaProject_V2",
-      SaveKey = false, -- Cambiado a false para que caduque
-      GrabKeyFromSite = true, -- Cambiado a true para leer de GitHub
-      Key = {"[https://raw.githubusercontent.com/ale818516-droid/Nova-project-/main/key.txt](https://raw.githubusercontent.com/ale818516-droid/Nova-project-/main/key.txt)"}
+      FileName = "NovaKey_V1", 
+      SaveKey = false, 
+      GrabKeyFromSite = true,
+      Key = {"https://raw.githubusercontent.com/ale818516-droid/Nova-project-/main/key.txt"}
+   }
 -- El enlace de monetización que aparecerá en la ventana de carga
 Rayfield:Notify({
    Title = "Consigue tu Key",
