@@ -1,20 +1,20 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Versión: 2026 - Corrección de Hitbox Off + Noclip + Anti-Kill
+    Version: 2026 - TOTAL RESTORE (ALL FUNCTIONS)
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 local Window = Rayfield:CreateWindow({
    Name = "ALEXX HUB VIP",
-   LoadingTitle = "Proyecto Nova",
-   LoadingSubtitle = "Seguridad 2026",
+   LoadingTitle = "Project Nova",
+   LoadingSubtitle = "Security 2026",
    ConfigurationSaving = { Enabled = false },
    KeySystem = true, 
    KeySettings = {
-      Title = "🔑 SISTEMA DE ACCESO",
-      Subtitle = "Contraseña Requerida",
-      Note = "Consigue el acceso en el canal oficial", 
+      Title = "🔑 ACCESS SYSTEM",
+      Subtitle = "Key Required",
+      Note = "Get the key from the official channel", 
       FileName = "NovaKey_Final_2026", 
       SaveKey = true, 
       GrabKeyFromSite = false, 
@@ -22,20 +22,29 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- 1. PESTAÑA: ESPÍA 👁️
-local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
+-- SERVICES
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TeleportService = game:GetService("TeleportService")
+local Lighting = game:GetService("Lighting")
+local localPlayer = Players.LocalPlayer
+local camera = workspace.CurrentCamera
+
+-- 1. TAB: ESP 👁️
+local SpyTab = Window:CreateTab("ESP 👁️", 4483362458)
 _G.EspActive = false
 
 SpyTab:CreateToggle({
-   Name = "Activar Marcado Rojo",
+   Name = "Enable Red Highlights",
    CurrentValue = false,
    Callback = function(Value)
       _G.EspActive = Value
       if _G.EspActive then
          task.spawn(function()
             while _G.EspActive do
-               for _, p in pairs(game:GetService("Players"):GetPlayers()) do
-                  if p ~= game.Players.LocalPlayer and p.Character then
+               for _, p in pairs(Players:GetPlayers()) do
+                  if p ~= localPlayer and p.Character then
                      if not p.Character:FindFirstChild("NovaESP") then
                         local h = Instance.new("Highlight", p.Character)
                         h.Name = "NovaESP"
@@ -47,7 +56,7 @@ SpyTab:CreateToggle({
             end
          end)
       else
-         for _, p in pairs(game:GetService("Players"):GetPlayers()) do
+         for _, p in pairs(Players:GetPlayers()) do
             if p.Character and p.Character:FindFirstChild("NovaESP") then
                p.Character.NovaESP:Destroy()
             end
@@ -56,12 +65,30 @@ SpyTab:CreateToggle({
    end,
 })
 
--- 2. PESTAÑA: EVENTO 💀
-local EventTab = Window:CreateTab("Evento 💀", 4483362458)
-_G.AutoFarm = false
+-- 2. TAB: AUTOMATION 🤖
+local AutoTab = Window:CreateTab("Automation 🤖", 4483362458)
 
-EventTab:CreateToggle({
-   Name = "Auto-Farm Seguro",
+_G.AntiAFK = false
+AutoTab:CreateToggle({
+   Name = "Anti-AFK (Stay Connected)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AntiAFK = Value
+      if _G.AntiAFK then
+         localPlayer.Idled:Connect(function()
+            if _G.AntiAFK then
+               game:GetService("VirtualUser"):Button2Down(Vector2.new(0,0), camera.CFrame)
+               task.wait(1)
+               game:GetService("VirtualUser"):Button2Up(Vector2.new(0,0), camera.CFrame)
+            end
+         end)
+      end
+   end,
+})
+
+_G.AutoFarm = false
+AutoTab:CreateToggle({
+   Name = "Safe Auto-Farm",
    CurrentValue = false,
    Callback = function(Value)
       _G.AutoFarm = Value
@@ -69,7 +96,7 @@ EventTab:CreateToggle({
          task.spawn(function()
             while _G.AutoFarm do
                pcall(function()
-                  local root = game.Players.LocalPlayer.Character.HumanoidRootPart
+                  local root = localPlayer.Character.HumanoidRootPart
                   for _, obj in pairs(game.Workspace:GetDescendants()) do
                      if _G.AutoFarm and (obj.Name:lower():find("sombrero") or obj.Name:lower():find("hat")) then
                         if obj:IsA("BasePart") then
@@ -88,19 +115,63 @@ EventTab:CreateToggle({
    end,
 })
 
--- 3. PESTAÑA: MEJORAS ⚡
-local SpeedTab = Window:CreateTab("Mejoras ⚡", 4483362458)
+AutoTab:CreateButton({
+   Name = "🔄 Auto-Rejoin Server",
+   Callback = function()
+      TeleportService:Teleport(game.PlaceId, localPlayer)
+   end,
+})
 
--- NOCLIP
+-- 3. TAB: UTILITIES 🛠️
+local UtilityTab = Window:CreateTab("Utilities 🛠️", 4483362458)
+
+UtilityTab:CreateButton({
+   Name = "🚀 Server Hopper",
+   Callback = function()
+      local Http = game:GetService("HttpService")
+      local TPS = game:GetService("TeleportService")
+      local Api = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+      local _srvs = Http:JSONDecode(game:HttpGet(Api))
+      for _, s in pairs(_srvs.data) do
+         if s.playing < s.maxPlayers and s.id ~= game.JobId then
+            TPS:TeleportToPlaceInstance(game.PlaceId, s.id, localPlayer)
+            break
+         end
+      end
+   end,
+})
+
+_G.MobileTP = false
+UtilityTab:CreateToggle({
+   Name = "📍 Tap to Teleport",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.MobileTP = Value
+      UserInputService.InputBegan:Connect(function(input)
+         if _G.MobileTP and input.UserInputType == Enum.UserInputType.Touch then
+            local touchPos = input.Position
+            local unitRay = camera:ScreenPointToRay(touchPos.X, touchPos.Y)
+            local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000)
+            if result and localPlayer.Character then
+               localPlayer.Character:MoveTo(result.Position + Vector3.new(0, 3, 0))
+            end
+         end
+      end)
+   end,
+})
+
+-- 4. TAB: ENHANCEMENTS ⚡
+local SpeedTab = Window:CreateTab("Enhancements ⚡", 4483362458)
+
 _G.Noclip = false
 SpeedTab:CreateToggle({
-   Name = "🧱 Noclip (Atravesar Paredes)",
+   Name = "🧱 Noclip",
    CurrentValue = false,
    Callback = function(Value)
       _G.Noclip = Value
-      game:GetService("RunService").Stepped:Connect(function()
-         if _G.Noclip and game.Players.LocalPlayer.Character then
-            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+      RunService.Stepped:Connect(function()
+         if _G.Noclip and localPlayer.Character then
+            for _, v in pairs(localPlayer.Character:GetDescendants()) do
                if v:IsA("BasePart") then v.CanCollide = false end
             end
          end
@@ -108,78 +179,151 @@ SpeedTab:CreateToggle({
    end,
 })
 
--- ANTI-KILL
-_G.AntiKill = false
-SpeedTab:CreateToggle({
-   Name = "🛡️ Anti-Kill (Protección)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.AntiKill = Value
-      if _G.AntiKill then
-         task.spawn(function()
-            while _G.AntiKill do
-               pcall(function()
-                  local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
-                  if hum and hum.Health < 20 and hum.Health > 0 then
-                     hum.Health = 100
-                  end
-               end)
-               task.wait(0.1)
-            end
-         end)
-      end
-   end,
-})
-
--- HITBOX (CORREGIDA LA DESACTIVACIÓN)
 _G.HitboxActive = false
 SpeedTab:CreateToggle({
-   Name = "🎯 Hitbox (Cabeza Gigante)",
+   Name = "🎯 Expand Hitbox + Ghost",
    CurrentValue = false,
    Callback = function(Value)
       _G.HitboxActive = Value
-      if _G.HitboxActive then
-         task.spawn(function()
-            while _G.HitboxActive do
-               for _, p in pairs(game:GetService("Players"):GetPlayers()) do
-                  if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                     p.Character.Head.Size = Vector3.new(20, 20, 20)
-                     p.Character.Head.Transparency = 0.5
+      task.spawn(function()
+         while _G.HitboxActive do
+            -- OCULTAR MI PERSONAJE (GHOST)
+            if localPlayer.Character then
+               for _, v in pairs(localPlayer.Character:GetDescendants()) do
+                  if v:IsA("BasePart") or v:IsA("Decal") then
+                     v.Transparency = 1
+                     if v:IsA("BasePart") then v.CastShadow = false end
+                  elseif v:IsA("Humanoid") then
+                     v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
                   end
                end
-               task.wait(1)
             end
-         end)
-      else
-         -- ESTA PARTE AHORA RESTABLECE EL TAMAÑO AL APAGAR EL TOGGLE
-         for _, p in pairs(game:GetService("Players"):GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("Head") then
-               p.Character.Head.Size = Vector3.new(1.2, 1.2, 1.2)
-               p.Character.Head.Transparency = 0
+
+            -- EXPANDIR ENEMIGOS
+            for _, p in pairs(Players:GetPlayers()) do
+               if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                  p.Character.Head.Size = Vector3.new(20, 20, 20)
+                  p.Character.Head.Transparency = 0.5
+                  p.Character.Head.CanCollide = false
+               end
+            end
+            task.wait(0.5)
+         end
+         
+         -- RESET AL DESACTIVAR
+         if not _G.HitboxActive then
+            if localPlayer.Character then
+               for _, v in pairs(localPlayer.Character:GetDescendants()) do
+                  if v:IsA("BasePart") or v:IsA("Decal") then
+                     v.Transparency = 0
+                     if v:IsA("BasePart") then v.CastShadow = true end
+                  elseif v:IsA("Humanoid") then
+                     v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+                  end
+               end
+            end
+            for _, p in pairs(Players:GetPlayers()) do
+               if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                  p.Character.Head.Size = Vector3.new(1.15, 1.15, 1.15)
+                  p.Character.Head.Transparency = 0
+                  p.Character.Head.CanCollide = true
+               end
             end
          end
-      end
+      end)
    end,
 })
 
--- VELOCIDAD
 SpeedTab:CreateSlider({
-   Name = "Velocidad de Caminado",
+   Name = "WalkSpeed",
    Range = {16, 250},
    Increment = 1,
    CurrentValue = 16,
    Callback = function(Value)
-      if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
+      if localPlayer.Character:FindFirstChild("Humanoid") then
+         localPlayer.Character.Humanoid.WalkSpeed = Value
       end
    end,
 })
 
 SpeedTab:CreateButton({
-   Name = "🔄 RESTABLECER VELOCIDAD",
+   Name = "🚀 FPS Booster",
    Callback = function()
-      if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
-         game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
+      for _, v in pairs(game:GetDescendants()) do
+         if v:IsA("BasePart") and not v:IsDescendantOf(localPlayer.Character) then
+            v.Material = Enum.Material.SmoothPlastic
+            v.Reflectance = 0
+         end
       end
+      Lighting.GlobalShadows = false
+      Rayfield:Notify({Title = "ALEXX HUB", Content = "Lag reducido!", Duration = 2})
+   end,
+})
+
+-- 5. TAB: COMBAT ⚔️
+local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
+
+_G.Aimbot = false
+CombatTab:CreateToggle({
+   Name = "🎯 Hard Lock",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.Aimbot = Value
+      task.spawn(function()
+         while _G.Aimbot do
+            local closest = nil
+            local shortestDistance = math.huge
+            for _, p in pairs(Players:GetPlayers()) do
+               if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                  local pos, onScreen = camera:WorldToViewportPoint(p.Character.Head.Position)
+                  if onScreen then
+                     local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)).Magnitude
+                     if distance < shortestDistance then
+                        shortestDistance = distance
+                        closest = p
+                     end
+                  end
+               end
+            end
+            if closest then camera.CFrame = CFrame.new(camera.CFrame.Position, closest.Character.Head.Position) end
+            task.wait()
+         end
+      end)
+   end,
+})
+
+CombatTab:CreateButton({
+   Name = "👤 TP Behind Nearest Player",
+   Callback = function()
+      local closest = nil
+      local dist = math.huge
+      for _, p in pairs(Players:GetPlayers()) do
+         if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+            local d = (localPlayer.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude
+            if d < dist then dist = d; closest = p end
+         end
+      end
+      if closest then
+         local enemyHRP = closest.Character.HumanoidRootPart
+         localPlayer.Character:SetPrimaryPartCFrame(enemyHRP.CFrame * CFrame.new(0, 0, 3))
+         Rayfield:Notify({Title = "ALEXX HUB VIP", Content = "TP behind " .. closest.Name, Duration = 2})
+      end
+   end,
+})
+
+-- 6. TAB: WORLD 🌍
+local WorldTab = Window:CreateTab("World 🌍", 4483362458)
+
+WorldTab:CreateButton({
+   Name = "🌌 Galaxy Skybox",
+   Callback = function()
+      local sky = Instance.new("Sky", Lighting)
+      sky.SkyboxBk = "rbxassetid://159454299"
+      sky.SkyboxDn = "rbxassetid://159454296"
+      sky.SkyboxFt = "rbxassetid://159454293"
+      sky.SkyboxLf = "rbxassetid://159454286"
+      sky.SkyboxRt = "rbxassetid://159454288"
+      sky.SkyboxUp = "rbxassetid://159454290"
+      Lighting.ClockTime = 0
    end,
 })
