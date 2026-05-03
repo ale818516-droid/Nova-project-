@@ -17,31 +17,25 @@ local Window = Rayfield:CreateWindow({
    LoadingSubtitle = "Monetización Dinámica 2026",
    ConfigurationSaving = { Enabled = false },
    KeySystem = true,
-   KeySettings = {
+      KeySettings = {
       Title = "🔑 Acceso Requerido",
-      Subtitle = "La Key cambia en cada sesión",
-      Note = "Copia el link, pásalo por tu navegador y genera tu Key",
-      FileName = "NovaKeyConfig",
+      Subtitle = "Consigue la Key para entrar",
+      Note = "Haz clic abajo para copiar el link", -- Cambia este texto
+      FileName = "NovaKeyConfig_V2", -- Cambia el nombre del archivo para forzar el reset
       SaveKey = false, 
-      GrabKeyFromSite = false,
-      Key = {claveGenerada}, -- La clave ahora es el código al azar
+      GrabKeyFromSite = false, 
+      Key = {"Yisuhub2006-@"}, 
       Actions = {
             [1] = {
                 Text = "Copiame el enlace para la Key",
                 OnPress = function()
-                    -- PEGA AQUÍ TU LINK DE LINKVERTISE
-                    setclipboard("https://link-de-tu-publicidad.com") 
-                    Rayfield:Notify({
-                        Title = "Enlace Copiado",
-                        Content = "Pégalo en Safari o Chrome para sacar tu Key",
-                        Duration = 5,
-                        Image = 4483362458,
-                    })
+                    setclipboard("TU_LINK_DE_LINKVERTISE_AQUÍ") 
+                    print("Enlace copiado")
                 end,
             }
         }
    }
-})
+
 
 
 -- PESTAÑA 1: ESPÍA (RESTAURADO)
