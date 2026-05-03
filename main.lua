@@ -1,6 +1,6 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Version: 2026 - ULTIMATE HITBOX TRACKING
+    Version: 2026 - RESTORED ORIGINAL + MOD DETECTOR
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -36,7 +36,7 @@ local SpyTab = Window:CreateTab("ESP 👁️", 4483362458)
 _G.EspActive = false
 
 SpyTab:CreateToggle({
-   Name = "Enable Red Highlights",
+   Name = "Smart ESP (Opponents Only)",
    CurrentValue = false,
    Callback = function(Value)
       _G.EspActive = Value
@@ -49,6 +49,7 @@ SpyTab:CreateToggle({
                         local h = Instance.new("Highlight", p.Character)
                         h.Name = "NovaESP"
                         h.FillColor = Color3.fromRGB(255, 0, 0)
+                        h.OutlineColor = Color3.fromRGB(255, 255, 255)
                      end
                   end
                end
@@ -115,52 +116,7 @@ AutoTab:CreateToggle({
    end,
 })
 
-AutoTab:CreateButton({
-   Name = "🔄 Auto-Rejoin Server",
-   Callback = function()
-      TeleportService:Teleport(game.PlaceId, localPlayer)
-   end,
-})
-
--- 3. TAB: UTILITIES 🛠️
-local UtilityTab = Window:CreateTab("Utilities 🛠️", 4483362458)
-
-UtilityTab:CreateButton({
-   Name = "🚀 Server Hopper",
-   Callback = function()
-      local Http = game:GetService("HttpService")
-      local TPS = game:GetService("TeleportService")
-      local Api = "https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
-      local _srvs = Http:JSONDecode(game:HttpGet(Api))
-      for _, s in pairs(_srvs.data) do
-         if s.playing < s.maxPlayers and s.id ~= game.JobId then
-            TPS:TeleportToPlaceInstance(game.PlaceId, s.id, localPlayer)
-            break
-         end
-      end
-   end,
-})
-
-_G.MobileTP = false
-UtilityTab:CreateToggle({
-   Name = "📍 Tap to Teleport",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.MobileTP = Value
-      UserInputService.InputBegan:Connect(function(input)
-         if _G.MobileTP and input.UserInputType == Enum.UserInputType.Touch then
-            local touchPos = input.Position
-            local unitRay = camera:ScreenPointToRay(touchPos.X, touchPos.Y)
-            local result = workspace:Raycast(unitRay.Origin, unitRay.Direction * 1000)
-            if result and localPlayer.Character then
-               localPlayer.Character:MoveTo(result.Position + Vector3.new(0, 3, 0))
-            end
-         end
-      end)
-   end,
-})
-
--- 4. TAB: ENHANCEMENTS ⚡
+-- 3. TAB: ENHANCEMENTS ⚡
 local SpeedTab = Window:CreateTab("Enhancements ⚡", 4483362458)
 
 _G.Noclip = false
@@ -180,35 +136,34 @@ SpeedTab:CreateToggle({
 })
 
 _G.HitboxActive = false
+RunService.RenderStepped:Connect(function()
+    if _G.HitboxActive then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                local head = p.Character.Head
+                head.Size = Vector3.new(7, 7, 7)
+                head.Color = Color3.fromRGB(0, 0, 255) 
+                head.Transparency = 0.6
+                head.CanCollide = false
+                head.Massless = true
+            end
+        end
+    end
+end)
+
 SpeedTab:CreateToggle({
-   Name = "🎯 Dynamic Hitbox",
+   Name = "🎯 Hitbox Azul (Sync)",
    CurrentValue = false,
    Callback = function(Value)
       _G.HitboxActive = Value
-      task.spawn(function()
-         while _G.HitboxActive do
-            for _, p in pairs(Players:GetPlayers()) do
-               if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                  -- Seguimiento agresivo: se asegura de que la cabeza siempre sea grande y siga al cuerpo
-                  local head = p.Character.Head
-                  head.Size = Vector3.new(20, 20, 20)
-                  head.Transparency = 0.5
-                  head.CanCollide = false
-                  head.Massless = true -- Evita que el peso de la hitbox detenga al jugador
-               end
-            end
-            task.wait() -- Actualización inmediata en cada ciclo
-         end
-         
-         -- RESET AL DESACTIVAR
+      if not Value then
          for _, p in pairs(Players:GetPlayers()) do
-            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+            if p.Character and p.Character:FindFirstChild("Head") then
                p.Character.Head.Size = Vector3.new(1.15, 1.15, 1.15)
                p.Character.Head.Transparency = 0
-               p.Character.Head.CanCollide = true
             end
          end
-      end)
+      end
    end,
 })
 
@@ -225,21 +180,68 @@ SpeedTab:CreateSlider({
 })
 
 SpeedTab:CreateButton({
-   Name = "🚀 FPS Booster",
+   Name = "🚶 Velocidad Normal",
+   Callback = function()
+      if localPlayer.Character:FindFirstChild("Humanoid") then
+         localPlayer.Character.Humanoid.WalkSpeed = 16
+      end
+   end,
+})
+
+SpeedTab:CreateButton({
+   Name = "🚀 Ultra FPS Booster",
    Callback = function()
       for _, v in pairs(game:GetDescendants()) do
          if v:IsA("BasePart") and not v:IsDescendantOf(localPlayer.Character) then
             v.Material = Enum.Material.SmoothPlastic
             v.Reflectance = 0
+         elseif v:IsA("Decal") or v:IsA("Texture") then
+            v:Destroy()
+         elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+            v.Enabled = false
          end
       end
       Lighting.GlobalShadows = false
-      Rayfield:Notify({Title = "ALEXX HUB", Content = "Lag reducido!", Duration = 2})
+      Lighting.FogEnd = 9e9
+      settings().Rendering.QualityLevel = 1
+      Rayfield:Notify({Title = "ALEXX HUB", Content = "Lag eliminado!", Duration = 3})
    end,
 })
 
--- 5. TAB: COMBAT ⚔️
+-- 4. TAB: COMBAT ⚔️
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
+
+_G.SilentAim = false
+CombatTab:CreateToggle({
+   Name = "🎯 Precisión Mejorada",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.SilentAim = Value
+      task.spawn(function()
+         while _G.SilentAim do
+            local closest = nil
+            local shortestDistance = math.huge
+            for _, p in pairs(Players:GetPlayers()) do
+               if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                  local pos, onScreen = camera:WorldToViewportPoint(p.Character.Head.Position)
+                  if onScreen then
+                     local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)).Magnitude
+                     if distance < shortestDistance then
+                        shortestDistance = distance
+                        closest = p
+                     end
+                  end
+               end
+            end
+            if closest then 
+               local targetPos = CFrame.new(camera.CFrame.Position, closest.Character.Head.Position)
+               camera.CFrame = camera.CFrame:Lerp(targetPos, 0.1)
+            end
+            task.wait()
+         end
+      end)
+   end,
+})
 
 _G.Aimbot = false
 CombatTab:CreateToggle({
@@ -270,38 +272,59 @@ CombatTab:CreateToggle({
    end,
 })
 
-CombatTab:CreateButton({
-   Name = "👤 TP Behind Nearest Player",
+-- 5. TAB: CONTROL ⚙️
+local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
+
+local PlayerLabel = ControlTab:CreateLabel("Jugadores: " .. #Players:GetPlayers())
+Players.PlayerAdded:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
+Players.PlayerRemoving:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
+
+-- FUNCIONES DE SEGURIDAD (MOD DETECTOR)
+local function checkModerator(player)
+    if player:GetRankInGroup(game.CreatorId) >= 200 then 
+        Rayfield:Notify({
+            Title = "⚠️ MOD DETECTADO",
+            Content = "El moderador " .. player.Name .. " ha entrado al servidor.",
+            Duration = 10,
+        })
+    end
+end
+
+Players.PlayerAdded:Connect(checkModerator)
+
+ControlTab:CreateButton({
+   Name = "🔍 Escanear Moderadores",
    Callback = function()
-      local closest = nil
-      local dist = math.huge
+      local found = false
       for _, p in pairs(Players:GetPlayers()) do
-         if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-            local d = (localPlayer.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude
-            if d < dist then dist = d; closest = p end
+         if p:GetRankInGroup(game.CreatorId) >= 200 then
+            Rayfield:Notify({Title = "ALERTA", Content = p.Name .. " es moderador.", Duration = 5})
+            found = true
          end
       end
-      if closest then
-         local enemyHRP = closest.Character.HumanoidRootPart
-         localPlayer.Character:SetPrimaryPartCFrame(enemyHRP.CFrame * CFrame.new(0, 0, 3))
-         Rayfield:Notify({Title = "ALEXX HUB VIP", Content = "TP detrás de " .. closest.Name, Duration = 2})
+      if not found then
+         Rayfield:Notify({Title = "Seguro", Content = "No hay moderadores activos.", Duration = 3})
       end
    end,
 })
 
--- 6. TAB: WORLD 🌍
-local WorldTab = Window:CreateTab("World 🌍", 4483362458)
+ControlTab:CreateSlider({
+   Name = "JumpPower (Salto)",
+   Range = {50, 500},
+   Increment = 1,
+   CurrentValue = 50,
+   Callback = function(Value)
+      if localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
+         local hum = localPlayer.Character.Humanoid
+         hum.UseJumpPower = true 
+         hum.JumpPower = Value
+      end
+   end,
+})
 
-WorldTab:CreateButton({
-   Name = "🌌 Galaxy Skybox",
+ControlTab:CreateButton({
+   Name = "🔄 Re-join Server",
    Callback = function()
-      local sky = Instance.new("Sky", Lighting)
-      sky.SkyboxBk = "rbxassetid://159454299"
-      sky.SkyboxDn = "rbxassetid://159454296"
-      sky.SkyboxFt = "rbxassetid://159454293"
-      sky.SkyboxLf = "rbxassetid://159454286"
-      sky.SkyboxRt = "rbxassetid://159454288"
-      sky.SkyboxUp = "rbxassetid://159454290"
-      Lighting.ClockTime = 0
+      TeleportService:Teleport(game.PlaceId, localPlayer)
    end,
 })
