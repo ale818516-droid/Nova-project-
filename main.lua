@@ -1,6 +1,6 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Estructura Original - Privacidad de Credenciales
+    Corrección Final: Espía con Validación de Usuario Real
 ]]
 
 -- Limpieza de interfaces previas
@@ -21,15 +21,15 @@ local Window = Rayfield:CreateWindow({
    KeySettings = {
       Title = "🔑 SISTEMA DE ACCESO",
       Subtitle = "Contraseña Requerida",
-      Note = "Consigue el acceso en el canal oficial", -- Se quitó la contraseña de aquí
+      Note = "Consigue el acceso en el canal oficial", 
       FileName = "NovaKey_Final_2026", 
       SaveKey = true, 
       GrabKeyFromSite = false, 
-      Key = {"Yisuhub2006-@"} -- La clave sigue siendo la misma, pero ya no se muestra en el texto
+      Key = {"Yisuhub2006-@"} 
    }
 })
 
--- 1. PESTAÑA: ESPÍA 👁️
+-- 1. PESTAÑA: ESPÍA 👁️ (SOLO JUGADORES REALES)
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 _G.EspActive = false
 
@@ -41,12 +41,18 @@ SpyTab:CreateToggle({
       if _G.EspActive then
          task.spawn(function()
             while _G.EspActive do
-               for _, p in pairs(game.Players:GetPlayers()) do
-                  if p ~= game.Players.LocalPlayer and p.Character then
-                     if not p.Character:FindFirstChild("NovaESP") then
-                        local h = Instance.new("Highlight", p.Character)
+               for _, p in pairs(game:GetService("Players"):GetPlayers()) do
+                  -- VALIDACIÓN: Solo marca si es un jugador real, no es el usuario local y tiene personaje
+                  if p ~= game.Players.LocalPlayer and p.Character and p:IsA("Player") then
+                     local char = p.Character
+                     if not char:FindFirstChild("NovaESP") then
+                        -- El resaltado solo se aplica al modelo que el servidor reconoce como jugador
+                        local h = Instance.new("Highlight")
                         h.Name = "NovaESP"
                         h.FillColor = Color3.fromRGB(255, 0, 0)
+                        h.FillTransparency = 0.4
+                        h.OutlineColor = Color3.fromRGB(255, 255, 255)
+                        h.Parent = char
                      end
                   end
                end
@@ -54,7 +60,8 @@ SpyTab:CreateToggle({
             end
          end)
       else
-         for _, p in pairs(game.Players:GetPlayers()) do
+         -- Limpiar marcas
+         for _, p in pairs(game:GetService("Players"):GetPlayers()) do
             if p.Character and p.Character:FindFirstChild("NovaESP") then
                p.Character.NovaESP:Destroy()
             end
@@ -98,31 +105,37 @@ EventTab:CreateToggle({
 -- 3. PESTAÑA: MEJORAS ⚡
 local SpeedTab = Window:CreateTab("Mejoras ⚡", 4483362458)
 
--- HITBOX (BOTÓN MANUAL)
-SpeedTab:CreateButton({
-   Name = "🎯 ACTIVAR HITBOX (CABEZA)",
-   Callback = function()
-      for _, p in pairs(game.Players:GetPlayers()) do
-         if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-            pcall(function()
-               local head = p.Character.Head
-               head.Size = Vector3.new(20, 20, 20)
-               head.Transparency = 0.5
-               head.CanCollide = false
-               head.Massless = true
-            end)
+_G.HitboxActive = false
+SpeedTab:CreateToggle({
+   Name = "🎯 Hitbox (Cabeza Gigante)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.HitboxActive = Value
+      if _G.HitboxActive then
+         for _, p in pairs(game:GetService("Players"):GetPlayers()) do
+            if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+               pcall(function()
+                  local head = p.Character.Head
+                  head.Size = Vector3.new(20, 20, 20)
+                  head.Transparency = 0.5
+                  head.CanCollide = false
+                  head.Massless = true
+               end)
+            end
+         end
+      else
+         for _, p in pairs(game:GetService("Players"):GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("Head") then
+               pcall(function()
+                  p.Character.Head.Size = Vector3.new(1.2, 1.2, 1.2)
+                  p.Character.Head.Transparency = 0
+               end)
+            end
          end
       end
-      Rayfield:Notify({
-         Title = "Hitbox Aplicada",
-         Content = "Efecto activo para esta partida.",
-         Duration = 3,
-         Image = 4483362458,
-      })
    end,
 })
 
--- CONTROL DE VELOCIDAD
 SpeedTab:CreateSlider({
    Name = "Velocidad de Caminado",
    Range = {16, 250},
@@ -135,7 +148,6 @@ SpeedTab:CreateSlider({
    end,
 })
 
--- BOTÓN DE RESET
 SpeedTab:CreateButton({
    Name = "🔄 RESTABLECER VELOCIDAD",
    Callback = function()
