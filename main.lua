@@ -1,6 +1,6 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Version: 2026 - TOTAL RESTORE (ALL FUNCTIONS)
+    Version: 2026 - ULTIMATE HITBOX TRACKING
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -181,53 +181,31 @@ SpeedTab:CreateToggle({
 
 _G.HitboxActive = false
 SpeedTab:CreateToggle({
-   Name = "🎯 Expand Hitbox + Ghost",
+   Name = "🎯 Dynamic Hitbox",
    CurrentValue = false,
    Callback = function(Value)
       _G.HitboxActive = Value
       task.spawn(function()
          while _G.HitboxActive do
-            -- OCULTAR MI PERSONAJE (GHOST)
-            if localPlayer.Character then
-               for _, v in pairs(localPlayer.Character:GetDescendants()) do
-                  if v:IsA("BasePart") or v:IsA("Decal") then
-                     v.Transparency = 1
-                     if v:IsA("BasePart") then v.CastShadow = false end
-                  elseif v:IsA("Humanoid") then
-                     v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-                  end
-               end
-            end
-
-            -- EXPANDIR ENEMIGOS
             for _, p in pairs(Players:GetPlayers()) do
                if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                  p.Character.Head.Size = Vector3.new(20, 20, 20)
-                  p.Character.Head.Transparency = 0.5
-                  p.Character.Head.CanCollide = false
+                  -- Seguimiento agresivo: se asegura de que la cabeza siempre sea grande y siga al cuerpo
+                  local head = p.Character.Head
+                  head.Size = Vector3.new(20, 20, 20)
+                  head.Transparency = 0.5
+                  head.CanCollide = false
+                  head.Massless = true -- Evita que el peso de la hitbox detenga al jugador
                end
             end
-            task.wait(0.5)
+            task.wait() -- Actualización inmediata en cada ciclo
          end
          
          -- RESET AL DESACTIVAR
-         if not _G.HitboxActive then
-            if localPlayer.Character then
-               for _, v in pairs(localPlayer.Character:GetDescendants()) do
-                  if v:IsA("BasePart") or v:IsA("Decal") then
-                     v.Transparency = 0
-                     if v:IsA("BasePart") then v.CastShadow = true end
-                  elseif v:IsA("Humanoid") then
-                     v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
-                  end
-               end
-            end
-            for _, p in pairs(Players:GetPlayers()) do
-               if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                  p.Character.Head.Size = Vector3.new(1.15, 1.15, 1.15)
-                  p.Character.Head.Transparency = 0
-                  p.Character.Head.CanCollide = true
-               end
+         for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+               p.Character.Head.Size = Vector3.new(1.15, 1.15, 1.15)
+               p.Character.Head.Transparency = 0
+               p.Character.Head.CanCollide = true
             end
          end
       end)
@@ -306,7 +284,7 @@ CombatTab:CreateButton({
       if closest then
          local enemyHRP = closest.Character.HumanoidRootPart
          localPlayer.Character:SetPrimaryPartCFrame(enemyHRP.CFrame * CFrame.new(0, 0, 3))
-         Rayfield:Notify({Title = "ALEXX HUB VIP", Content = "TP behind " .. closest.Name, Duration = 2})
+         Rayfield:Notify({Title = "ALEXX HUB VIP", Content = "TP detrás de " .. closest.Name, Duration = 2})
       end
    end,
 })
