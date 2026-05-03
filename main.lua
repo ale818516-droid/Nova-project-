@@ -1,9 +1,20 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Version: 2026 - RESTORED ORIGINAL + MOD DETECTOR
+    Version: 2026 - RESTORED ORIGINAL + MOD DETECTOR + ADVANCED + SOUNDS
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- SISTEMA DE SONIDO AL INICIAR
+local function PlayStartSound()
+    local sound = Instance.new("Sound")
+    sound.SoundId = "rbxassetid://4590662766" -- Sonido de carga exitosa
+    sound.Volume = 1
+    sound.Parent = game:GetService("SoundService")
+    sound:Play()
+    task.wait(2)
+    sound:Destroy()
+end
 
 local Window = Rayfield:CreateWindow({
    Name = "ALEXX HUB VIP",
@@ -21,6 +32,9 @@ local Window = Rayfield:CreateWindow({
       Key = {"Yisuhub2006-@"} 
    }
 })
+
+-- Ejecutar sonido al cargar
+task.spawn(PlayStartSound)
 
 -- SERVICES
 local RunService = game:GetService("RunService")
@@ -167,6 +181,27 @@ SpeedTab:CreateToggle({
    end,
 })
 
+_G.FlyEnabled = false
+SpeedTab:CreateToggle({
+   Name = "🕊️ Fly Mode",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.FlyEnabled = Value
+      local bPart = localPlayer.Character:WaitForChild("HumanoidRootPart")
+      local flySpeed = 50
+      
+      task.spawn(function()
+         while _G.FlyEnabled do
+            local velocity = Vector3.new(0,0.1,0)
+            if UserInputService:IsKeyDown(Enum.KeyCode.W) then velocity = velocity + (camera.CFrame.LookVector * flySpeed) end
+            if UserInputService:IsKeyDown(Enum.KeyCode.S) then velocity = velocity - (camera.CFrame.LookVector * flySpeed) end
+            bPart.Velocity = velocity
+            task.wait()
+         end
+      end)
+   end,
+})
+
 SpeedTab:CreateSlider({
    Name = "WalkSpeed",
    Range = {16, 250},
@@ -180,7 +215,7 @@ SpeedTab:CreateSlider({
 })
 
 SpeedTab:CreateButton({
-   Name = "🚶 Velocidad Normal",
+   Name = "🏃 Velocidad Normal",
    Callback = function()
       if localPlayer.Character:FindFirstChild("Humanoid") then
          localPlayer.Character.Humanoid.WalkSpeed = 16
@@ -211,16 +246,26 @@ SpeedTab:CreateButton({
 -- 4. TAB: COMBAT ⚔️
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
-_G.SilentAim = false
+_G.AimbotFOV = 150
+local FOVring = Drawing.new("Circle")
+FOVring.Visible = false
+FOVring.Thickness = 1.5
+FOVring.Radius = _G.AimbotFOV
+FOVring.Transparency = 1
+FOVring.Color = Color3.fromRGB(255, 255, 255)
+FOVring.Position = camera.ViewportSize / 2
+
 CombatTab:CreateToggle({
    Name = "🎯 Precisión Mejorada",
    CurrentValue = false,
    Callback = function(Value)
       _G.SilentAim = Value
+      FOVring.Visible = Value
       task.spawn(function()
          while _G.SilentAim do
+            FOVring.Position = camera.ViewportSize / 2
             local closest = nil
-            local shortestDistance = math.huge
+            local shortestDistance = _G.AimbotFOV
             for _, p in pairs(Players:GetPlayers()) do
                if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
                   local pos, onScreen = camera:WorldToViewportPoint(p.Character.Head.Position)
@@ -275,6 +320,22 @@ CombatTab:CreateToggle({
 -- 5. TAB: CONTROL ⚙️
 local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
 
+ControlTab:CreateToggle({
+   Name = "☀️ Full Bright",
+   CurrentValue = false,
+   Callback = function(Value)
+      if Value then
+         Lighting.Brightness = 2
+         Lighting.ClockTime = 14
+         Lighting.FogEnd = 100000
+         Lighting.GlobalShadows = false
+      else
+         Lighting.Brightness = 1
+         Lighting.GlobalShadows = true
+      end
+   end,
+})
+
 local PlayerLabel = ControlTab:CreateLabel("Jugadores: " .. #Players:GetPlayers())
 Players.PlayerAdded:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
 Players.PlayerRemoving:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
@@ -318,6 +379,18 @@ ControlTab:CreateSlider({
          local hum = localPlayer.Character.Humanoid
          hum.UseJumpPower = true 
          hum.JumpPower = Value
+      end
+   end,
+})
+
+-- BOTÓN PARA RESTABLECER SALTO
+ControlTab:CreateButton({
+   Name = "🦿 Salto Normal",
+   Callback = function()
+      if localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
+         local hum = localPlayer.Character.Humanoid
+         hum.JumpPower = 50
+         Rayfield:Notify({Title = "ALEXX HUB", Content = "Salto restablecido!", Duration = 2})
       end
    end,
 })
