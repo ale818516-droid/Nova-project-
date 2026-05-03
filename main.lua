@@ -1,14 +1,7 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Corrección Final: Espía con Validación de Usuario Real
+    Versión: 2026 - Corrección de Hitbox Off + Noclip + Anti-Kill
 ]]
-
--- Limpieza de interfaces previas
-for _, v in pairs(game.CoreGui:GetChildren()) do
-    if v:IsA("ScreenGui") and (v.Name:find("Rayfield") or v:FindFirstChild("Main")) then
-        v:Destroy()
-    end
-end
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
@@ -29,7 +22,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- 1. PESTAÑA: ESPÍA 👁️ (SOLO JUGADORES REALES)
+-- 1. PESTAÑA: ESPÍA 👁️
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 _G.EspActive = false
 
@@ -42,17 +35,11 @@ SpyTab:CreateToggle({
          task.spawn(function()
             while _G.EspActive do
                for _, p in pairs(game:GetService("Players"):GetPlayers()) do
-                  -- VALIDACIÓN: Solo marca si es un jugador real, no es el usuario local y tiene personaje
-                  if p ~= game.Players.LocalPlayer and p.Character and p:IsA("Player") then
-                     local char = p.Character
-                     if not char:FindFirstChild("NovaESP") then
-                        -- El resaltado solo se aplica al modelo que el servidor reconoce como jugador
-                        local h = Instance.new("Highlight")
+                  if p ~= game.Players.LocalPlayer and p.Character then
+                     if not p.Character:FindFirstChild("NovaESP") then
+                        local h = Instance.new("Highlight", p.Character)
                         h.Name = "NovaESP"
                         h.FillColor = Color3.fromRGB(255, 0, 0)
-                        h.FillTransparency = 0.4
-                        h.OutlineColor = Color3.fromRGB(255, 255, 255)
-                        h.Parent = char
                      end
                   end
                end
@@ -60,7 +47,6 @@ SpyTab:CreateToggle({
             end
          end)
       else
-         -- Limpiar marcas
          for _, p in pairs(game:GetService("Players"):GetPlayers()) do
             if p.Character and p.Character:FindFirstChild("NovaESP") then
                p.Character.NovaESP:Destroy()
@@ -105,6 +91,47 @@ EventTab:CreateToggle({
 -- 3. PESTAÑA: MEJORAS ⚡
 local SpeedTab = Window:CreateTab("Mejoras ⚡", 4483362458)
 
+-- NOCLIP
+_G.Noclip = false
+SpeedTab:CreateToggle({
+   Name = "🧱 Noclip (Atravesar Paredes)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.Noclip = Value
+      game:GetService("RunService").Stepped:Connect(function()
+         if _G.Noclip and game.Players.LocalPlayer.Character then
+            for _, v in pairs(game.Players.LocalPlayer.Character:GetDescendants()) do
+               if v:IsA("BasePart") then v.CanCollide = false end
+            end
+         end
+      end)
+   end,
+})
+
+-- ANTI-KILL
+_G.AntiKill = false
+SpeedTab:CreateToggle({
+   Name = "🛡️ Anti-Kill (Protección)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AntiKill = Value
+      if _G.AntiKill then
+         task.spawn(function()
+            while _G.AntiKill do
+               pcall(function()
+                  local hum = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+                  if hum and hum.Health < 20 and hum.Health > 0 then
+                     hum.Health = 100
+                  end
+               end)
+               task.wait(0.1)
+            end
+         end)
+      end
+   end,
+})
+
+-- HITBOX (CORREGIDA LA DESACTIVACIÓN)
 _G.HitboxActive = false
 SpeedTab:CreateToggle({
    Name = "🎯 Hitbox (Cabeza Gigante)",
@@ -112,37 +139,37 @@ SpeedTab:CreateToggle({
    Callback = function(Value)
       _G.HitboxActive = Value
       if _G.HitboxActive then
-         for _, p in pairs(game:GetService("Players"):GetPlayers()) do
-            if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
-               pcall(function()
-                  local head = p.Character.Head
-                  head.Size = Vector3.new(20, 20, 20)
-                  head.Transparency = 0.5
-                  head.CanCollide = false
-                  head.Massless = true
-               end)
+         task.spawn(function()
+            while _G.HitboxActive do
+               for _, p in pairs(game:GetService("Players"):GetPlayers()) do
+                  if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                     p.Character.Head.Size = Vector3.new(20, 20, 20)
+                     p.Character.Head.Transparency = 0.5
+                  end
+               end
+               task.wait(1)
             end
-         end
+         end)
       else
+         -- ESTA PARTE AHORA RESTABLECE EL TAMAÑO AL APAGAR EL TOGGLE
          for _, p in pairs(game:GetService("Players"):GetPlayers()) do
             if p.Character and p.Character:FindFirstChild("Head") then
-               pcall(function()
-                  p.Character.Head.Size = Vector3.new(1.2, 1.2, 1.2)
-                  p.Character.Head.Transparency = 0
-               end)
+               p.Character.Head.Size = Vector3.new(1.2, 1.2, 1.2)
+               p.Character.Head.Transparency = 0
             end
          end
       end
    end,
 })
 
+-- VELOCIDAD
 SpeedTab:CreateSlider({
    Name = "Velocidad de Caminado",
    Range = {16, 250},
    Increment = 1,
    CurrentValue = 16,
    Callback = function(Value)
-      if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+      if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
          game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = Value
       end
    end,
@@ -151,7 +178,7 @@ SpeedTab:CreateSlider({
 SpeedTab:CreateButton({
    Name = "🔄 RESTABLECER VELOCIDAD",
    Callback = function()
-      if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+      if game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
          game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
       end
    end,
