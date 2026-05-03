@@ -1,9 +1,10 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Versión Final: Espía, Auto-Farm Fix & Reset
+    Versión: Kill All, Espía & Anti-Death
+    Desarrollado para: ALEXX
 ]]
 
--- Limpia cualquier menú previo (como el gris que te salía)
+-- Limpia menús previos
 for _, v in pairs(game.CoreGui:GetChildren()) do
     if v:IsA("ScreenGui") and (v.Name:find("Rayfield") or v:FindFirstChild("Main")) then
         v:Destroy()
@@ -29,7 +30,7 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- 1. PESTAÑA: ESPÍA 👁️ (RECUPERADA)
+-- PESTAÑA: ESPÍA 👁️
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
 _G.EspActive = false
 
@@ -64,7 +65,7 @@ SpyTab:CreateToggle({
    end,
 })
 
--- 2. PESTAÑA: EVENTO 💀 (FIX PARA NO MORIR)
+-- PESTAÑA: EVENTO 💀 (FIX ANTIDEATH)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.AutoFarm = false
 
@@ -85,7 +86,6 @@ EventTab:CreateToggle({
                      for _, obj in pairs(game.Workspace:GetDescendants()) do
                         if _G.AutoFarm and (obj.Name:lower():find("sombrero") or obj.Name:lower():find("hat")) then
                            if obj:IsA("BasePart") then
-                              -- FIX: Nos movemos ARRIBA del sombrero para que el juego no te mate
                               root.CFrame = obj.CFrame * CFrame.new(0, 2, 0)
                               task.wait(0.5)
                               firetouchinterest(root, obj, 0)
@@ -102,8 +102,28 @@ EventTab:CreateToggle({
    end,
 })
 
--- 3. PESTAÑA: MEJORAS ⚡ (CON BOTÓN RESET)
+-- PESTAÑA: MEJORAS ⚡
 local SpeedTab = Window:CreateTab("Mejoras ⚡", 4483362458)
+
+-- FUNCIÓN: KILL ALL (NUEVA)
+SpeedTab:CreateButton({
+   Name = "💀 MATAR A TODOS (KILL ALL)",
+   Callback = function()
+      for _, p in pairs(game.Players:GetPlayers()) do
+         if p ~= game.Players.LocalPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
+            pcall(function()
+               p.Character.Humanoid.Health = 0
+            end)
+         end
+      end
+      Rayfield:Notify({
+         Title = "Kill All Ejecutado",
+         Content = "Se ha intentado eliminar a todos los jugadores.",
+         Duration = 3,
+         Image = 4483362458,
+      })
+   end,
+})
 
 SpeedTab:CreateSlider({
    Name = "Velocidad de Caminado",
