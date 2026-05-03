@@ -1,10 +1,9 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Versión: Anti-Muerte & Reset Speed
-    Fix: Evento Cinco de Mayo
+    Versión Final: Espía, Auto-Farm Fix & Reset
 ]]
 
--- Limpieza de interfaces previas para que no salga el menú gris
+-- Limpia cualquier menú previo (como el gris que te salía)
 for _, v in pairs(game.CoreGui:GetChildren()) do
     if v:IsA("ScreenGui") and (v.Name:find("Rayfield") or v:FindFirstChild("Main")) then
         v:Destroy()
@@ -23,14 +22,49 @@ local Window = Rayfield:CreateWindow({
       Title = "🔑 SISTEMA DE ACCESO",
       Subtitle = "Contraseña Requerida",
       Note = "Consigue la clave en el canal de ALEXX", 
-      FileName = "NovaKey_Privada_2026", 
+      FileName = "NovaKey_Final_2026", 
       SaveKey = true, 
       GrabKeyFromSite = false, 
       Key = {"Yisuhub2006-@"} 
    }
 })
 
--- PESTAÑA: EVENTO 💀 (FIX PARA NO MORIR)
+-- 1. PESTAÑA: ESPÍA 👁️ (RECUPERADA)
+local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
+_G.EspActive = false
+
+SpyTab:CreateToggle({
+   Name = "Activar Marcado Rojo",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.EspActive = Value
+      if _G.EspActive then
+         task.spawn(function()
+            while _G.EspActive do
+               for _, p in pairs(game.Players:GetPlayers()) do
+                  if p ~= game.Players.LocalPlayer and p.Character then
+                     if not p.Character:FindFirstChild("NovaESP") then
+                        local h = Instance.new("Highlight", p.Character)
+                        h.Name = "NovaESP"
+                        h.FillColor = Color3.fromRGB(255, 0, 0)
+                        h.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                     end
+                  end
+               end
+               task.wait(1)
+            end
+         end)
+      else
+         for _, p in pairs(game.Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("NovaESP") then
+               p.Character.NovaESP:Destroy()
+            end
+         end
+      end
+   end,
+})
+
+-- 2. PESTAÑA: EVENTO 💀 (FIX PARA NO MORIR)
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.AutoFarm = false
 
@@ -51,7 +85,7 @@ EventTab:CreateToggle({
                      for _, obj in pairs(game.Workspace:GetDescendants()) do
                         if _G.AutoFarm and (obj.Name:lower():find("sombrero") or obj.Name:lower():find("hat")) then
                            if obj:IsA("BasePart") then
-                              -- FIX: Nos movemos 2 unidades ARRIBA del sombrero para evitar morir
+                              -- FIX: Nos movemos ARRIBA del sombrero para que el juego no te mate
                               root.CFrame = obj.CFrame * CFrame.new(0, 2, 0)
                               task.wait(0.5)
                               firetouchinterest(root, obj, 0)
@@ -61,14 +95,14 @@ EventTab:CreateToggle({
                      end
                   end
                end)
-               task.wait(1.2) -- Pausa para que el servidor no te mate
+               task.wait(1.5)
             end
          end)
       end
    end,
 })
 
--- PESTAÑA: MEJORAS ⚡ (CON BOTÓN DE RESET)
+-- 3. PESTAÑA: MEJORAS ⚡ (CON BOTÓN RESET)
 local SpeedTab = Window:CreateTab("Mejoras ⚡", 4483362458)
 
 SpeedTab:CreateSlider({
@@ -89,8 +123,8 @@ SpeedTab:CreateButton({
       if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
          game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = 16
          Rayfield:Notify({
-            Title = "Velocidad Restablecida",
-            Content = "Tu velocidad ha vuelto a 16.",
+            Title = "Reseteado",
+            Content = "Velocidad a 16",
             Duration = 3,
             Image = 4483362458,
          })
