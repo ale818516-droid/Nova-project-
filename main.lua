@@ -1,21 +1,48 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+-- GENERADOR DE CLAVE AL AZAR
+local caracteres = "ABCDEFG123456"
+local claveGenerada = ""
+for i = 1, 6 do
+    local rand = math.random(1, #caracteres)
+    claveGenerada = claveGenerada .. string.sub(caracteres, rand, rand)
+end
+
+-- ESTO MUESTRA LA CLAVE EN TU CONSOLA (SOLO PARA TI)
+print("La clave de esta sesión es: " .. claveGenerada)
+
 local Window = Rayfield:CreateWindow({
    Name = "Proyecto Nova",
    LoadingTitle = "ALEXX HUB VIP",
-   LoadingSubtitle = "Seguridad & Mejoras 2026",
+   LoadingSubtitle = "Monetización Dinámica 2026",
    ConfigurationSaving = { Enabled = false },
-   KeySystem = true, -- Sistema de Key activado
+   KeySystem = true,
    KeySettings = {
-      Title = "Sistema de Seguridad",
-      Subtitle = "Ingresa la llave de acceso",
-      Note = "La Key es: Yisuhub2006-@",
-      FileName = "NovaKey",
-      SaveKey = true,
+      Title = "🔑 Acceso Requerido",
+      Subtitle = "La Key cambia en cada sesión",
+      Note = "Copia el link, pásalo por tu navegador y genera tu Key",
+      FileName = "NovaKeyConfig",
+      SaveKey = false, 
       GrabKeyFromSite = false,
-      Key = {"Yisuhub2006-@"}
+      Key = {claveGenerada}, -- La clave ahora es el código al azar
+      Actions = {
+            [1] = {
+                Text = "Copiame el enlace para la Key",
+                OnPress = function()
+                    -- PEGA AQUÍ TU LINK DE LINKVERTISE
+                    setclipboard("https://link-de-tu-publicidad.com") 
+                    Rayfield:Notify({
+                        Title = "Enlace Copiado",
+                        Content = "Pégalo en Safari o Chrome para sacar tu Key",
+                        Duration = 5,
+                        Image = 4483362458,
+                    })
+                end,
+            }
+        }
    }
 })
+
 
 -- PESTAÑA 1: ESPÍA (RESTAURADO)
 local SpyTab = Window:CreateTab("Espía 👁️", 4483362458)
