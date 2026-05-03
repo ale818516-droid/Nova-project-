@@ -1,42 +1,38 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
--- Generador de clave única
-local characters = "ABCDEFG12345"
-local sessionKey = ""
-for i = 1, 6 do
-    local r = math.random(1, #characters)
-    sessionKey = sessionKey .. string.sub(characters, r, r)
-end
-
-print("🔑 Clave Generada: " .. sessionKey)
-
 local Window = Rayfield:CreateWindow({
-   Name = "Proyecto Nova",
-   LoadingTitle = "ALEXX HUB VIP",
-   LoadingSubtitle = "Sistema Completo 2026",
+   Name = "ALEXX HUB VIP",
+   LoadingTitle = "Proyecto Nova",
+   LoadingSubtitle = "Creado por ALEXX",
    ConfigurationSaving = { Enabled = false },
-   KeySystem = true,
+   KeySystem = true, 
    KeySettings = {
-      Title = "Acceso Requerido",
-      Subtitle = "Consigue tu llave dinámica",
-      Note = "La clave cambia cada sesión. Copia el link abajo.",
-      FileName = "NovaKey_FinalV2", 
-      SaveKey = false, 
-      GrabKeyFromSite = false,
-      Key = {sessionKey}, 
+      Title = "🔑 Acceso Requerido",
+      Subtitle = "Consigue la Key para entrar",
+      Note = "Haz clic abajo para copiar el link de la Key",
+      FileName = "NovaKeyConfig_Final", 
+      SaveKey = true, 
+      GrabKeyFromSite = false, 
+      Key = {"Yisuhub2006-@"}, 
       Actions = {
             [1] = {
                 Text = "Copiame el enlace para la Key",
                 OnPress = function()
-                    -- PEGA AQUÍ TU ENLACE DE LINKVERTISE
-                    setclipboard("https://tu-link-de-linkvertise.com") 
+                    -- Este es un link directo a la clave para que no batalles ahora
+                    setclipboard("https://pastebin.com/raw/S3u8Vv90") 
+                    Rayfield:Notify({
+                        Title = "¡Link Copiado!",
+                        Content = "Pégalo en tu navegador para ver la clave.",
+                        Duration = 5,
+                        Image = 4483362458,
+                    })
                 end,
             }
         }
    }
 })
 
--- PESTAÑA 1: EVENTO (RESTAURADA)
+-- PESTAÑA 1: EVENTO
 local EventTab = Window:CreateTab("Evento 💀", 4483362458)
 _G.AutoFarm = false
 
@@ -68,7 +64,7 @@ EventTab:CreateToggle({
    end,
 })
 
--- PESTAÑA 2: MEJORAS (VELOCIDAD)
+-- PESTAÑA 2: MEJORAS
 local SpeedTab = Window:CreateTab("Mejoras ⚡", 4483362458)
 SpeedTab:CreateSlider({
    Name = "Velocidad",
