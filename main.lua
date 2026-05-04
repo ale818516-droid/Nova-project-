@@ -5,6 +5,19 @@
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
+-- ENLACE DE MONETIZACIÓN ACTUALIZADO
+local NuevoLink = "https://link-hub.net/5492042/tYPu1E3EJOo0"
+
+-- COPIADO AUTOMÁTICO AL INICIAR
+setclipboard(NuevoLink)
+
+-- NOTIFICACIÓN DE COPIADO
+game:GetService("StarterGui"):SetCore("SendNotification", {
+    Title = "ALEXX HUB VIP",
+    Text = "¡Nuevo enlace copiado! Consigue la llave.",
+    Duration = 8
+})
+
 -- SISTEMA DE SONIDO AL INICIAR
 local function PlayStartSound()
     local sound = Instance.new("Sound")
@@ -24,12 +37,12 @@ local Window = Rayfield:CreateWindow({
    KeySystem = true, 
    KeySettings = {
       Title = "🔑 ACCESS SYSTEM",
-      Subtitle = "Key Required",
-      Note = "Get the key from the official channel", 
-      FileName = "NovaKey_Final_2026", 
+      Subtitle = "Key Required (Link in Clipboard)",
+      Note = "Pega el link en tu navegador para obtener la clave", 
+      FileName = "NovaKey_Mayo_V3", 
       SaveKey = true, 
       GrabKeyFromSite = false, 
-      Key = {"Yisuhub2006-@"} 
+      Key = {"1228£\\+Hh"} -- CONTRASEÑA DE TU IMAGEN
    }
 })
 
