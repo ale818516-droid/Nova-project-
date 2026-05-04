@@ -1,6 +1,6 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Version: 2026 - RESTORED ORIGINAL + MOD DETECTOR + ADVANCED + SOUNDS
+    Version: 2026 - FULL RESTORED + HITBOX + SOUND
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -8,7 +8,7 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 -- SISTEMA DE SONIDO AL INICIAR
 local function PlayStartSound()
     local sound = Instance.new("Sound")
-    sound.SoundId = "rbxassetid://4590662766" -- Sonido de carga exitosa
+    sound.SoundId = "rbxassetid://4590662766" 
     sound.Volume = 1
     sound.Parent = game:GetService("SoundService")
     sound:Play()
@@ -33,7 +33,6 @@ local Window = Rayfield:CreateWindow({
    }
 })
 
--- Ejecutar sonido al cargar
 task.spawn(PlayStartSound)
 
 -- SERVICES
@@ -149,38 +148,6 @@ SpeedTab:CreateToggle({
    end,
 })
 
-_G.HitboxActive = false
-RunService.RenderStepped:Connect(function()
-    if _G.HitboxActive then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                local head = p.Character.Head
-                head.Size = Vector3.new(7, 7, 7)
-                head.Color = Color3.fromRGB(0, 0, 255) 
-                head.Transparency = 0.6
-                head.CanCollide = false
-                head.Massless = true
-            end
-        end
-    end
-end)
-
-SpeedTab:CreateToggle({
-   Name = "🎯 Hitbox Azul (Sync)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.HitboxActive = Value
-      if not Value then
-         for _, p in pairs(Players:GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("Head") then
-               p.Character.Head.Size = Vector3.new(1.15, 1.15, 1.15)
-               p.Character.Head.Transparency = 0
-            end
-         end
-      end
-   end,
-})
-
 _G.FlyEnabled = false
 SpeedTab:CreateToggle({
    Name = "🕊️ Fly Mode",
@@ -189,7 +156,6 @@ SpeedTab:CreateToggle({
       _G.FlyEnabled = Value
       local bPart = localPlayer.Character:WaitForChild("HumanoidRootPart")
       local flySpeed = 50
-      
       task.spawn(function()
          while _G.FlyEnabled do
             local velocity = Vector3.new(0,0.1,0)
@@ -246,45 +212,36 @@ SpeedTab:CreateButton({
 -- 4. TAB: COMBAT ⚔️
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
-_G.AimbotFOV = 150
-local FOVring = Drawing.new("Circle")
-FOVring.Visible = false
-FOVring.Thickness = 1.5
-FOVring.Radius = _G.AimbotFOV
-FOVring.Transparency = 1
-FOVring.Color = Color3.fromRGB(255, 255, 255)
-FOVring.Position = camera.ViewportSize / 2
+-- SISTEMA DE HITBOX (Agregado)
+_G.HitboxActive = false
+RunService.RenderStepped:Connect(function()
+    if _G.HitboxActive then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                local head = p.Character.Head
+                head.Size = Vector3.new(7, 7, 7)
+                head.Color = Color3.fromRGB(0, 0, 255) 
+                head.Transparency = 0.6
+                head.CanCollide = false
+                head.Massless = true
+            end
+        end
+    end
+end)
 
 CombatTab:CreateToggle({
-   Name = "🎯 Precisión Mejorada",
+   Name = "🎯 Hitbox Azul",
    CurrentValue = false,
    Callback = function(Value)
-      _G.SilentAim = Value
-      FOVring.Visible = Value
-      task.spawn(function()
-         while _G.SilentAim do
-            FOVring.Position = camera.ViewportSize / 2
-            local closest = nil
-            local shortestDistance = _G.AimbotFOV
-            for _, p in pairs(Players:GetPlayers()) do
-               if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                  local pos, onScreen = camera:WorldToViewportPoint(p.Character.Head.Position)
-                  if onScreen then
-                     local distance = (Vector2.new(pos.X, pos.Y) - Vector2.new(camera.ViewportSize.X/2, camera.ViewportSize.Y/2)).Magnitude
-                     if distance < shortestDistance then
-                        shortestDistance = distance
-                        closest = p
-                     end
-                  end
-               end
+      _G.HitboxActive = Value
+      if not Value then
+         for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("Head") then
+               p.Character.Head.Size = Vector3.new(1.15, 1.15, 1.15)
+               p.Character.Head.Transparency = 0
             end
-            if closest then 
-               local targetPos = CFrame.new(camera.CFrame.Position, closest.Character.Head.Position)
-               camera.CFrame = camera.CFrame:Lerp(targetPos, 0.1)
-            end
-            task.wait()
          end
-      end)
+      end
    end,
 })
 
@@ -310,7 +267,9 @@ CombatTab:CreateToggle({
                   end
                end
             end
-            if closest then camera.CFrame = CFrame.new(camera.CFrame.Position, closest.Character.Head.Position) end
+            if closest then 
+               camera.CFrame = CFrame.new(camera.CFrame.Position, closest.Character.Head.Position) 
+            end
             task.wait()
          end
       end)
@@ -340,17 +299,15 @@ local PlayerLabel = ControlTab:CreateLabel("Jugadores: " .. #Players:GetPlayers(
 Players.PlayerAdded:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
 Players.PlayerRemoving:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
 
--- FUNCIONES DE SEGURIDAD (MOD DETECTOR)
 local function checkModerator(player)
     if player:GetRankInGroup(game.CreatorId) >= 200 then 
         Rayfield:Notify({
             Title = "⚠️ MOD DETECTADO",
-            Content = "El moderador " .. player.Name .. " ha entrado al servidor.",
+            Content = "El moderador " .. player.Name .. " ha entrado.",
             Duration = 10,
         })
     end
 end
-
 Players.PlayerAdded:Connect(checkModerator)
 
 ControlTab:CreateButton({
@@ -383,7 +340,6 @@ ControlTab:CreateSlider({
    end,
 })
 
--- BOTÓN PARA RESTABLECER SALTO
 ControlTab:CreateButton({
    Name = "🦿 Salto Normal",
    Callback = function()
