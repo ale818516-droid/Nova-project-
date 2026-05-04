@@ -1,0 +1,50 @@
+--[[
+    ALEXX HUB VIP 🚀 - PROYECTO NOVA
+    SISTEMA DE SEGURIDAD ANTI-ROBO v2026
+]]
+
+-- 1. PROTECCIÓN DE CONTRASEÑA (Anti-Modificación)
+local _NovaKey = "1228£\\+Hh" -- Tu clave específica
+
+-- 2. FUNCIÓN ANTI-TAMPER (Si intentan borrar la clave, el script no carga)
+if _NovaKey ~= "1228£\\+Hh" then
+    game.Players.LocalPlayer:Kick("ERROR: Intento de modificacion de seguridad detectado.")
+    return
+end
+
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- 3. INTERFAZ DE SEGURIDAD
+local Window = Rayfield:CreateWindow({
+   Name = "ALEXX HUB VIP 🚀",
+   LoadingTitle = "Verificando Proyecto Nova-",
+   KeySystem = true,
+   KeySettings = {
+      Title = "🔑 ACCESO REQUERIDO",
+      Subtitle = "Consigue tu llave en el Link-Hub",
+      Note = "Link copiado al portapapeles automáticamente",
+      FileName = "SystemConfig_Nova_882", -- Nombre oculto para evitar borrado manual
+      SaveKey = true,
+      Key = {_NovaKey}
+   }
+})
+
+-- Copiar el link de Link-Hub al portapapeles del usuario
+setclipboard("https://link-hub.net/5492042/tYPu1E3EJOo0")
+
+-- 4. CARGA DEL CÓDIGO INVISIBLE (Funciones de Hitbox/ESP)
+-- Reemplaza 'TU_LINK_RAW_AQUÍ' con el enlace de tu GitHub Gist Privado
+local function LoadInvisibleScript()
+    Rayfield:Notify({Title = "Seguridad", Content = "Cargando funciones protegidas...", Duration = 5})
+    
+    local success, err = pcall(function()
+        loadstring(game:HttpGet("TU_LINK_RAW_AQUÍ"))()
+    end)
+    
+    if not success then
+        warn("Error al cargar funciones: " .. err)
+    end
+end
+
+-- Solo carga si la clave es correcta
+LoadInvisibleScript()
