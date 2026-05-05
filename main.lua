@@ -3,7 +3,7 @@
     Version: 2026 - FULL RESTORED + HITBOX + SOUND
 ]]
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu'))()
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- ENLACE DE MONETIZACIÓN ACTUALIZADO
 local NuevoLink = "https://link-hub.net/5492042/tYPu1E3EJOo0"
