@@ -18,33 +18,6 @@ game:GetService("StarterGui"):SetCore("SendNotification", {
     Duration = 8
 })
 
--- PRESENTACIÓN AL INICIAR (Agregado)
-local function ShowIntro()
-    local ScreenGui = Instance.new("ScreenGui", game.CoreGui)
-    local TextLabel = Instance.new("TextLabel", ScreenGui)
-    TextLabel.Size = UDim2.new(1, 0, 1, 0)
-    TextLabel.BackgroundTransparency = 1
-    TextLabel.Text = "PROYECTO NOVA\nALEXX HUB VIP"
-    TextLabel.TextColor3 = Color3.fromRGB(0, 150, 255)
-    TextLabel.TextSize = 50
-    TextLabel.Font = Enum.Font.BlackOpsOne
-    TextLabel.TextTransparency = 1
-    
-    -- Animación simple
-    task.spawn(function()
-        for i = 1, 0, -0.05 do
-            TextLabel.TextTransparency = i
-            task.wait(0.05)
-        end
-        task.wait(2)
-        for i = 0, 1, 0.05 do
-            TextLabel.TextTransparency = i
-            task.wait(0.05)
-        end
-        ScreenGui:Destroy()
-    end)
-end
-
 -- SISTEMA DE SONIDO AL INICIAR
 local function PlayStartSound()
     local sound = Instance.new("Sound")
@@ -69,11 +42,10 @@ local Window = Rayfield:CreateWindow({
       FileName = "NovaKey_Mayo_V3", 
       SaveKey = true, 
       GrabKeyFromSite = false, 
-      Key = {"1228£\\+Hh"} -- CONTRASEÑA DE TU IMAGEN
+      Key = {"1228£\\+Hh"} 
    }
 })
 
-task.spawn(ShowIntro)
 task.spawn(PlayStartSound)
 
 -- SERVICES
@@ -221,7 +193,6 @@ SpeedTab:CreateSlider({
    end,
 })
 
--- SENSIBILIDAD (Agregado)
 SpeedTab:CreateSlider({
    Name = "Sensibilidad (Camera)",
    Range = {1, 10},
@@ -264,7 +235,7 @@ SpeedTab:CreateButton({
 -- 4. TAB: COMBAT ⚔️
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
--- SISTEMA DE HITBOX (Agregado)
+-- SISTEMA DE HITBOX
 _G.HitboxActive = false
 RunService.RenderStepped:Connect(function()
     if _G.HitboxActive then
@@ -331,7 +302,6 @@ CombatTab:CreateToggle({
 -- 5. TAB: CONTROL ⚙️
 local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
 
--- BORRAR CHAT (Agregado)
 ControlTab:CreateButton({
    Name = "🗑️ Limpiar Chat (Anti-Hack Accusation)",
    Callback = function()
@@ -347,7 +317,6 @@ ControlTab:CreateButton({
    end,
 })
 
--- SERVER HOPPER (Agregado)
 ControlTab:CreateButton({
    Name = "🌌 Cambiar de Servidor",
    Callback = function()
