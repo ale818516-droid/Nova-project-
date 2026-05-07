@@ -6,7 +6,7 @@
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- ENLACE DE MONETIZACIÓN ACTUALIZADO
-local NuevoLink = "https://direct-link.net/5492042/Uyekny3zE2P5"
+local NuevoLink = "https://link-hub.net/5492042/XS4p33zMPv8Z"
 
 -- COPIADO AUTOMÁTICO AL INICIAR
 setclipboard(NuevoLink)
