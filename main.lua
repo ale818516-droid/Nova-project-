@@ -418,92 +418,44 @@ local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
 
--- Configuraciones iniciales
-_G.HitboxActive = false
+_G.AutoKill = false
 _G.HitboxSize = 450 
-_G.EspActive = false
-_G.FastShoot = false
-_G.AutoWin = false
 
--- 1. TAB: VISUALS
-local VisualTab = Window:CreateTab("Visuals 👁️", 4483362458)
-VisualTab:CreateToggle({
-   Name = "ESP Rojo (Solo Enemigos)",
-   CurrentValue = false,
-   Callback = function(Value) _G.EspActive = Value end,
-})
-
--- 2. TAB: COMBAT
+-- TAB: COMBAT ⚔️
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
 CombatTab:CreateToggle({
-   Name = "🎯 Hitbox Invisible",
+   Name = "💀 AUTO KILL INSTANTÁNEO",
    CurrentValue = false,
    Callback = function(Value)
-      _G.HitboxActive = Value
-      if not Value then
-         for _, p in pairs(Players:GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
-               p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
-               p.Character.HumanoidRootPart.Transparency = 1
-            end
-         end
-      end
+      _G.AutoKill = Value
    end,
 })
 
-CombatTab:CreateToggle({
-   Name = "🔥 Disparo y Recarga Flash",
-   CurrentValue = false,
-   Callback = function(Value) _G.FastShoot = Value end,
-})
-
-CombatTab:CreateToggle({
-   Name = "⚡ Rondas Flash (Auto-Kill)",
-   CurrentValue = false,
-   Callback = function(Value) _G.AutoWin = Value end,
-})
-
-CombatTab:CreateSlider({
-   Name = "Alcance Total",
-   Range = {10, 500},
-   Increment = 10,
-   CurrentValue = 450,
-   Callback = function(Value) _G.HitboxSize = Value end,
-})
-
--- LÓGICA DE FUNCIONAMIENTO MEJORADA
-RunService.RenderStepped:Connect(function()
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= localPlayer and p.Character then
-            local char = p.Character
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            local hum = char:FindFirstChild("Humanoid")
-
-            if hum and hum.Health > 0 then
-                -- ESP ROJO (Único elemento visible)
-                if _G.EspActive then
-                    local hl = char:FindFirstChild("NovaESP") or Instance.new("Highlight", char)
-                    hl.Name = "NovaESP"
-                    hl.FillColor = Color3.fromRGB(255, 0, 0)
-                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
-                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
-                end
-
-                -- HITBOX INVISIBLE (FIX: TRANSPARENCY 1)
-                if _G.HitboxActive and hrp then
+-- BUCLE OPTIMIZADO PARA EVITAR LAG Y BUGS
+RunService.Stepped:Connect(function()
+    if _G.AutoKill then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
+                local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                local hum = p.Character.Humanoid
+                local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
+                
+                if hum.Health > 0 and hrp and tool then
+                    -- 1. Hitbox Invisible de 450
                     hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
-                    hrp.Transparency = 1 -- AHORA ES INVISIBLE
+                    hrp.Transparency = 1
                     hrp.CanCollide = false
-                end
-
-                -- RECARGA Y DISPARO (FIX: TODAS LAS ARMAS)
-                if (_G.FastShoot or _G.AutoWin) and _G.HitboxActive then
-                    local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
-                    if tool then
-                        -- Simula disparo constante y elimina delay de recarga visual
-                        tool:Activate()
-                        if tool:FindFirstChild("ReloadTime") then tool.ReloadTime.Value = 0 end 
+                    
+                    -- 2. ATAQUE SIN LAG (Bypass Directo)
+                    -- Quitamos el bucle for exagerado para que no se trabe el juego
+                    tool:Activate()
+                    
+                    local remote = tool:FindFirstChild("Attack") or tool:FindFirstChild("RemoteEvent")
+                    if remote then
+                        -- Enviamos solo 2 señales rápidas para asegurar impacto sin lag
+                        remote:FireServer(hrp.Position)
+                        remote:FireServer(hrp.Position)
                     end
                 end
             end
@@ -511,10 +463,10 @@ RunService.RenderStepped:Connect(function()
     end
 end)
 
--- 3. TAB: EXTRA
-local SpeedTab = Window:CreateTab("Extra ⚙️", 4483362458)
-SpeedTab:CreateSlider({
-   Name = "WalkSpeed",
+-- TAB: EXTRA ⚙️
+local ExtraTab = Window:CreateTab("Extra ⚙️", 4483362458)
+ExtraTab:CreateSlider({
+   Name = "Velocidad",
    Range = {16, 250},
    Increment = 1,
    CurrentValue = 16,
@@ -524,4 +476,3 @@ SpeedTab:CreateSlider({
       end
    end,
 })
-
