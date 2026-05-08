@@ -413,3 +413,115 @@ ControlTab:CreateButton({
       TeleportService:Teleport(game.PlaceId, localPlayer)
    end,
 })
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local localPlayer = Players.LocalPlayer
+
+-- Configuraciones iniciales
+_G.HitboxActive = false
+_G.HitboxSize = 450 
+_G.EspActive = false
+_G.FastShoot = false
+_G.AutoWin = false
+
+-- 1. TAB: VISUALS
+local VisualTab = Window:CreateTab("Visuals 👁️", 4483362458)
+VisualTab:CreateToggle({
+   Name = "ESP Rojo (Solo Enemigos)",
+   CurrentValue = false,
+   Callback = function(Value) _G.EspActive = Value end,
+})
+
+-- 2. TAB: COMBAT
+local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
+
+CombatTab:CreateToggle({
+   Name = "🎯 Hitbox Invisible",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.HitboxActive = Value
+      if not Value then
+         for _, p in pairs(Players:GetPlayers()) do
+            if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+               p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+               p.Character.HumanoidRootPart.Transparency = 1
+            end
+         end
+      end
+   end,
+})
+
+CombatTab:CreateToggle({
+   Name = "🔥 Disparo y Recarga Flash",
+   CurrentValue = false,
+   Callback = function(Value) _G.FastShoot = Value end,
+})
+
+CombatTab:CreateToggle({
+   Name = "⚡ Rondas Flash (Auto-Kill)",
+   CurrentValue = false,
+   Callback = function(Value) _G.AutoWin = Value end,
+})
+
+CombatTab:CreateSlider({
+   Name = "Alcance Total",
+   Range = {10, 500},
+   Increment = 10,
+   CurrentValue = 450,
+   Callback = function(Value) _G.HitboxSize = Value end,
+})
+
+-- LÓGICA DE FUNCIONAMIENTO MEJORADA
+RunService.RenderStepped:Connect(function()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= localPlayer and p.Character then
+            local char = p.Character
+            local hrp = char:FindFirstChild("HumanoidRootPart")
+            local hum = char:FindFirstChild("Humanoid")
+
+            if hum and hum.Health > 0 then
+                -- ESP ROJO (Único elemento visible)
+                if _G.EspActive then
+                    local hl = char:FindFirstChild("NovaESP") or Instance.new("Highlight", char)
+                    hl.Name = "NovaESP"
+                    hl.FillColor = Color3.fromRGB(255, 0, 0)
+                    hl.OutlineColor = Color3.fromRGB(255, 255, 255)
+                    hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                end
+
+                -- HITBOX INVISIBLE (FIX: TRANSPARENCY 1)
+                if _G.HitboxActive and hrp then
+                    hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                    hrp.Transparency = 1 -- AHORA ES INVISIBLE
+                    hrp.CanCollide = false
+                end
+
+                -- RECARGA Y DISPARO (FIX: TODAS LAS ARMAS)
+                if (_G.FastShoot or _G.AutoWin) and _G.HitboxActive then
+                    local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
+                    if tool then
+                        -- Simula disparo constante y elimina delay de recarga visual
+                        tool:Activate()
+                        if tool:FindFirstChild("ReloadTime") then tool.ReloadTime.Value = 0 end 
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- 3. TAB: EXTRA
+local SpeedTab = Window:CreateTab("Extra ⚙️", 4483362458)
+SpeedTab:CreateSlider({
+   Name = "WalkSpeed",
+   Range = {16, 250},
+   Increment = 1,
+   CurrentValue = 16,
+   Callback = function(Value)
+      if localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
+         localPlayer.Character.Humanoid.WalkSpeed = Value
+      end
+   end,
+})
+
