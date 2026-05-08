@@ -1,50 +1,53 @@
---[[
-    ALEXX HUB VIP 🚀 - PROYECTO NOVA
-    SISTEMA DE SEGURIDAD ANTI-ROBO v2026
-]]
+-- PROYECTO NOVA BY ALEXX HUB VIP
+-- Versión Estable para iPhone 14
 
--- 1. PROTECCIÓN DE CONTRASEÑA (Anti-Modificación)
-local _NovaKey = "1228£\\+Hh" -- Tu clave específica
+local p = game.Players.LocalPlayer
+local pgui = p:WaitForChild("PlayerGui")
 
--- 2. FUNCIÓN ANTI-TAMPER (Si intentan borrar la clave, el script no carga)
-if _NovaKey ~= "1228£\\+Hh" then
-    game.Players.LocalPlayer:Kick("ERROR: Intento de modificacion de seguridad detectado.")
-    return
-end
+if pgui:FindFirstChild("NovaFixed") then pgui.NovaFixed:Destroy() end
 
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+local sg = Instance.new("ScreenGui", pgui)
+sg.Name = "NovaFixed"
+sg.ResetOnSpawn = false
 
--- 3. INTERFAZ DE SEGURIDAD
-local Window = Rayfield:CreateWindow({
-   Name = "ALEXX HUB VIP 🚀",
-   LoadingTitle = "Verificando Proyecto Nova-",
-   KeySystem = true,
-   KeySettings = {
-      Title = "🔑 ACCESO REQUERIDO",
-      Subtitle = "Consigue tu llave en el Link-Hub",
-      Note = "Link copiado al portapapeles automáticamente",
-      FileName = "SystemConfig_Nova_882", -- Nombre oculto para evitar borrado manual
-      SaveKey = true,
-      Key = {_NovaKey}
-   }
-})
+local frame = Instance.new("Frame", sg)
+frame.Size = UDim2.new(0, 140, 0, 50)
+frame.Position = UDim2.new(0.5, -70, 0.2, 0)
+frame.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+frame.BorderSizePixel = 2
+frame.Active = true
+frame.Draggable = true
 
--- Copiar el link de Link-Hub al portapapeles del usuario
-setclipboard("https://link-hub.net/5492042/tYPu1E3EJOo0")
+local btn = Instance.new("TextButton", frame)
+btn.Size = UDim2.new(1, 0, 1, 0)
+btn.Text = "AUTO-KILL ⚡"
+btn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+btn.TextColor3 = Color3.fromRGB(255, 255, 255)
+btn.Font = Enum.Font.SourceSansBold
+btn.TextSize = 18
 
--- 4. CARGA DEL CÓDIGO INVISIBLE (Funciones de Hitbox/ESP)
--- Reemplaza 'TU_LINK_RAW_AQUÍ' con el enlace de tu GitHub Gist Privado
-local function LoadInvisibleScript()
-    Rayfield:Notify({Title = "Seguridad", Content = "Cargando funciones protegidas...", Duration = 5})
-    
-    local success, err = pcall(function()
-        loadstring(game:HttpGet("TU_LINK_RAW_AQUÍ"))()
-    end)
-    
-    if not success then
-        warn("Error al cargar funciones: " .. err)
+btn.MouseButton1Click:Connect(function()
+    local tool = p.Character:FindFirstChildOfClass("Tool") or p.Backpack:FindFirstChildOfClass("Tool")
+    if tool then
+        tool.Parent = p.Character
+        for _, v in pairs(game.Players:GetPlayers()) do
+            if v ~= p and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
+                local target = v.Character:FindFirstChild("UpperTorso") or v.Character:FindFirstChild("Torso")
+                if tool.Name == "Knife" then
+                    firetouchinterest(target, tool.Handle, 0)
+                    firetouchinterest(target, tool.Handle, 1)
+                elseif tool.Name == "Gun" then
+                    local args = { = target.Position, = v.Character.HumanoidRootPart}
+                    if tool:FindFirstChild("KnifeServer") then tool.KnifeServer.Shoot:InvokeServer(unpack(args)) end
+                end
+            end
+        end
+        btn.Text = "¡LISTO! ✅"
+        task.wait(0.5)
+        btn.Text = "AUTO-KILL ⚡"
+    else
+        btn.Text = "SACA ARMA ⚠️"
+        task.wait(0.5)
+        btn.Text = "AUTO-KILL ⚡"
     end
-end
-
--- Solo carga si la clave es correcta
-LoadInvisibleScript()
+end)
