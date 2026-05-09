@@ -476,3 +476,21 @@ ExtraTab:CreateSlider({
       end
    end,
 })
+
+local char = localPlayer.Character
+if char then
+    -- 1. Engañamos al servidor eliminando el motor de animaciones y el root
+    local root = char:FindFirstChild("HumanoidRootPart")
+    if root then
+        local clone = root:Clone()
+        clone.Parent = char
+        root:Destroy() -- Aquí es donde te vuelves invisible/bugeado para los demás
+        
+        -- 2. Quitamos la transparencia para que tú sí te veas pero ellos no
+        for _, v in pairs(char:GetDescendants()) do
+            if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                v.Transparency = 0.5 -- Tú te ves fantasma, ellos no ven nada
+            end
+        end
+    end
+end
