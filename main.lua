@@ -477,11 +477,6 @@ ExtraTab:CreateSlider({
    end,
 })
 
---[[
-    PROYECTO NOVA - ALEXX HUB VIP
-    MODO: GHOST INVISIBLE REAL (SERVER-SIDE) - SIN LIBRERÍA
-]]
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local localPlayer = Players.LocalPlayer
