@@ -477,30 +477,28 @@ ExtraTab:CreateSlider({
    end,
 })
 
--- BLOQUE DE PESTAÑA CORREGIDO (SOLO SE ACTIVA AL PICAR EL BOTÓN)
+-- PEGA ESTE BLOQUE EN TU SECCIÓN DE TABS
 local GhostTab = Window:CreateTab("Invisible 👻", 4483362458)
 
 GhostTab:CreateButton({
    Name = "ACTIVAR INVISIBILIDAD GHOST 👻🔥",
    Callback = function()
-       local char = localPlayer.Character
+       -- TODO el código está aquí adentro, así que NO se ejecutará al abrir el script
+       local char = game.Players.LocalPlayer.Character
        if char then
-           -- 1. Buscamos el HumanoidRootPart
            local root = char:FindFirstChild("HumanoidRootPart")
            if root then
-               -- 2. Clonamos y destruimos (Solo ocurre cuando presionas el botón)
                local clone = root:Clone()
                clone.Parent = char
-               root:Destroy() 
+               root:Destroy() -- Solo se destruye cuando presionas este botón
                
-               -- 3. Efecto visual local
                for _, v in pairs(char:GetDescendants()) do
                    if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
                        v.Transparency = 0.5 
                    end
                end
                
-               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Invisible activado correctamente.", Duration = 4})
+               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Invisible activado.", Duration = 4})
            end
        end
    end,
