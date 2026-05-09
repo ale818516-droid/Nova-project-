@@ -503,3 +503,62 @@ GhostTab:CreateButton({
        end
    end,
 })
+
+-- TAB: ANTI-HACK 🛡️
+local AntiTab = Window:CreateTab("Anti-Hack 🛡️", 4483362458)
+
+_G.AntiKill = false
+_G.AntiFling = false
+
+-- 1. ANTI-KILL / ANTI-TP (Evita que otros scripts te jalen o te maten)
+AntiTab:CreateToggle({
+   Name = "Inmunidad contra Scripts 🛡️",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AntiKill = Value
+      local char = localPlayer.Character
+      if char then
+          -- Esto bloquea que otros scripts detecten tu "Hitbox" real
+          for _, v in pairs(char:GetDescendants()) do
+              if v:IsA("BasePart") then
+                  v.CanTouch = not Value -- Si está activo, otros scripts no pueden "tocarte"
+              end
+          end
+      end
+   end,
+})
+
+-- 2. ANTI-FLING (Evita que otros hackers te saquen volando)
+AntiTab:CreateToggle({
+   Name = "Anti-Fling (No salir volando)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AntiFling = Value
+      RunService.Stepped:Connect(function()
+          if _G.AntiFling then
+              local char = localPlayer.Character
+              if char and char:FindFirstChild("HumanoidRootPart") then
+                  -- Pone tu velocidad de rotación en 0 para que no te hagan girar
+                  char.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+                  char.HumanoidRootPart.RotVelocity = Vector3.new(0, 0, 0)
+              end
+          end
+      end)
+   end,
+})
+
+-- 3. SCRIPT JAMMER (Dificulta que otros scripts te fijen como objetivo)
+AntiTab:CreateButton({
+   Name = "Jammer: Ocultar de otros Hubs ⚡",
+   Callback = function()
+       local char = localPlayer.Character
+       if char then
+           -- Cambiamos el nombre de tus partes vitales localmente
+           -- Muchos scripts buscan "HumanoidRootPart", si no la encuentran, no "agarran"
+           if char:FindFirstChild("HumanoidRootPart") then
+               char.HumanoidRootPart.Name = "NovaPart" 
+               Rayfield:Notify({Title = "Seguridad", Content = "Tu Hitbox ahora es invisible para otros scripts.", Duration = 3})
+           end
+       end
+   end,
+})
