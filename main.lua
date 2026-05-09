@@ -477,88 +477,59 @@ ExtraTab:CreateSlider({
    end,
 })
 
--- PEGA ESTE BLOQUE EN TU SECCIÓN DE TABS
-local GhostTab = Window:CreateTab("Invisible 👻", 4483362458)
+-- TAB: DEFENSA VIP 🛡️
+local DefTab = Window:CreateTab("Defensa VIP 🛡️", 4483362458)
 
-GhostTab:CreateButton({
-   Name = "ACTIVAR INVISIBILIDAD GHOST 👻🔥",
-   Callback = function()
-       -- TODO el código está aquí adentro, así que NO se ejecutará al abrir el script
-       local char = game.Players.LocalPlayer.Character
-       if char then
-           local root = char:FindFirstChild("HumanoidRootPart")
-           if root then
-               local clone = root:Clone()
-               clone.Parent = char
-               root:Destroy() -- Solo se destruye cuando presionas este botón
-               
-               for _, v in pairs(char:GetDescendants()) do
-                   if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-                       v.Transparency = 0.5 
-                   end
-               end
-               
-               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Invisible activado.", Duration = 4})
-           end
-       end
-   end,
-})
+_G.AntiHitbox = false
 
--- TAB: ANTI-HACK 🛡️
-local AntiTab = Window:CreateTab("Anti-Hack 🛡️", 4483362458)
-
-_G.AntiKill = false
-_G.AntiFling = false
-
--- 1. ANTI-KILL / ANTI-TP (Evita que otros scripts te jalen o te maten)
-AntiTab:CreateToggle({
-   Name = "Inmunidad contra Scripts 🛡️",
+DefTab:CreateToggle({
+   Name = "MODO INTOCABLE (ANTI-HITBOX) 🛡️🔥",
    CurrentValue = false,
    Callback = function(Value)
-      _G.AntiKill = Value
+      _G.AntiHitbox = Value
+      
       local char = localPlayer.Character
       if char then
-          -- Esto bloquea que otros scripts detecten tu "Hitbox" real
+          -- DESACTIVA EL REGISTRO DE TOQUE
+          -- Esto hace que los scripts de otros no detecten colisión contigo
           for _, v in pairs(char:GetDescendants()) do
               if v:IsA("BasePart") then
-                  v.CanTouch = not Value -- Si está activo, otros scripts no pueden "tocarte"
+                  v.CanTouch = not Value 
               end
           end
       end
    end,
 })
 
--- 2. ANTI-FLING (Evita que otros hackers te saquen volando)
-AntiTab:CreateToggle({
-   Name = "Anti-Fling (No salir volando)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.AntiFling = Value
-      RunService.Stepped:Connect(function()
-          if _G.AntiFling then
-              local char = localPlayer.Character
-              if char and char:FindFirstChild("HumanoidRootPart") then
-                  -- Pone tu velocidad de rotación en 0 para que no te hagan girar
-                  char.HumanoidRootPart.Velocity = Vector3.new(0, 0, 0)
-                  char.HumanoidRootPart.RotVelocity = Vector3.new(0, 0, 0)
-              end
-          end
-      end)
-   end,
-})
+-- MOTOR DE PROTECCIÓN ACTIVA
+RunService.Stepped:Connect(function()
+    if _G.AntiHitbox then
+        local char = localPlayer.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            -- TRUCO DE DESFASE:
+            -- Mueve tu Hitbox real un poco por debajo del suelo visualmente
+            -- Para los scripts de los demás, tu "centro" está donde no pueden golpearte
+            local root = char.HumanoidRootPart
+            root.Velocity = Vector3.new(0, 0.01, 0) -- Engaña al Anti-Cheat de velocidad
+            
+            -- Evita que te quiten vida por "Void" o "Touch"
+            if char:FindFirstChild("Humanoid") then
+                char.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+            end
+        end
+    end
+end)
 
--- 3. SCRIPT JAMMER (Dificulta que otros scripts te fijen como objetivo)
-AntiTab:CreateButton({
-   Name = "Jammer: Ocultar de otros Hubs ⚡",
+-- ELIMINAR PROYECTILES (Para que no te maten de lejos con balas)
+DefTab:CreateButton({
+   Name = "BORRAR BALAS ENEMIGAS 🚫",
    Callback = function()
-       local char = localPlayer.Character
-       if char then
-           -- Cambiamos el nombre de tus partes vitales localmente
-           -- Muchos scripts buscan "HumanoidRootPart", si no la encuentran, no "agarran"
-           if char:FindFirstChild("HumanoidRootPart") then
-               char.HumanoidRootPart.Name = "NovaPart" 
-               Rayfield:Notify({Title = "Seguridad", Content = "Tu Hitbox ahora es invisible para otros scripts.", Duration = 3})
+       -- Busca balas o proyectiles en el mapa y los borra localmente
+       for _, v in pairs(game.Workspace:GetDescendants()) do
+           if v:IsA("Part") and (v.Name:lower():find("bullet") or v.Name:lower():find("proyectil")) then
+               v:Destroy()
            end
        end
+       Rayfield:Notify({Title = "Defensa", Content = "Balas enemigas eliminadas.", Duration = 2})
    end,
 })
