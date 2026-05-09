@@ -477,7 +477,7 @@ ExtraTab:CreateSlider({
    end,
 })
 
--- COPIA DESDE AQUÍ PARA TU PESTAÑA DE INVISIBILIDAD
+-- BLOQUE DE PESTAÑA CORREGIDO (SOLO SE ACTIVA AL PICAR EL BOTÓN)
 local GhostTab = Window:CreateTab("Invisible 👻", 4483362458)
 
 GhostTab:CreateButton({
@@ -485,21 +485,22 @@ GhostTab:CreateButton({
    Callback = function()
        local char = localPlayer.Character
        if char then
-           -- 1. Engañamos al servidor eliminando el motor de animaciones y el root
+           -- 1. Buscamos el HumanoidRootPart
            local root = char:FindFirstChild("HumanoidRootPart")
            if root then
+               -- 2. Clonamos y destruimos (Solo ocurre cuando presionas el botón)
                local clone = root:Clone()
                clone.Parent = char
-               root:Destroy() -- Aquí es donde te vuelves invisible/bugeado para los demás
+               root:Destroy() 
                
-               -- 2. Quitamos la transparencia para que tú sí te veas pero ellos no
+               -- 3. Efecto visual local
                for _, v in pairs(char:GetDescendants()) do
                    if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-                       v.Transparency = 0.5 -- Tú te ves fantasma, ellos no ven nada
+                       v.Transparency = 0.5 
                    end
                end
                
-               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Tu cuerpo real está protegido en la base.", Duration = 4})
+               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Invisible activado correctamente.", Duration = 4})
            end
        end
    end,
