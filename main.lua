@@ -476,3 +476,30 @@ ExtraTab:CreateSlider({
       end
    end,
 })
+
+-- PEGA ESTE BLOQUE EN TU SECCIÓN DE TABS
+local GhostTab = Window:CreateTab("Invisible 👻", 4483362458)
+
+GhostTab:CreateButton({
+   Name = "ACTIVAR INVISIBILIDAD GHOST 👻🔥",
+   Callback = function()
+       -- TODO el código está aquí adentro, así que NO se ejecutará al abrir el script
+       local char = game.Players.LocalPlayer.Character
+       if char then
+           local root = char:FindFirstChild("HumanoidRootPart")
+           if root then
+               local clone = root:Clone()
+               clone.Parent = char
+               root:Destroy() -- Solo se destruye cuando presionas este botón
+               
+               for _, v in pairs(char:GetDescendants()) do
+                   if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                       v.Transparency = 0.5 
+                   end
+               end
+               
+               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Invisible activado.", Duration = 4})
+           end
+       end
+   end,
+})
