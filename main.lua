@@ -476,7 +476,8 @@ ExtraTab:CreateSlider({
       end
    end,
 })
-Extra:CreateToggle({
+
+Extra:CreateToggle
    Name = "Modo Fantasma (Invisibilidad) 👻",
    CurrentValue = false,
    Flag = "GhostModeAlexx",
