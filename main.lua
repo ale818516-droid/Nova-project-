@@ -476,7 +476,6 @@ ExtraTab:CreateSlider({
       end
    end,
 })
-
 -- PEGA ESTE BLOQUE EN TU SECCIÓN DE TABS
 local GhostTab = Window:CreateTab("Invisible 👻", 4483362458)
 
