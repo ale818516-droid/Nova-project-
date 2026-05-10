@@ -477,78 +477,68 @@ ExtraTab:CreateSlider({
    end,
 })
 
+-- [[ COPIAR DESDE AQUÍ PARA TU OTRO SCRIPT ]] --
+
+_G.AlexxMasterToggle = false -- Esta es la variable que tu otro script debe controlar
+
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local localPlayer = Players.LocalPlayer
 
--- TAB: PROTECCIÓN 🛡️
-local AntiTab = Window:CreateTab("Protección 🛡️", 4483362458)
-
-_G.AntiKillAura = false
-
-AntiTab:CreateToggle({
-   Name = "ACTIVA ANTI-KILL AURA 🛡️🔥",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.AntiKillAura = Value
-      
-      local char = localPlayer.Character
-      if char then
-          -- Bloquea el registro de "Toque" para que no te detecten
-          for _, v in pairs(char:GetDescendants()) do
-              if v:IsA("BasePart") then
-                  v.CanTouch = not Value 
-              end
-          end
-      end
-      
-      if Value then
-          Rayfield:Notify({Title = "Seguridad", Content = "Tu cuerpo ahora es intocable para scripts.", Duration = 3})
-      else
-          Rayfield:Notify({Title = "Seguridad", Content = "Protección desactivada.", Duration = 3})
-      end
-   end,
-})
-
--- MOTOR DE INMUNIDAD (Evita el Target)
-RunService.Stepped:Connect(function()
-    if _G.AntiKillAura then
+RunService.RenderStepped:Connect(function()
+    if _G.AlexxMasterToggle then
         pcall(function()
             local char = localPlayer.Character
-            if char then
-                -- 1. DESFASE DE POSICIÓN LOCAL
-                -- Engaña a los scripts de los demás haciendo que tu torso parpadee en la memoria
-                local root = char:FindFirstChild("HumanoidRootPart")
-                if root then
-                    -- Esto no te mueve a ti, pero altera cómo te ven los scripts de "Auto-Aim"
-                    root.Velocity = Vector3.new(0, 0, 0.01) 
-                end
+            if not char then return end
 
-                -- 2. BLOQUEO DE ESTADO
-                -- Evita que el servidor procese el golpe de gracia de un Kill Aura
-                local hum = char:FindFirstChild("Humanoid")
-                if hum then
-                    hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+            -- 1. MOTOR DE ATAQUE (Hitbox 450 + Anti-NPC Muertos)
+            for _, p in pairs(Players:GetPlayers()) do
+                -- Filtro: Que no seas tú, que tenga humanoide y esté vivo (salud > 0)
+                if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
+                    local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                    local hum = p.Character.Humanoid
+                    
+                    if hum.Health > 0 and hrp then
+                        -- Aplicar Hitbox 450
+                        hrp.Size = Vector3.new(450, 450, 450)
+                        hrp.Transparency = 0.9
+                        hrp.CanCollide = false
+                        
+                        -- Registro de daño (Requiere arma en mano)
+                        local tool = char:FindFirstChildOfClass("Tool")
+                        if tool then
+                            local handle = tool:FindFirstChild("Handle") or tool:FindFirstChildOfClass("Part")
+                            if handle then
+                                firetouchinterest(hrp, handle, 0)
+                                firetouchinterest(hrp, handle, 1)
+                            end
+                        end
+                    end
+                end
+            end
+
+            -- 2. DEFENSA (Anti-Kill Aura / Intocable)
+            for _, part in pairs(char:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanTouch = false -- Bloquea que otros scripts te detecten
+                end
+            end
+        end)
+    else
+        -- 3. RESET (Cuando se desactiva, todo vuelve a la normalidad)
+        pcall(function()
+            for _, p in pairs(Players:GetPlayers()) do
+                if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                    p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+                end
+            end
+            if localPlayer.Character then
+                for _, v in pairs(localPlayer.Character:GetDescendants()) do
+                    if v:IsA("BasePart") then v.CanTouch = true end
                 end
             end
         end)
     end
 end)
 
--- TAB: UTILS
-local UtilsTab = Window:CreateTab("Utils ⚡", 4483362458)
-
-UtilsTab:CreateButton({
-   Name = "Bypass de Colisión (Noclip)",
-   Callback = function()
-       -- Útil para atravesar paredes si te intentan acorralar con Kill Aura
-       _G.Noclip = not _G.Noclip
-       RunService.Stepped:Connect(function()
-           if _G.Noclip then
-               for _, v in pairs(localPlayer.Character:GetDescendants()) do
-                   if v:IsA("BasePart") then v.CanCollide = false end
-               end
-           end
-       end)
-   end,
-})
+-- [[ FIN DEL BLOQUE ]] --
