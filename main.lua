@@ -477,21 +477,6 @@ ExtraTab:CreateSlider({
    end,
 })
 
---[[
-    ALEXX HUB VIP - ANTI-KILL AURA
-    Protección contra Hitboxes extendidas y Kill Auras enemigos.
-]]
-
-local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
-local Window = Rayfield:CreateWindow({
-   Name = "ALEXX HUB VIP 🛡️",
-   LoadingTitle = "Project Nova Security",
-   LoadingSubtitle = "Anti-Kill Aura Mode",
-   ConfigurationSaving = { Enabled = false },
-   KeySystem = false 
-})
-
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 local localPlayer = Players.LocalPlayer
