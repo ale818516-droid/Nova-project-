@@ -382,51 +382,17 @@ ExtraTab:CreateButton({
    end,
 })
 
---[[
-    SISTEMA SAFE MODE - ALEXX HUB
-    (Solo Control de Visibilidad e Invisibilidad)
-]]
-
--- 1. VARIABLE INICIAL
-_G.SafeMode = false
-
--- 2. INTERFAZ (Toggle para tu pestaña de Rayfield)
--- Nota: Asegúrate de que "ControlTab" coincida con el nombre de tu pestaña
+-- 4. PESTAÑA CONTROL (AQUÍ ESTÁ EL SAFE MODE ⚙️)
+local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
 ControlTab:CreateToggle({
    Name = "🛡️ SAFE MODE (Anti-Ban/Invisible)",
    CurrentValue = false,
    Callback = function(Value)
       _G.SafeMode = Value
       Rayfield:Notify({
-         Title = "ALEXX HUB",
-         Content = Value and "MODO SEGURO: Activado (Invisible)" or "MODO SEGURO: Desactivado (Azul)",
+         Title = "Safe Mode",
+         Content = Value and "Modo Seguro: Hitbox ahora es invisible." or "Modo Seguro: Desactivado.",
          Duration = 3
       })
    end,
 })
-
--- 3. LÓGICA DE FUNCIONAMIENTO (Bucle de transparencia)
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-
-RunService.Stepped:Connect(function()
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= localPlayer and p.Character then
-            -- Buscamos la parte que queremos camuflar (usualmente el HumanoidRootPart)
-            local root = p.Character:FindFirstChild("HumanoidRootPart")
-            
-            if root then
-                if _G.SafeMode then
-                    -- MODO SEGURO: Lo hace invisible para que nadie sospeche
-                    root.Transparency = 1 
-                else
-                    -- MODO NORMAL: Se ve azul para que tú lo identifiques
-                    root.Transparency = 0.75
-                    root.Color = Color3.fromRGB(0, 0, 255)
-                end
-            end
-        end
-    end
-end)
-
