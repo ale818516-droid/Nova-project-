@@ -476,28 +476,31 @@ ExtraTab:CreateSlider({
       end
    end,
 })
--- [[ 1. LA LÓGICA (Ponlo fuera de los elementos si quieres, o arriba) ]] --
-local function ModoGhost(Estado)
-    pcall(function()
-        local char = game.Players.LocalPlayer.Character
-        if char then
-            for _, v in pairs(char:GetDescendants()) do
-                if v:IsA("BasePart") or v:IsA("Decal") then
-                    v.Transparency = Estado and 0.5 or 0
-                    v.CanTouch = not Estado
-                end
-            end
-        end
-    end)
-end
-
--- [[ 2. EL TOGGLE (Pégalo debajo de tu Slider de Velocidad) ]] --
--- NOTA: Cambia "Extra" por el nombre de la variable de tu pestaña
 Extra:CreateToggle({
-   Name = "Modo Fantasma (0.5) 👻",
+   Name = "Modo Fantasma (Invisibilidad) 👻",
    CurrentValue = false,
-   Flag = "GhostToggle", -- Identificador único
+   Flag = "GhostModeAlexx",
    Callback = function(Value)
-      ModoGhost(Value)
+      -- Lógica interna para que funcione en la misma pestaña
+      pcall(function()
+          local char = game.Players.LocalPlayer.Character
+          if char then
+              for _, v in pairs(char:GetDescendants()) do
+                  if v:IsA("BasePart") or v:IsA("Decal") then
+                      -- Se activa (0.5 de transparencia) o se desactiva (0)
+                      v.Transparency = Value and 0.5 or 0
+                      -- Te hace intocable para otros scripts cuando está activo
+                      v.CanTouch = not Value
+                  end
+              end
+          end
+      end)
+      
+      -- Notificación de estado
+      Rayfield:Notify({
+         Title = "ALEXX HUB VIP",
+         Content = Value and "Modo Fantasma Activado 👻" or "Modo Fantasma Desactivado 👁️",
+         Duration = 2
+      })
    end,
 })
