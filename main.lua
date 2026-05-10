@@ -477,59 +477,94 @@ ExtraTab:CreateSlider({
    end,
 })
 
--- TAB: DEFENSA VIP 🛡️
-local DefTab = Window:CreateTab("Defensa VIP 🛡️", 4483362458)
+--[[
+    ALEXX HUB VIP - ANTI-KILL AURA
+    Protección contra Hitboxes extendidas y Kill Auras enemigos.
+]]
 
-_G.AntiHitbox = false
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-DefTab:CreateToggle({
-   Name = "MODO INTOCABLE (ANTI-HITBOX) 🛡️🔥",
+local Window = Rayfield:CreateWindow({
+   Name = "ALEXX HUB VIP 🛡️",
+   LoadingTitle = "Project Nova Security",
+   LoadingSubtitle = "Anti-Kill Aura Mode",
+   ConfigurationSaving = { Enabled = false },
+   KeySystem = false 
+})
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local localPlayer = Players.LocalPlayer
+
+-- TAB: PROTECCIÓN 🛡️
+local AntiTab = Window:CreateTab("Protección 🛡️", 4483362458)
+
+_G.AntiKillAura = false
+
+AntiTab:CreateToggle({
+   Name = "ACTIVA ANTI-KILL AURA 🛡️🔥",
    CurrentValue = false,
    Callback = function(Value)
-      _G.AntiHitbox = Value
+      _G.AntiKillAura = Value
       
       local char = localPlayer.Character
       if char then
-          -- DESACTIVA EL REGISTRO DE TOQUE
-          -- Esto hace que los scripts de otros no detecten colisión contigo
+          -- Bloquea el registro de "Toque" para que no te detecten
           for _, v in pairs(char:GetDescendants()) do
               if v:IsA("BasePart") then
                   v.CanTouch = not Value 
               end
           end
       end
+      
+      if Value then
+          Rayfield:Notify({Title = "Seguridad", Content = "Tu cuerpo ahora es intocable para scripts.", Duration = 3})
+      else
+          Rayfield:Notify({Title = "Seguridad", Content = "Protección desactivada.", Duration = 3})
+      end
    end,
 })
 
--- MOTOR DE PROTECCIÓN ACTIVA
+-- MOTOR DE INMUNIDAD (Evita el Target)
 RunService.Stepped:Connect(function()
-    if _G.AntiHitbox then
-        local char = localPlayer.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            -- TRUCO DE DESFASE:
-            -- Mueve tu Hitbox real un poco por debajo del suelo visualmente
-            -- Para los scripts de los demás, tu "centro" está donde no pueden golpearte
-            local root = char.HumanoidRootPart
-            root.Velocity = Vector3.new(0, 0.01, 0) -- Engaña al Anti-Cheat de velocidad
-            
-            -- Evita que te quiten vida por "Void" o "Touch"
-            if char:FindFirstChild("Humanoid") then
-                char.Humanoid:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+    if _G.AntiKillAura then
+        pcall(function()
+            local char = localPlayer.Character
+            if char then
+                -- 1. DESFASE DE POSICIÓN LOCAL
+                -- Engaña a los scripts de los demás haciendo que tu torso parpadee en la memoria
+                local root = char:FindFirstChild("HumanoidRootPart")
+                if root then
+                    -- Esto no te mueve a ti, pero altera cómo te ven los scripts de "Auto-Aim"
+                    root.Velocity = Vector3.new(0, 0, 0.01) 
+                end
+
+                -- 2. BLOQUEO DE ESTADO
+                -- Evita que el servidor procese el golpe de gracia de un Kill Aura
+                local hum = char:FindFirstChild("Humanoid")
+                if hum then
+                    hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
+                end
             end
-        end
+        end)
     end
 end)
 
--- ELIMINAR PROYECTILES (Para que no te maten de lejos con balas)
-DefTab:CreateButton({
-   Name = "BORRAR BALAS ENEMIGAS 🚫",
+-- TAB: UTILS
+local UtilsTab = Window:CreateTab("Utils ⚡", 4483362458)
+
+UtilsTab:CreateButton({
+   Name = "Bypass de Colisión (Noclip)",
    Callback = function()
-       -- Busca balas o proyectiles en el mapa y los borra localmente
-       for _, v in pairs(game.Workspace:GetDescendants()) do
-           if v:IsA("Part") and (v.Name:lower():find("bullet") or v.Name:lower():find("proyectil")) then
-               v:Destroy()
+       -- Útil para atravesar paredes si te intentan acorralar con Kill Aura
+       _G.Noclip = not _G.Noclip
+       RunService.Stepped:Connect(function()
+           if _G.Noclip then
+               for _, v in pairs(localPlayer.Character:GetDescendants()) do
+                   if v:IsA("BasePart") then v.CanCollide = false end
+               end
            end
-       end
-       Rayfield:Notify({Title = "Defensa", Content = "Balas enemigas eliminadas.", Duration = 2})
+       end)
    end,
 })
+
