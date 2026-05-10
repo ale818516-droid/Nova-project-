@@ -1,24 +1,21 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Version: 2026 - FULL RESTORED + HITBOX + SOUND
+    Version: 2026 - FULL RESTORED (FIXED LOAD)
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- ENLACE DE MONETIZACIÓN ACTUALIZADO
 local NuevoLink = "https://link-hub.net/5492042/XS4p33zMPv8Z"
-
--- COPIADO AUTOMÁTICO AL INICIAR
 setclipboard(NuevoLink)
 
--- NOTIFICACIÓN DE COPIADO
+-- NOTIFICACIÓN DE INICIO
 game:GetService("StarterGui"):SetCore("SendNotification", {
     Title = "ALEXX HUB VIP",
-    Text = "¡Nuevo enlace copiado! Consigue la llave.",
-    Duration = 8
+    Text = "¡Script Cargado con Éxito!",
+    Duration = 5
 })
 
--- SISTEMA DE SONIDO AL INICIAR
 local function PlayStartSound()
     local sound = Instance.new("Sound")
     sound.SoundId = "rbxassetid://4590662766" 
@@ -37,7 +34,7 @@ local Window = Rayfield:CreateWindow({
    KeySystem = true, 
    KeySettings = {
       Title = "🔑 ACCESS SYSTEM",
-      Subtitle = "Key Required (Link in Clipboard)",
+      Subtitle = "Key Required",
       Note = "Pega el link en tu navegador para obtener la clave", 
       FileName = "NovaKey_Mayo_V3", 
       SaveKey = true, 
@@ -48,7 +45,7 @@ local Window = Rayfield:CreateWindow({
 
 task.spawn(PlayStartSound)
 
--- SERVICES
+-- SERVICES (SOLO UNA VEZ PARA EVITAR ERRORES)
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -193,25 +190,6 @@ SpeedTab:CreateSlider({
    end,
 })
 
-SpeedTab:CreateSlider({
-   Name = "Sensibilidad (Camera)",
-   Range = {1, 10},
-   Increment = 0.1,
-   CurrentValue = 1,
-   Callback = function(Value)
-       UserInputService.MouseDeltaSensitivity = Value
-   end,
-})
-
-SpeedTab:CreateButton({
-   Name = "🏃 Velocidad Normal",
-   Callback = function()
-      if localPlayer.Character:FindFirstChild("Humanoid") then
-         localPlayer.Character.Humanoid.WalkSpeed = 16
-      end
-   end,
-})
-
 SpeedTab:CreateButton({
    Name = "🚀 Ultra FPS Booster",
    Callback = function()
@@ -226,31 +204,17 @@ SpeedTab:CreateButton({
          end
       end
       Lighting.GlobalShadows = false
-      Lighting.FogEnd = 9e9
-      settings().Rendering.QualityLevel = 1
       Rayfield:Notify({Title = "ALEXX HUB", Content = "Lag eliminado!", Duration = 3})
    end,
 })
 
--- 4. TAB: COMBAT ⚔️
+-- 4. TAB: COMBAT ⚔️ (UNIFICADA)
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
--- SISTEMA DE HITBOX
 _G.HitboxActive = false
-RunService.RenderStepped:Connect(function()
-    if _G.HitboxActive then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                local head = p.Character.Head
-                head.Size = Vector3.new(7, 7, 7)
-                head.Color = Color3.fromRGB(0, 0, 255) 
-                head.Transparency = 0.6
-                head.CanCollide = false
-                head.Massless = true
-            end
-        end
-    end
-end)
+_G.Aimbot = false
+_G.AutoKill = false
+_G.HitboxSize = 450
 
 CombatTab:CreateToggle({
    Name = "🎯 Hitbox Azul",
@@ -268,9 +232,8 @@ CombatTab:CreateToggle({
    end,
 })
 
-_G.Aimbot = false
 CombatTab:CreateToggle({
-   Name = "🎯 Hard Lock",
+   Name = "🎯 Hard Lock (Aimbot)",
    CurrentValue = false,
    Callback = function(Value)
       _G.Aimbot = Value
@@ -299,23 +262,53 @@ CombatTab:CreateToggle({
    end,
 })
 
--- 5. TAB: CONTROL ⚙️
-local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
-
-ControlTab:CreateButton({
-   Name = "🗑️ Limpiar Chat (Anti-Hack Accusation)",
-   Callback = function()
-       local chat = localPlayer.PlayerGui:FindFirstChild("Chat")
-       if chat then
-           for _, v in pairs(chat:GetDescendants()) do
-               if v:IsA("TextLabel") or v:IsA("Frame") then
-                   v.Visible = false
-               end
-           end
-           Rayfield:Notify({Title = "Chat Limpio", Content = "Mensajes ocultos con éxito", Duration = 3})
-       end
+CombatTab:CreateToggle({
+   Name = "💀 AUTO KILL INSTANTÁNEO",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.AutoKill = Value
    end,
 })
+
+-- LOGICA DE COMBATE
+RunService.RenderStepped:Connect(function()
+    if _G.HitboxActive then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
+                local head = p.Character.Head
+                head.Size = Vector3.new(7, 7, 7)
+                head.Color = Color3.fromRGB(0, 0, 255) 
+                head.Transparency = 0.6
+                head.CanCollide = false
+            end
+        end
+    end
+end)
+
+RunService.Stepped:Connect(function()
+    if _G.AutoKill then
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
+                local hrp = p.Character:FindFirstChild("HumanoidRootPart")
+                local hum = p.Character.Humanoid
+                local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
+                if hum.Health > 0 and hrp and tool then
+                    hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
+                    hrp.Transparency = 1
+                    hrp.CanCollide = false
+                    tool:Activate()
+                    local remote = tool:FindFirstChild("Attack") or tool:FindFirstChild("RemoteEvent")
+                    if remote then
+                        remote:FireServer(hrp.Position)
+                    end
+                end
+            end
+        end
+    end
+end)
+
+-- 5. TAB: CONTROL ⚙️
+local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
 
 ControlTab:CreateButton({
    Name = "🌌 Cambiar de Servidor",
@@ -335,53 +328,6 @@ ControlTab:CreateButton({
    end,
 })
 
-ControlTab:CreateToggle({
-   Name = "☀️ Full Bright",
-   CurrentValue = false,
-   Callback = function(Value)
-      if Value then
-         Lighting.Brightness = 2
-         Lighting.ClockTime = 14
-         Lighting.FogEnd = 100000
-         Lighting.GlobalShadows = false
-      else
-         Lighting.Brightness = 1
-         Lighting.GlobalShadows = true
-      end
-   end,
-})
-
-local PlayerLabel = ControlTab:CreateLabel("Jugadores: " .. #Players:GetPlayers())
-Players.PlayerAdded:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
-Players.PlayerRemoving:Connect(function() PlayerLabel:Set("Jugadores: " .. #Players:GetPlayers()) end)
-
-local function checkModerator(player)
-    if player:GetRankInGroup(game.CreatorId) >= 200 then 
-        Rayfield:Notify({
-            Title = "⚠️ MOD DETECTADO",
-            Content = "El moderador " .. player.Name .. " ha entrado.",
-            Duration = 10,
-        })
-    end
-end
-Players.PlayerAdded:Connect(checkModerator)
-
-ControlTab:CreateButton({
-   Name = "🔍 Escanear Moderadores",
-   Callback = function()
-      local found = false
-      for _, p in pairs(Players:GetPlayers()) do
-         if p:GetRankInGroup(game.CreatorId) >= 200 then
-            Rayfield:Notify({Title = "ALERTA", Content = p.Name .. " es moderador.", Duration = 5})
-            found = true
-         end
-      end
-      if not found then
-         Rayfield:Notify({Title = "Seguro", Content = "No hay moderadores activos.", Duration = 3})
-      end
-   end,
-})
-
 ControlTab:CreateSlider({
    Name = "JumpPower (Salto)",
    Range = {50, 500},
@@ -396,77 +342,10 @@ ControlTab:CreateSlider({
    end,
 })
 
-ControlTab:CreateButton({
-   Name = "🦿 Salto Normal",
-   Callback = function()
-      if localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
-         local hum = localPlayer.Character.Humanoid
-         hum.JumpPower = 50
-         Rayfield:Notify({Title = "ALEXX HUB", Content = "Salto restablecido!", Duration = 2})
-      end
-   end,
-})
-
-ControlTab:CreateButton({
-   Name = "🔄 Re-join Server",
-   Callback = function()
-      TeleportService:Teleport(game.PlaceId, localPlayer)
-   end,
-})
-
-local RunService = game:GetService("RunService")
-local Players = game:GetService("Players")
-local localPlayer = Players.LocalPlayer
-
-_G.AutoKill = false
-_G.HitboxSize = 450 
-
--- TAB: COMBAT ⚔️
-local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
-
-CombatTab:CreateToggle({
-   Name = "💀 AUTO KILL INSTANTÁNEO",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.AutoKill = Value
-   end,
-})
-
--- BUCLE OPTIMIZADO PARA EVITAR LAG Y BUGS
-RunService.Stepped:Connect(function()
-    if _G.AutoKill then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
-                local hrp = p.Character:FindFirstChild("HumanoidRootPart")
-                local hum = p.Character.Humanoid
-                local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
-                
-                if hum.Health > 0 and hrp and tool then
-                    -- 1. Hitbox Invisible de 450
-                    hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
-                    hrp.Transparency = 1
-                    hrp.CanCollide = false
-                    
-                    -- 2. ATAQUE SIN LAG (Bypass Directo)
-                    -- Quitamos el bucle for exagerado para que no se trabe el juego
-                    tool:Activate()
-                    
-                    local remote = tool:FindFirstChild("Attack") or tool:FindFirstChild("RemoteEvent")
-                    if remote then
-                        -- Enviamos solo 2 señales rápidas para asegurar impacto sin lag
-                        remote:FireServer(hrp.Position)
-                        remote:FireServer(hrp.Position)
-                    end
-                end
-            end
-        end
-    end
-end)
-
 -- TAB: EXTRA ⚙️
 local ExtraTab = Window:CreateTab("Extra ⚙️", 4483362458)
 ExtraTab:CreateSlider({
-   Name = "Velocidad",
+   Name = "Velocidad Extra",
    Range = {16, 250},
    Increment = 1,
    CurrentValue = 16,
@@ -474,5 +353,30 @@ ExtraTab:CreateSlider({
       if localPlayer.Character and localPlayer.Character:FindFirstChild("Humanoid") then
          localPlayer.Character.Humanoid.WalkSpeed = Value
       end
+   end,
+})
+-- EL TRUCO PARA DESAPARECER DE VERDAD
+ExtraTab:CreateButton({
+   Name = "INVISIBILIDAD GHOST (DIOS) 👻🔥",
+   Callback = function()
+       local char = localPlayer.Character
+       if char then
+           -- 1. Engañamos al servidor eliminando el motor de animaciones y el root
+           local root = char:FindFirstChild("HumanoidRootPart")
+           if root then
+               local clone = root:Clone()
+               clone.Parent = char
+               root:Destroy() -- Aquí es donde te vuelves invisible/bugeado para los demás
+               
+               -- 2. Quitamos la transparencia para que tú sí te veas pero ellos no
+               for _, v in pairs(char:GetDescendants()) do
+                   if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                       v.Transparency = 0.5 -- Tú te ves fantasma, ellos no ven nada
+                   end
+               end
+               
+               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Tu cuerpo real está protegido en la base.", Duration = 4})
+           end
+       end
    end,
 })
