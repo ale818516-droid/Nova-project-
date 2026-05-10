@@ -476,25 +476,28 @@ ExtraTab:CreateSlider({
       end
    end,
 })
-_G.InvisbleActivo = false
-
-local function ToggleInvisibilidad(Estado)
-    _G.InvisbleActivo = Estado
+-- [[ 1. LA LÓGICA (Ponlo fuera de los elementos si quieres, o arriba) ]] --
+local function ModoGhost(Estado)
     pcall(function()
         local char = game.Players.LocalPlayer.Character
         if char then
             for _, v in pairs(char:GetDescendants()) do
                 if v:IsA("BasePart") or v:IsA("Decal") then
-                    -- Si Estado es true, transparencia 0.5 y quita toque. Si es false, vuelve a 0 y activa toque.
                     v.Transparency = Estado and 0.5 or 0
                     v.CanTouch = not Estado
                 end
             end
-            
-            -- Protección extra: si está activo, nos movemos un poquito para engañar scripts
-            if Estado and char:FindFirstChild("HumanoidRootPart") then
-                char.HumanoidRootPart.CanCollide = false
-            end
         end
     end)
 end
+
+-- [[ 2. EL TOGGLE (Pégalo debajo de tu Slider de Velocidad) ]] --
+-- NOTA: Cambia "Extra" por el nombre de la variable de tu pestaña
+Extra:CreateToggle({
+   Name = "Modo Fantasma (0.5) 👻",
+   CurrentValue = false,
+   Flag = "GhostToggle", -- Identificador único
+   Callback = function(Value)
+      ModoGhost(Value)
+   end,
+})
