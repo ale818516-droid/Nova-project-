@@ -1,6 +1,6 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Version: 2026 - FULL RESTORED (FIXED LOAD)
+    Version: 2026 - FULL RESTORED (STEALTH HITBOX V2)
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -45,7 +45,7 @@ local Window = Rayfield:CreateWindow({
 
 task.spawn(PlayStartSound)
 
--- SERVICES (SOLO UNA VEZ PARA EVITAR ERRORES)
+-- SERVICES
 local RunService = game:GetService("RunService")
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
@@ -208,7 +208,7 @@ SpeedTab:CreateButton({
    end,
 })
 
--- 4. TAB: COMBAT ⚔️ (UNIFICADA)
+-- 4. TAB: COMBAT ⚔️
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
 _G.HitboxActive = false
@@ -270,37 +270,42 @@ CombatTab:CreateToggle({
    end,
 })
 
--- LOGICA DE COMBATE
-RunService.RenderStepped:Connect(function()
-    if _G.HitboxActive then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Head") then
-                local head = p.Character.Head
-                head.Size = Vector3.new(7, 7, 7)
-                head.Color = Color3.fromRGB(0, 0, 255) 
-                head.Transparency = 0.6
-                head.CanCollide = false
-            end
-        end
-    end
-end)
-
+-- LÓGICA DE SEGUIMIENTO CON TAMAÑO MEDIO (MÁS GRANDE PERO DISIMULADO)
 RunService.Stepped:Connect(function()
-    if _G.AutoKill then
-        for _, p in pairs(Players:GetPlayers()) do
-            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
-                local hrp = p.Character:FindFirstChild("HumanoidRootPart")
-                local hum = p.Character.Humanoid
-                local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
-                if hum.Health > 0 and hrp and tool then
-                    hrp.Size = Vector3.new(_G.HitboxSize, _G.HitboxSize, _G.HitboxSize)
-                    hrp.Transparency = 1
-                    hrp.CanCollide = false
-                    tool:Activate()
-                    local remote = tool:FindFirstChild("Attack") or tool:FindFirstChild("RemoteEvent")
-                    if remote then
-                        remote:FireServer(hrp.Position)
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
+            local enemyPart = p.Character:FindFirstChild("HumanoidRootPart") or p.Character:FindFirstChild("Head")
+            local hum = p.Character.Humanoid
+
+            if hum.Health > 0 and enemyPart then
+                if _G.HitboxActive or _G.AutoKill then
+                    -- TAMAÑO AJUSTADO: NI MUY PEQUEÑO NI EXAGERADO
+                    enemyPart.Size = Vector3.new(7, 7, 7) 
+                    enemyPart.Transparency = 0.75
+                    enemyPart.CanCollide = false
+                    
+                    if _G.HitboxActive then
+                        enemyPart.Color = Color3.fromRGB(0, 0, 255)
                     end
+
+                    if _G.AutoKill then
+                        local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
+                        if tool then
+                            tool:Activate()
+                            local remote = tool:FindFirstChild("Attack") or tool:FindFirstChild("RemoteEvent")
+                            if remote then
+                                remote:FireServer(enemyPart.Position)
+                            end
+                        end
+                    end
+                else
+                    -- RESET AL DESACTIVAR
+                    if enemyPart.Name == "Head" then
+                        enemyPart.Size = Vector3.new(1.15, 1.15, 1.15)
+                    else
+                        enemyPart.Size = Vector3.new(2, 2, 1)
+                    end
+                    enemyPart.Transparency = 0
                 end
             end
         end
@@ -355,27 +360,23 @@ ExtraTab:CreateSlider({
       end
    end,
 })
--- EL TRUCO PARA DESAPARECER DE VERDAD
+
 ExtraTab:CreateButton({
    Name = "INVISIBILIDAD GHOST (DIOS) 👻🔥",
    Callback = function()
        local char = localPlayer.Character
        if char then
-           -- 1. Engañamos al servidor eliminando el motor de animaciones y el root
            local root = char:FindFirstChild("HumanoidRootPart")
            if root then
                local clone = root:Clone()
                clone.Parent = char
-               root:Destroy() -- Aquí es donde te vuelves invisible/bugeado para los demás
-               
-               -- 2. Quitamos la transparencia para que tú sí te veas pero ellos no
+               root:Destroy() 
                for _, v in pairs(char:GetDescendants()) do
                    if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-                       v.Transparency = 0.5 -- Tú te ves fantasma, ellos no ven nada
+                       v.Transparency = 0.5 
                    end
                end
-               
-               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Tu cuerpo real está protegido en la base.", Duration = 4})
+               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Invisibilidad OK.", Duration = 4})
            end
        end
    end,
