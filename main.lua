@@ -476,32 +476,3 @@ ExtraTab:CreateSlider({
       end
    end,
 })
-
-Extra:CreateToggle})
-   Name = "Modo Fantasma (Invisibilidad) 👻",
-   CurrentValue = false,
-   Flag = "GhostModeAlexx",
-   Callback = function(Value)
-      -- Lógica interna para que funcione en la misma pestaña
-      pcall(function()
-          local char = game.Players.LocalPlayer.Character
-          if char then
-              for _, v in pairs(char:GetDescendants()) do
-                  if v:IsA("BasePart") or v:IsA("Decal") then
-                      -- Se activa (0.5 de transparencia) o se desactiva (0)
-                      v.Transparency = Value and 0.5 or 0
-                      -- Te hace intocable para otros scripts cuando está activo
-                      v.CanTouch = not Value
-                  end
-              end
-          end
-      end)
-      
-      -- Notificación de estado
-      Rayfield:Notify({
-         Title = "ALEXX HUB VIP",
-         Content = Value and "Modo Fantasma Activado 👻" or "Modo Fantasma Desactivado 👁️",
-         Duration = 2
-      })
-   end,
-})
