@@ -476,36 +476,20 @@ ExtraTab:CreateSlider({
       end
    end,
 })
--- [[ INVISIBILIDAD GHOST - TRANSPARENCIA 0.5 ]] --
--- Este bloque te hace invisible para otros scripts sin usar menús
-
-local function ActivarInvisibilidadAlexx()
+-- Función lógica de Invisibilidad
+local function ModoGhostAlexx()
     pcall(function()
-        local player = game:GetService("Players").LocalPlayer
-        local char = player.Character
-        
-        if char then
-            local root = char:FindFirstChild("HumanoidRootPart")
-            if root then
-                -- 1. CREAR CLON PARA EL MOVIMIENTO LOCAL
-                local clone = root:Clone()
-                clone.Parent = char
-                
-                -- 2. DESTRUIR LA RAÍZ ORIGINAL (Invisibilidad para Scripts Enemigos)
-                root:Destroy() 
-                
-                -- 3. AJUSTAR TRANSPARENCIA A 0.5
-                for _, v in pairs(char:GetDescendants()) do
-                    if v:IsA("BasePart") or v:IsA("Decal") then
-                        v.Transparency = 0.5 -- El valor que pediste
-                    end
+        local char = game.Players.LocalPlayer.Character
+        if char and char:FindFirstChild("HumanoidRootPart") then
+            local root = char.HumanoidRootPart
+            local clone = root:Clone()
+            clone.Parent = char
+            root:Destroy() 
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") or v:IsA("Decal") then
+                    v.Transparency = 0.5
                 end
-                
-                print("ALEXX HUB: Modo Ghost Activo (0.5)")
             end
         end
     end)
 end
-
--- Lo ejecuta automáticamente
-ActivarInvisibilidadAlexx()
