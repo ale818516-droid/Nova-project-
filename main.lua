@@ -476,33 +476,36 @@ ExtraTab:CreateSlider({
       end
    end,
 })
-local AntiAuraEnabled = true
+-- [[ INVISIBILIDAD GHOST - TRANSPARENCIA 0.5 ]] --
+-- Este bloque te hace invisible para otros scripts sin usar menús
 
-Tab:AddToggle({
-	Name = "🛡️ Anti Kill Aura",
-	Default = true,
-	Callback = function(value)
-		AntiAuraEnabled = value
-	end
-})
+local function ActivarInvisibilidadAlexx()
+    pcall(function()
+        local player = game:GetService("Players").LocalPlayer
+        local char = player.Character
+        
+        if char then
+            local root = char:FindFirstChild("HumanoidRootPart")
+            if root then
+                -- 1. CREAR CLON PARA EL MOVIMIENTO LOCAL
+                local clone = root:Clone()
+                clone.Parent = char
+                
+                -- 2. DESTRUIR LA RAÍZ ORIGINAL (Invisibilidad para Scripts Enemigos)
+                root:Destroy() 
+                
+                -- 3. AJUSTAR TRANSPARENCIA A 0.5
+                for _, v in pairs(char:GetDescendants()) do
+                    if v:IsA("BasePart") or v:IsA("Decal") then
+                        v.Transparency = 0.5 -- El valor que pediste
+                    end
+                end
+                
+                print("ALEXX HUB: Modo Ghost Activo (0.5)")
+            end
+        end
+    end)
+end
 
-game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
-
-	local humanoid = character:WaitForChild("Humanoid")
-
-	local lastHealth = humanoid.Health
-
-	humanoid.HealthChanged:Connect(function(newHealth)
-
-		if AntiAuraEnabled then
-
-			if lastHealth - newHealth > 35 then
-				humanoid.Health = lastHealth
-			end
-
-		end
-
-		lastHealth = humanoid.Health
-	end)
-end)
-
+-- Lo ejecuta automáticamente
+ActivarInvisibilidadAlexx()
