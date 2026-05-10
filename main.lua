@@ -476,19 +476,24 @@ ExtraTab:CreateSlider({
       end
    end,
 })
--- Función lógica de Invisibilidad
-local function ModoGhostAlexx()
+_G.InvisbleActivo = false
+
+local function ToggleInvisibilidad(Estado)
+    _G.InvisbleActivo = Estado
     pcall(function()
         local char = game.Players.LocalPlayer.Character
-        if char and char:FindFirstChild("HumanoidRootPart") then
-            local root = char.HumanoidRootPart
-            local clone = root:Clone()
-            clone.Parent = char
-            root:Destroy() 
+        if char then
             for _, v in pairs(char:GetDescendants()) do
                 if v:IsA("BasePart") or v:IsA("Decal") then
-                    v.Transparency = 0.5
+                    -- Si Estado es true, transparencia 0.5 y quita toque. Si es false, vuelve a 0 y activa toque.
+                    v.Transparency = Estado and 0.5 or 0
+                    v.CanTouch = not Estado
                 end
+            end
+            
+            -- Protección extra: si está activo, nos movemos un poquito para engañar scripts
+            if Estado and char:FindFirstChild("HumanoidRootPart") then
+                char.HumanoidRootPart.CanCollide = false
             end
         end
     end)
