@@ -1,6 +1,6 @@
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
-    Version: 2026 - FULL RESTORED (STEALTH HITBOX V2)
+    Version: 2026 - FULL RESTORED (STEALTH HITBOX V3)
 ]]
 
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
@@ -53,6 +53,10 @@ local TeleportService = game:GetService("TeleportService")
 local Lighting = game:GetService("Lighting")
 local localPlayer = Players.LocalPlayer
 local camera = workspace.CurrentCamera
+
+-- VARIABLES GLOBALES INTEGRADAS
+_G.SafeMode = false
+_G.HitboxActive = false
 
 -- 1. TAB: ESP 👁️
 local SpyTab = Window:CreateTab("ESP 👁️", 4483362458)
@@ -208,24 +212,22 @@ SpeedTab:CreateButton({
    end,
 })
 
--- 4. TAB: COMBAT ⚔️
+-- 4. TAB: COMBAT ⚔️ (REEMPLAZADO POR VERSIÓN INTEGRADA)
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
-_G.HitboxActive = false
 _G.Aimbot = false
 _G.AutoKill = false
-_G.HitboxSize = 450
 
 CombatTab:CreateToggle({
-   Name = "🎯 Hitbox Azul",
+   Name = "🎯 Hitbox Activa (7x7x7)",
    CurrentValue = false,
    Callback = function(Value)
       _G.HitboxActive = Value
       if not Value then
          for _, p in pairs(Players:GetPlayers()) do
-            if p.Character and p.Character:FindFirstChild("Head") then
-               p.Character.Head.Size = Vector3.new(1.15, 1.15, 1.15)
-               p.Character.Head.Transparency = 0
+            if p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+               p.Character.HumanoidRootPart.Size = Vector3.new(2, 2, 1)
+               p.Character.HumanoidRootPart.Transparency = 1
             end
          end
       end
@@ -270,50 +272,21 @@ CombatTab:CreateToggle({
    end,
 })
 
--- LÓGICA DE SEGUIMIENTO CON TAMAÑO MEDIO (MÁS GRANDE PERO DISIMULADO)
-RunService.Stepped:Connect(function()
-    for _, p in pairs(Players:GetPlayers()) do
-        if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
-            local enemyPart = p.Character:FindFirstChild("HumanoidRootPart") or p.Character:FindFirstChild("Head")
-            local hum = p.Character.Humanoid
-
-            if hum.Health > 0 and enemyPart then
-                if _G.HitboxActive or _G.AutoKill then
-                    -- TAMAÑO AJUSTADO: NI MUY PEQUEÑO NI EXAGERADO
-                    enemyPart.Size = Vector3.new(7, 7, 7) 
-                    enemyPart.Transparency = 0.75
-                    enemyPart.CanCollide = false
-                    
-                    if _G.HitboxActive then
-                        enemyPart.Color = Color3.fromRGB(0, 0, 255)
-                    end
-
-                    if _G.AutoKill then
-                        local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
-                        if tool then
-                            tool:Activate()
-                            local remote = tool:FindFirstChild("Attack") or tool:FindFirstChild("RemoteEvent")
-                            if remote then
-                                remote:FireServer(enemyPart.Position)
-                            end
-                        end
-                    end
-                else
-                    -- RESET AL DESACTIVAR
-                    if enemyPart.Name == "Head" then
-                        enemyPart.Size = Vector3.new(1.15, 1.15, 1.15)
-                    else
-                        enemyPart.Size = Vector3.new(2, 2, 1)
-                    end
-                    enemyPart.Transparency = 0
-                end
-            end
-        end
-    end
-end)
-
--- 5. TAB: CONTROL ⚙️
+-- 5. TAB: CONTROL ⚙️ (SAFE MODE INTEGRADO AQUÍ)
 local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
+
+ControlTab:CreateToggle({
+   Name = "🛡️ SAFE MODE (Anti-Ban/Invisible)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.SafeMode = Value
+      Rayfield:Notify({
+         Title = "Safe Mode",
+         Content = Value and "Modo Seguro: Hitbox ahora es invisible." or "Modo Seguro: Desactivado.",
+         Duration = 3
+      })
+   end,
+})
 
 ControlTab:CreateButton({
    Name = "🌌 Cambiar de Servidor",
@@ -382,17 +355,39 @@ ExtraTab:CreateButton({
    end,
 })
 
--- 4. PESTAÑA CONTROL (AQUÍ ESTÁ EL SAFE MODE ⚙️)
-local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
-ControlTab:CreateToggle({
-   Name = "🛡️ SAFE MODE (Anti-Ban/Invisible)",
-   CurrentValue = false,
-   Callback = function(Value)
-      _G.SafeMode = Value
-      Rayfield:Notify({
-         Title = "Safe Mode",
-         Content = Value and "Modo Seguro: Hitbox ahora es invisible." or "Modo Seguro: Desactivado.",
-         Duration = 3
-      })
-   end,
-})
+-- LÓGICA DE FUNCIONAMIENTO INTEGRADA (EL MISMO QUE TE DI)
+RunService.Stepped:Connect(function()
+    for _, p in pairs(Players:GetPlayers()) do
+        if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
+            local root = p.Character:FindFirstChild("HumanoidRootPart")
+            local hum = p.Character.Humanoid
+
+            if hum.Health > 0 and root then
+                -- LÓGICA HITBOX (7x7x7) + SAFE MODE
+                if _G.HitboxActive then
+                    root.Size = Vector3.new(7, 7, 7)
+                    root.CanCollide = false
+                    
+                    if _G.SafeMode then
+                        root.Transparency = 1 -- Totalmente invisible (Safe Mode)
+                    else
+                        root.Transparency = 0.75
+                        root.Color = Color3.fromRGB(0, 0, 255) -- Azul normal
+                    end
+                end
+
+                -- LÓGICA AUTO KILL (Se mantiene igual)
+                if _G.AutoKill then
+                    local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
+                    if tool then
+                        tool:Activate()
+                        local remote = tool:FindFirstChild("Attack") or tool:FindFirstChild("RemoteEvent")
+                        if remote then
+                            remote:FireServer(root.Position)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end)
