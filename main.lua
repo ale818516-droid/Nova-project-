@@ -476,73 +476,33 @@ ExtraTab:CreateSlider({
       end
    end,
 })
--- PEGA ESTE BLOQUE EN TU SECCIÓN DE TABS
-local GhostTab = Window:CreateTab("Invisible 👻", 4483362458)
+local AntiAuraEnabled = true
 
-GhostTab:CreateButton({
-   Name = "ACTIVAR INVISIBILIDAD GHOST 👻🔥",
-   Callback = function()
-       -- TODO el código está aquí adentro, así que NO se ejecutará al abrir el script
-       local char = game.Players.LocalPlayer.Character
-       if char then
-           local root = char:FindFirstChild("HumanoidRootPart")
-           if root then
-               local clone = root:Clone()
-               clone.Parent = char
-               root:Destroy() -- Solo se destruye cuando presionas este botón
-               
-               for _, v in pairs(char:GetDescendants()) do
-                   if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
-                       v.Transparency = 0.5 
-                   end
-               end
-               
-               Rayfield:Notify({Title = "GHOST ACTIVO", Content = "Invisible activado.", Duration = 4})
-           end
-       end
-   end,
+Tab:AddToggle({
+	Name = "🛡️ Anti Kill Aura",
+	Default = true,
+	Callback = function(value)
+		AntiAuraEnabled = value
+	end
 })
--- [[ PROTECCIÓN GLOBAL SELECTIVA - ALEXX HUB VIP ]] --
 
-_G.GlobalProtection = true 
+game.Players.LocalPlayer.CharacterAdded:Connect(function(character)
 
-local Players = game:GetService("Players")
-local RunService = game:GetService("RunService")
-local localPlayer = Players.LocalPlayer
+	local humanoid = character:WaitForChild("Humanoid")
 
-RunService.Stepped:Connect(function()
-    if _G.GlobalProtection then
-        pcall(function()
-            local char = localPlayer.Character
-            if char then
-                -- 1. ANTI-FLING GLOBAL (Inmune a giros de otros)
-                local hrp = char:FindFirstChild("HumanoidRootPart")
-                if hrp then
-                    -- Solo reseteamos fuerzas externas, no tu movimiento real
-                    hrp.RotVelocity = Vector3.new(0, 0, 0)
-                end
+	local lastHealth = humanoid.Health
 
-                -- 2. EL TRUCO MAESTRO: CanTouch Selectivo
-                -- Nos hacemos intocables para el SERVIDOR, pero firetouchinterest 
-                -- (lo que usa tu script de ataque) seguirá funcionando.
-                for _, v in pairs(char:GetChildren()) do
-                    if v:IsA("BasePart") then
-                        -- Apagamos el registro físico. 
-                        -- Otros scripts (Kill Aura/Hitbox) fallarán porque usan física.
-                        -- TU SCRIPT funcionará porque firetouchinterest es una función lógica, no física.
-                        v.CanTouch = false 
-                    end
-                end
-                
-                -- 3. BYPASS DE MUERTE (Para que no te maten de un toque)
-                local hum = char:FindFirstChild("Humanoid")
-                if hum then
-                    -- Evitamos que otros scripts fuercen tu estado de "Muerto" o "Sentado"
-                    hum:SetStateEnabled(Enum.HumanoidStateType.Dead, false)
-                    hum:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-                end
-            end
-        end)
-    end
+	humanoid.HealthChanged:Connect(function(newHealth)
+
+		if AntiAuraEnabled then
+
+			if lastHealth - newHealth > 35 then
+				humanoid.Health = lastHealth
+			end
+
+		end
+
+		lastHealth = humanoid.Health
+	end)
 end)
 
