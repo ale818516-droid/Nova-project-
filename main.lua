@@ -69,6 +69,7 @@ local camera = workspace.CurrentCamera
 -- VARIABLES GLOBALES INTEGRADAS
 _G.SafeMode = false
 _G.HitboxActive = false
+_G.SuperBypass = false
 
 -- 1. TAB: ESP 👁️
 local SpyTab = Window:CreateTab("ESP 👁️", 4483362458)
@@ -284,7 +285,37 @@ CombatTab:CreateToggle({
    end,
 })
 
--- 5. TAB: CONTROL ⚙️
+-- 5. TAB: BYPASS 🔓 (NUEVA FUNCIÓN ANTI-CONTADOR)
+local BypassTab = Window:CreateTab("Bypass 🔓", 4483362458)
+
+BypassTab:CreateToggle({
+   Name = "🔥 Forzar Movimiento (Anti-Contador)",
+   CurrentValue = false,
+   Callback = function(Value)
+      _G.SuperBypass = Value
+      task.spawn(function()
+         while _G.SuperBypass do
+            pcall(function()
+               local char = localPlayer.Character
+               if char then
+                  -- Desancla todo el cuerpo para evitar el bloqueo del contador
+                  for _, v in pairs(char:GetDescendants()) do
+                     if v:IsA("BasePart") then v.Anchored = false end
+                  end
+                  -- Mantiene la velocidad base si el juego intenta resetearla a 0
+                  local hum = char:FindFirstChild("Humanoid")
+                  if hum and hum.WalkSpeed < 10 then
+                     hum.WalkSpeed = 16
+                  end
+               end
+            end)
+            task.wait(0.1)
+         end
+      end)
+   end,
+})
+
+-- 6. TAB: CONTROL ⚙️
 local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
 
 ControlTab:CreateToggle({
