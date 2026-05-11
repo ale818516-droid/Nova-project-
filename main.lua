@@ -1,3 +1,15 @@
+-- BLOQUEO DE SEGURIDAD PARA MURDERERS VS SHERIFFS
+local ID_PERMITIDO = 135856908115931 
+
+if game.PlaceId ~= ID_PERMITIDO then
+    game:GetService("StarterGui"):SetCore("SendNotification", {
+        Title = "❌ ACCESO DENEGADO",
+        Text = "Este script solo funciona en Murderers VS Sheriffs.",
+        Duration = 10
+    })
+    return -- Detiene la ejecución por completo
+end
+
 --[[
     PROYECTO NOVA - ALEXX HUB VIP
     Version: 2026 - FULL RESTORED (STEALTH HITBOX V3)
@@ -212,7 +224,7 @@ SpeedTab:CreateButton({
    end,
 })
 
--- 4. TAB: COMBAT ⚔️ (REEMPLAZADO POR VERSIÓN INTEGRADA)
+-- 4. TAB: COMBAT ⚔️
 local CombatTab = Window:CreateTab("Combat ⚔️", 4483362458)
 
 _G.Aimbot = false
@@ -272,7 +284,7 @@ CombatTab:CreateToggle({
    end,
 })
 
--- 5. TAB: CONTROL ⚙️ (SAFE MODE INTEGRADO AQUÍ)
+-- 5. TAB: CONTROL ⚙️
 local ControlTab = Window:CreateTab("Control ⚙️", 4483362458)
 
 ControlTab:CreateToggle({
@@ -355,7 +367,7 @@ ExtraTab:CreateButton({
    end,
 })
 
--- LÓGICA DE FUNCIONAMIENTO INTEGRADA (EL MISMO QUE TE DI)
+-- LÓGICA DE FUNCIONAMIENTO INTEGRADA
 RunService.Stepped:Connect(function()
     for _, p in pairs(Players:GetPlayers()) do
         if p ~= localPlayer and p.Character and p.Character:FindFirstChild("Humanoid") then
@@ -363,20 +375,18 @@ RunService.Stepped:Connect(function()
             local hum = p.Character.Humanoid
 
             if hum.Health > 0 and root then
-                -- LÓGICA HITBOX (7x7x7) + SAFE MODE
                 if _G.HitboxActive then
                     root.Size = Vector3.new(7, 7, 7)
                     root.CanCollide = false
                     
                     if _G.SafeMode then
-                        root.Transparency = 1 -- Totalmente invisible (Safe Mode)
+                        root.Transparency = 1 
                     else
                         root.Transparency = 0.75
-                        root.Color = Color3.fromRGB(0, 0, 255) -- Azul normal
+                        root.Color = Color3.fromRGB(0, 0, 255)
                     end
                 end
 
-                -- LÓGICA AUTO KILL (Se mantiene igual)
                 if _G.AutoKill then
                     local tool = localPlayer.Character and localPlayer.Character:FindFirstChildOfClass("Tool")
                     if tool then
