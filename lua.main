@@ -1,0 +1,754 @@
+--[[
+ALEXX HUB PREMIUM - CHARACTER TAG INTEGRATED EDITION
+Dynamic local BillboardGui tag unificado con tus variables exactas.
+]]
+
+local Players = game:GetService("Players")
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local Workspace = game:GetService("Workspace")
+
+local LocalPlayer = Players.LocalPlayer
+local Cam = Workspace.CurrentCamera
+local Mouse = LocalPlayer:GetMouse()
+
+-- ====================================================================
+-- TUS VARIABLES PERSONALIZADAS DE TEXTO Y TAG
+-- ====================================================================
+local TagColor = "rgb(0, 255, 255)"
+local NuevoNombre = '[MOD] ALEXX'
+local NombrePlano = "[MOD] ALEXX HUB"
+local NombreReal = LocalPlayer.Name
+local DisplayReal = LocalPlayer.DisplayName
+
+-- Variable global interna para controlar el Tag activo sobre el personaje
+local activeTag = nil
+
+-- ====================================================================
+-- INICIO - ALEXX HUB | LOADING SCREEN PROFESIONAL (4 SEGUNDOS)
+-- ====================================================================
+local LoadingGui = Instance.new("ScreenGui")
+LoadingGui.Name = "ALEXX_HUB_LOADING"
+LoadingGui.Parent = (gethui and gethui() or game:GetService("CoreGui"))
+LoadingGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+local Background = Instance.new("Frame")
+Background.Parent = LoadingGui
+Background.Size = UDim2.new(1,0,1,0)
+Background.BackgroundColor3 = Color3.fromRGB(8,8,8)
+Background.BorderSizePixel = 0
+
+local Glow = Instance.new("ImageLabel")
+Glow.Parent = Background
+Glow.AnchorPoint = Vector2.new(0.5,0.5)
+Glow.Position = UDim2.new(0.5,0,0.5,0)
+Glow.Size = UDim2.new(0,450,0,450)
+Glow.BackgroundTransparency = 1
+Glow.Image = "rbxassetid://4996891970"
+Glow.ImageColor3 = Color3.fromRGB(255,0,0)
+Glow.ImageTransparency = 0.35
+
+local Title = Instance.new("TextLabel")
+Title.Parent = Background
+Title.AnchorPoint = Vector2.new(0.5,0.5)
+Title.Position = UDim2.new(0.5,0,0.43,0)
+Title.Size = UDim2.new(0,500,0,80)
+Title.BackgroundTransparency = 1
+Title.Text = "ALEXX HUB"
+Title.Font = Enum.Font.GothamBlack
+Title.TextScaled = true
+Title.TextColor3 = Color3.fromRGB(255,40,40)
+Title.TextTransparency = 1
+
+local Stroke = Instance.new("UIStroke")
+Stroke.Parent = Title
+Stroke.Color = Color3.fromRGB(255,90,90)
+Stroke.Thickness = 2
+Stroke.Transparency = 1
+
+local Subtitle = Instance.new("TextLabel")
+Subtitle.Parent = Background
+Subtitle.AnchorPoint = Vector2.new(0.5,0.5)
+Subtitle.Position = UDim2.new(0.5,0,0.52,0)
+Subtitle.Size = UDim2.new(0,300,0,30)
+Subtitle.BackgroundTransparency = 1
+Subtitle.Text = "LOADING SYSTEM..."
+Subtitle.Font = Enum.Font.GothamMedium
+Subtitle.TextScaled = true
+Subtitle.TextColor3 = Color3.fromRGB(180,180,180)
+Subtitle.TextTransparency = 1
+
+local BarBG = Instance.new("Frame")
+BarBG.Parent = Background
+BarBG.AnchorPoint = Vector2.new(0.5,0.5)
+BarBG.Position = UDim2.new(0.5,0,0.62,0)
+BarBG.Size = UDim2.new(0,280,0,8)
+BarBG.BackgroundColor3 = Color3.fromRGB(255,255,255)
+BarBG.BorderSizePixel = 0
+
+local BarCorner = Instance.new("UICorner")
+BarCorner.Parent = BarBG
+BarCorner.CornerRadius = UDim.new(1,0)
+
+local Bar = Instance.new("Frame")
+Bar.Parent = BarBG
+Bar.Size = UDim2.new(0,0,1,0)
+Bar.BackgroundColor3 = Color3.fromRGB(255,0,0)
+Bar.BorderSizePixel = 0
+
+local BarCorner2 = Instance.new("UICorner")
+BarCorner2.Parent = Bar
+BarCorner2.CornerRadius = UDim.new(1,0)
+
+TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 0}):Play()
+TweenService:Create(Stroke, TweenInfo.new(0.8), {Transparency = 0}):Play()
+
+local glowLoop = task.spawn(function()
+while LoadingGui.Parent do
+TweenService:Create(Glow, TweenInfo.new(1), {ImageTransparency = 0.15}):Play()
+task.wait(1)
+TweenService:Create(Glow, TweenInfo.new(1), {ImageTransparency = 0.35}):Play()
+task.wait(1)
+end
+end)
+
+TweenService:Create(Bar, TweenInfo.new(4, Enum.EasingStyle.Sine), {Size = UDim2.new(1,0,1,0)}):Play()
+task.wait(4)
+
+TweenService:Create(Background, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+TweenService:Create(Title, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+TweenService:Create(Subtitle, TweenInfo.new(0.8), {TextTransparency = 1}):Play()
+TweenService:Create(Glow, TweenInfo.new(0.8), {ImageTransparency = 1}):Play()
+TweenService:Create(BarBG, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+TweenService:Create(Bar, TweenInfo.new(0.8), {BackgroundTransparency = 1}):Play()
+task.wait(1)
+
+pcall(function() coroutine.close(glowLoop) end)
+LoadingGui:Destroy()
+
+-- ====================================================================
+-- CONFIGURACIÓN DE TEMA Y ESTADOS
+-- ====================================================================
+local T = {
+bg = Color3.fromRGB(5, 5, 5),
+ panel = Color3.fromRGB(15, 15, 15),
+panel2 = Color3.fromRGB(22, 22, 22),
+ border = Color3.fromRGB(45, 45, 45),
+ acc = Color3.fromRGB(255, 255, 255),
+text = Color3.fromRGB(250, 250, 250),
+muted = Color3.fromRGB(100, 100, 100),
+darkRed = Color3.fromRGB(30, 30, 30),
+red = Color3.fromRGB(200, 30, 30),
+green = Color3.fromRGB(34, 197, 94),
+bgTrans = 0.1,
+tabSize = 160,
+}
+
+local originalSpeed = nil
+
+local S = {
+saEn = false,
+saFOV = 150,
+saPart = "Head",
+saDist = 300,
+hbEn = false,
+hbSize = 10,
+autoKill = false,
+eP = false,
+fovEn = false,
+fovVal = 70,
+ncEn = false,
+spdEn = false,
+spdVal = 200,
+espLines = false,
+espBoxes = false,
+autoShoot = false,
+shootDist = 250,
+wallCheck = false,
+hideFovCircle = false,
+espR = 220,
+espG = 20,
+espB = 20,
+espColor = Color3.fromRGB(220, 20, 20),
+saOnlyGun = false,
+saPrediction = 100,
+modTagEn = false
+}
+
+local EquippedAnimations = {
+    ["Inactividad"] = nil,
+    ["Marcha"] = nil,
+    ["Carrera"] = nil,
+    ["Salto"] = nil,
+    ["Caida"] = nil,
+    ["Escala"] = nil,
+    ["Nado"] = nil
+}
+
+local Packs = {"Predeterminado", "Ninja", "Zombie", "Mago", "Levitación", "Vampiro", "Anciano", "Cartoony"}
+local AnimIDs = {
+["Ninja"] = { Inactividad = {"658832832", "658837571"}, Marcha = "616157453", Carrera = "616115508", Salto = "656117400", Caida = "656112444", Escala = "656110826", Nado = "616160351" },
+["Mago"] = { Inactividad = {"707829716", "707829716"}, Marcha = "707897309", Carrera = "707861613", Salto = "707853694", Caida = "707845883", Escala = "707826010", Nado = "707898744" },
+["Zombie"] = { Inactividad = {"616153537", "616154103"}, Marcha = "616168050", Carrera = "616163603", Salto = "616164484", Caida = "616161048", Escala = "616152476", Nado = "616168519" },
+["Levitación"] = { Inactividad = {"616006778", "616008434"}, Marcha = "616013982", Carrera = "616010382", Salto = "616008937", Caida = "616005710", Escala = "616003946", Nado = "616014528" },
+["Vampiro"] = { Inactividad = {"1083445894", "1083445894"}, Marcha = "1083473930", Carrera = "1083462077", Salto = "1083455352", Caida = "1083443586", Escala = "1083441092", Nado = "1083476630" },
+["Anciano"] = { Inactividad = {"5319842624", "5319845348"}, Marcha = "5319850108", Carrera = "5319847970", Salto = "5319846876", Caida = "5319845873", Escala = "5319835735", Nado = "5319851166" },
+["Cartoony"] = { Inactividad = {"5319823434", "5319841835"}, Marcha = "5319847114", Carrera = "5319844435", Salto = "5319843354", Caida = "5319842211", Escala = "5319832943", Nado = "5319848243" }
+}
+
+local GlobalGameInfo = { AlivePlayersFolder = nil, PlayerTeamName = nil, CurrentGameFolder = nil, LastCheckTime = 0, MyTeam = nil, EnemyTeam = nil }
+
+local function SanitizeName(str) return tostring(str):gsub('%s+', '') end
+
+local function UpdateGlobalGameInfo()
+    local runningGames = workspace:FindFirstChild("RunningGames")
+
+    if not runningGames then
+        return
+    end
+
+    for _, gameFolder in ipairs(runningGames:GetChildren()) do
+        local aliveParams = gameFolder:FindFirstChild("AlivePlayers")
+
+        if aliveParams and aliveParams:IsA("Folder") then
+
+            if aliveParams:FindFirstChild("TeamBlue")
+            and aliveParams.TeamBlue:FindFirstChild(SanitizeName(LocalPlayer.Name)) then
+
+                GlobalGameInfo.AlivePlayersFolder = aliveParams
+                GlobalGameInfo.PlayerTeamName = "TeamBlue"
+                GlobalGameInfo.CurrentGameFolder = gameFolder
+                GlobalGameInfo.MyTeam = "TeamBlue"
+                GlobalGameInfo.EnemyTeam = "TeamRed"
+
+                break
+
+            elseif aliveParams:FindFirstChild("TeamRed")
+            and aliveParams.TeamRed:FindFirstChild(SanitizeName(LocalPlayer.Name)) then
+
+                GlobalGameInfo.AlivePlayersFolder = aliveParams
+                GlobalGameInfo.PlayerTeamName = "TeamRed"
+                GlobalGameInfo.CurrentGameFolder = gameFolder
+                GlobalGameInfo.MyTeam = "TeamRed"
+                GlobalGameInfo.EnemyTeam = "TeamBlue"
+
+                break
+            end
+        end
+    end
+end
+
+local function isEnemy(p)
+if p == LocalPlayer then return false end
+local currentTime = tick()
+if (currentTime - GlobalGameInfo.LastCheckTime) > 0.5 then GlobalGameInfo.LastCheckTime = currentTime UpdateGlobalGameInfo() end
+if GlobalGameInfo.AlivePlayersFolder and GlobalGameInfo.PlayerTeamName then
+local myTeamFolder = GlobalGameInfo.AlivePlayersFolder:FindFirstChild(GlobalGameInfo.PlayerTeamName)
+if myTeamFolder and myTeamFolder:FindFirstChild(SanitizeName(p.Name)) then return false end
+local enemyTeamFolder = GlobalGameInfo.AlivePlayersFolder:FindFirstChild(GlobalGameInfo.EnemyTeam)
+if enemyTeamFolder and enemyTeamFolder:FindFirstChild(SanitizeName(p.Name)) then return true end
+end
+return true
+end
+
+local function isEnemyByAttribute(p)
+if p == LocalPlayer then return false end
+local myTeam = LocalPlayer:GetAttribute("Team")
+local theirTeam = p:GetAttribute("Team")
+if myTeam and theirTeam and theirTeam ~= myTeam then return true end
+return false
+end
+
+local function New(cls, props)
+local o = Instance.new(cls)
+for k, v in pairs(props or {}) do o[k] = v end
+return o
+end
+
+local function Cor(obj, r) New("UICorner", { CornerRadius = UDim.new(0, r or 8), Parent = obj }) end
+
+local function TW(obj, t, props)
+local anim = TweenService:Create(obj, TweenInfo.new(t, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), props)
+anim:Play() return anim
+end
+
+local function List(obj, dir, pad) New("UIListLayout", { FillDirection = dir or Enum.FillDirection.Vertical, Padding = UDim.new(0, pad or 8), SortOrder = Enum.SortOrder.LayoutOrder, Parent = obj }) end
+
+local function Pad(obj, t, b, l, r) New("UIPadding", { PaddingTop = UDim.new(0, t or 0), PaddingBottom = UDim.new(0, b or 0), PaddingLeft = UDim.new(0, l or 0), PaddingRight = UDim.new(0, r or 0), Parent = obj }) end
+
+local function styleButton(btn)
+Cor(btn, 6)
+New("UIStroke", { Color = Color3.fromRGB(0,0,0), Thickness = 2, Parent = btn })
+New("UIStroke", { Color = T.acc, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btn })
+btn.MouseEnter:Connect(function() TW(btn, 0.15, {BackgroundColor3 = T.acc}) TW(btn, 0.15, {TextColor3 = Color3.new(1,1,1)}) end)
+btn.MouseLeave:Connect(function() TW(btn, 0.15, {BackgroundColor3 = T.panel}) TW(btn, 0.15, {TextColor3 = T.text}) end)
+end
+
+local function ApplyCustomAnimation(categoria)
+
+    local char = LocalPlayer.Character
+
+    if not char or not char:FindFirstChild("Animate") then
+        return
+    end
+
+    local folderMapping = {
+        ["Inactividad"] = "idle",
+        ["Marcha"] = "walk",
+        ["Carrera"] = "run",
+        ["Salto"] = "jump",
+        ["Caida"] = "fall",
+        ["Escala"] = "climb",
+        ["Nado"] = "swim"
+    }
+
+    local internalFolder = folderMapping[categoria]
+    local folder = char.Animate:FindFirstChild(internalFolder)
+
+    if not folder then
+        return
+    end
+
+    local data = EquippedAnimations[categoria]
+
+    if not data then
+        return
+    end
+
+    for _, obj in ipairs(folder:GetChildren()) do
+        if obj:IsA("Animation") then
+            obj:Destroy()
+        end
+    end
+
+    if categoria == "Inactividad" then
+
+        for i = 1,2 do
+
+            local newAnim = Instance.new("Animation")
+            newAnim.Name = "Animation"..i
+            newAnim.AnimationId = "rbxassetid://"..data[i]
+            newAnim.Parent = folder
+
+        end
+
+    else
+
+        local newAnim = Instance.new("Animation")
+        newAnim.Name = internalFolder
+        newAnim.AnimationId = "rbxassetid://"..data
+        newAnim.Parent = folder
+
+    end
+
+end
+
+-- Función auxiliar para inyectar/crear físicamente el BillboardGui sobre la cabeza
+local function CrearTagFisico(char)
+if not char then return end
+local head = char:WaitForChild("Head", 5)
+if head then
+-- Ocultar nombre nativo de Roblox
+local hum = char:FindFirstChildOfClass("Humanoid")
+if hum then hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
+
+-- Limpiar tag fantasma viejo si existe
+if activeTag then pcall(function() activeTag:Destroy() end) activeTag = nil end
+
+-- Contenedor del Tag
+local bGui = Instance.new("BillboardGui")
+bGui.Name = "AlexxLocalTag"
+bGui.Size = UDim2.new(0, 200, 0, 50)
+bGui.StudsOffset = Vector3.new(0, 2.5, 0)
+bGui.AlwaysOnTop = true
+bGui.Parent = head
+activeTag = bGui
+
+-- Texto procesado con RichText
+local lbl = Instance.new("TextLabel")
+lbl.Size = UDim2.new(1, 0, 1, 0)
+lbl.BackgroundTransparency = 1
+lbl.Text = NuevoNombre
+lbl.Font = Enum.Font.GothamBold
+lbl.TextSize = 14
+lbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+lbl.RichText = true
+lbl.TextStrokeTransparency = 0.5
+lbl.Parent = bGui
+end
+end
+
+-- ====================================================================
+-- CREACIÓN DE LA INTERFAZ GRÁFICA (UI PRINCIPAL)
+-- ====================================================================
+local GUI = New("ScreenGui", { Name = "ALEXXHUB_SUPREME", ResetOnSpawn = false, Parent = (gethui and gethui() or game:GetService("CoreGui")) })
+
+local winMain = New("Frame", { Name = "Window", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5), Size = UDim2.new(0, 560, 0, 415), BackgroundColor3 = T.bg, BackgroundTransparency = T.bgTrans, Visible = true, Parent = GUI })
+Cor(winMain, 10)
+New("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = 3, Parent = winMain })
+
+local titleBar = New("Frame", { Position = UDim2.new(0, 8, 0, 8), Size = UDim2.new(1, -16, 0, 42), BackgroundColor3 = Color3.fromRGB(25, 25, 25), BackgroundTransparency = 0.15, Parent = winMain })
+Cor(titleBar, 12)
+New("UIStroke", { Color = T.darkRed, Thickness = 2.2, Parent = titleBar })
+
+local MainTitleText = New("TextLabel", { Position = UDim2.new(0, 15, 0, 0), Size = UDim2.new(1, -50, 1, 0), BackgroundTransparency = 1, Text = "ALEXXHUB | " .. LocalPlayer.Name, TextColor3 = T.text, Font = Enum.Font.GothamBold, TextSize = 14, RichText = true, TextXAlignment = Enum.TextXAlignment.Left, Parent = titleBar })
+local closeX = New("TextButton", { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), Size = UDim2.new(0, 32, 0, 32), BackgroundColor3 = T.red, Text = "-", TextColor3 = Color3.new(1, 1, 1), Font = Enum.Font.GothamBold, Parent = titleBar })
+Cor(closeX, 8)
+New("UIStroke", { Color = Color3.new(0, 0, 0), Thickness = 1.5, Parent = closeX })
+
+local BannerImage = New("ImageButton", { Name = "AlexxHubBanner", Size = UDim2.new(1, -16, 0, 65), Position = UDim2.new(0, 8, 0, 56), BackgroundColor3 = T.panel2, Image = "rbxassetid://137489766379399", ClipsDescendants = true, Parent = winMain })
+Cor(BannerImage, 8)
+New("UIStroke", { Color = T.border, Thickness = 1, Parent = BannerImage })
+
+local sidebar = New("ScrollingFrame", { Position = UDim2.new(0, 10, 0, 128), Size = UDim2.new(0, T.tabSize, 1, -136), BackgroundTransparency = 1, ScrollBarThickness = 0, CanvasSize = UDim2.new(0, 0, 0, 0), AutomaticCanvasSize = Enum.AutomaticSize.Y, Parent = winMain })
+List(sidebar, Enum.FillDirection.Vertical, 8)
+Pad(sidebar, 5, 5, 5, 5)
+
+local contentArea = New("Frame", { Position = UDim2.new(0, T.tabSize + 25, 0, 128), Size = UDim2.new(1, -(T.tabSize + 25), 1, -136), BackgroundTransparency = 1, Parent = winMain })
+
+local clickSound = Instance.new("Sound", GUI)
+clickSound.SoundId = "rbxassetid://4590657391"
+clickSound.Volume = 1
+
+local function playClick() clickSound:Play() end
+GUI.DescendantAdded:Connect(function(obj) if obj:IsA("TextButton") or obj:IsA("ImageButton") then obj.MouseButton1Click:Connect(playClick) end end)
+
+local pages = {}
+local function newPage(name)
+local pg = New("ScrollingFrame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Visible = false, ScrollBarThickness = 0, AutomaticCanvasSize = Enum.AutomaticSize.Y, Parent = contentArea })
+List(pg, Enum.FillDirection.Vertical, 12) Pad(pg, 2, 10, 5, 5) pages[name] = pg return pg
+end
+
+local function Sec(par, ttl)
+local container = New("Frame", { Size = UDim2.new(1, 0, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundTransparency = 1, Parent = par })
+List(container, Enum.FillDirection.Vertical, 6)
+local titleBox = New("Frame", { Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = T.panel2, Parent = container }) Cor(titleBox, 8) New("UIStroke", { Color = Color3.fromRGB(0,0,0), Thickness = 2, Parent = titleBox })
+New("TextLabel", { Size = UDim2.new(1, -10, 1, 0), Position = UDim2.new(0, 10, 0, 0), BackgroundTransparency = 1, Text = ttl:upper(), TextColor3 = T.acc, Font = Enum.Font.GothamBold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, Parent = titleBox })
+return container
+end
+
+local function Tog(par, lbl, def, cb)
+local row = New("Frame", { Size = UDim2.new(1, 0, 0, 48), BackgroundColor3 = T.panel2, Parent = par }) Cor(row, 8) New("UIStroke", { Color = Color3.fromRGB(0,0,0), Thickness = 2, Parent = row })
+New("TextLabel", { Position = UDim2.new(0, 12, 0, 0), Size = UDim2.new(1, -70, 1, 0), BackgroundTransparency = 1, Text = lbl, TextColor3 = T.text, Font = Enum.Font.GothamMedium, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = row })
+local switchBg = New("Frame", { AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -12, 0.5, 0), Size = UDim2.new(0, 46, 0, 24), BackgroundColor3 = def and T.green or T.red, Parent = row }) Cor(switchBg, 6) New("UIStroke", { Color = Color3.new(0,0,0), Thickness = 1.5, Parent = switchBg })
+local squareSlider = New("Frame", { Size = UDim2.new(0, 16, 0, 16), Position = def and UDim2.new(1, -20, 0.5, -8) or UDim2.new(0, 4, 0.5, -8), BackgroundColor3 = Color3.new(1,1,1), Parent = switchBg }) Cor(squareSlider, 4)
+local click = New("TextButton", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, Text = "", Parent = row })
+click.MouseButton1Click:Connect(function() def = not def TW(switchBg, 0.2, { BackgroundColor3 = def and T.green or T.red }) TW(squareSlider, 0.2, { Position = def and UDim2.new(1, -20, 0.5, -8) or UDim2.new(0, 4, 0.5, -8) }) cb(def) end)
+end
+
+local function Sli(par, lbl, mn, mx, def, cb)
+local row = New("Frame", { Size = UDim2.new(1, 0, 0, 60), BackgroundColor3 = T.panel2, Parent = par }) Cor(row, 8) New("UIStroke", { Color = Color3.fromRGB(0,0,0), Thickness = 2, Parent = row })
+New("TextLabel", { Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 12, 0, 4), BackgroundTransparency = 1, Text = lbl, TextColor3 = T.text, Font = Enum.Font.GothamBold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, Parent = row })
+local btnMinus = New("TextButton", { Position = UDim2.new(0, 12, 0, 26), Size = UDim2.new(0, 24, 0, 24), BackgroundColor3 = T.panel, Text = "-", TextColor3 = T.text, Font = Enum.Font.GothamBold, TextSize = 16, Parent = row }) styleButton(btnMinus)
+local valueBox = New("Frame", { Position = UDim2.new(0, 42, 0, 26), Size = UDim2.new(0, 70, 0, 24), BackgroundColor3 = T.panel, Parent = row }) Cor(valueBox, 6) New("UIStroke", { Color = Color3.fromRGB(0, 0, 0), Thickness = 2, Parent = valueBox })
+local valText = New("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = tostring(def), TextColor3 = T.acc, Font = Enum.Font.GothamBold, TextSize = 12, Parent = valueBox })
+local btnPlus = New("TextButton", { Position = UDim2.new(0, 120, 0, 26), Size = UDim2.new(0, 24, 0, 24), BackgroundColor3 = T.panel, Text = "+", TextColor3 = T.text, Font = Enum.Font.GothamBold, TextSize = 16, Parent = row }) styleButton(btnPlus)
+local dragging, startX, startVal = false, 0, def
+local function update(input) local delta = input.Position.X - startX local speed = (mx - mn) / 250 local newVal = math.clamp(math.floor(startVal + (delta * speed)), mn, mx) if tonumber(valText.Text) ~= newVal then valText.Text = tostring(newVal) cb(newVal) end end
+local function changeValue(delta) local newVal = math.clamp(tonumber(valText.Text) + delta, mn, mx) if newVal ~= tonumber(valText.Text) then valText.Text = tostring(newVal) cb(newVal) end end
+btnMinus.MouseButton1Click:Connect(function() changeValue(-1) end) btnPlus.MouseButton1Click:Connect(function() changeValue(1) end)
+valueBox.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dragging = true startX = i.Position.X startVal = tonumber(valText.Text) end end)
+UserInputService.InputChanged:Connect(function(i) if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then update(i) end end) UserInputService.InputEnded:Connect(function() dragging = false end)
+end
+
+local function LineSlider(par, lbl, mn, mx, def, cb)
+local row = New("Frame", { Size = UDim2.new(1, 0, 0, 60), BackgroundColor3 = T.panel2, Parent = par }) Cor(row, 8) New("UIStroke", { Color = Color3.fromRGB(0,0,0), Thickness = 2, Parent = row })
+New("TextLabel", { Size = UDim2.new(1, 0, 0, 20), Position = UDim2.new(0, 12, 0, 4), BackgroundTransparency = 1, Text = lbl, TextColor3 = T.text, Font = Enum.Font.GothamBold, TextSize = 12, TextXAlignment = Enum.TextXAlignment.Left, Parent = row })
+local track = New("Frame", { Position = UDim2.new(0, 12, 0, 34), Size = UDim2.new(1, -160, 0, 4), BackgroundColor3 = T.panel, Parent = row }) Cor(track, 4)
+local fill = New("Frame", { BackgroundColor3 = T.acc, Size = UDim2.new((def - mn) / (mx - mn), 0, 1, 0), Parent = track }) Cor(fill, 4)
+local thumb = New("TextButton", { Position = UDim2.new((def - mn) / (mx - mn), -8, 0.5, -8), Size = UDim2.new(0, 16, 0, 16), BackgroundColor3 = T.acc, Text = "", Parent = track }) Cor(thumb, 8)
+local btnMinus = New("TextButton", { Position = UDim2.new(1, -135, 0, 22), Size = UDim2.new(0, 24, 0, 24), BackgroundColor3 = T.panel, Text = "-", TextColor3 = T.text, Font = Enum.Font.GothamBold, TextSize = 16, Parent = row }) styleButton(btnMinus)
+local valueBox = New("Frame", { Position = UDim2.new(1, -104, 0, 22), Size = UDim2.new(0, 46, 0, 24), BackgroundColor3 = T.panel, Parent = row }) Cor(valueBox, 6) New("UIStroke", { Color = Color3.fromRGB(0, 0, 0), Thickness = 2, Parent = valueBox })
+local valueLabel = New("TextLabel", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = tostring(def), TextColor3 = T.acc, Font = Enum.Font.GothamBold, TextSize = 12, Parent = valueBox })
+local btnPlus = New("TextButton", { Position = UDim2.new(1, -52, 0, 22), Size = UDim2.new(0, 24, 0, 24), BackgroundColor3 = T.panel, Text = "+", TextColor3 = T.text, Font = Enum.Font.GothamBold, TextSize = 16, Parent = row }) styleButton(btnPlus)
+local dragging = false
+local function update(posX)
+local t = math.clamp((posX - track.AbsolutePosition.X) / track.AbsoluteSize.X, 0, 1) local newVal = math.clamp(math.floor(mn + t * (mx - mn)), mn, mx)
+if tonumber(valueLabel.Text) ~= newVal then valueLabel.Text = tostring(newVal) fill.Size = UDim2.new(t, 0, 1, 0) thumb.Position = UDim2.new(t, -8, 0.5, -8) cb(newVal) end
+end
+local function changeValue(delta)
+local newVal = math.clamp(tonumber(valueLabel.Text) + delta, mn, mx)
+if newVal ~= tonumber(valueLabel.Text) then valueLabel.Text = tostring(newVal) local t = (newVal - mn) / (mx - mn) fill.Size = UDim2.new(t, 0, 1, 0) thumb.Position = UDim2.new(t, -8, 0.5, -8) cb(newVal) end
+end
+btnMinus.MouseButton1Click:Connect(function() changeValue(-1) end) btnPlus.MouseButton1Click:Connect(function() changeValue(1) end)
+local function onInputBegan(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then dragging = true update(input.Position.X) end end
+thumb.InputBegan:Connect(onInputBegan) track.InputBegan:Connect(onInputBegan)
+UserInputService.InputChanged:Connect(function(input) if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then update(input.Position.X) end end)
+UserInputService.InputEnded:Connect(function() dragging = false end)
+end
+
+-- PÁGINAS DEL CONTENIDO
+local pgInfo = newPage("Info")
+local pgCombat = newPage("Combat")
+local pgHitbox = newPage("Hitbox Expander")
+local pgVisual = newPage("Visual")
+local pgAnims = newPage("Animaciones")
+local pgTags = newPage("Tags")
+local pgCamera = newPage("Camera")
+local pgSettings = newPage("Settings")
+
+local infoContainer = New("Frame", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, Parent = pgInfo })
+local bgFrame = New("Frame", { Size = UDim2.new(1,-10,1,-10), Position = UDim2.new(0,5,0,5), BackgroundColor3 = Color3.fromRGB(15,15,15), Parent = infoContainer }) Cor(bgFrame,12)
+local bgStroke = New("UIStroke",{ Color = T.red, Thickness = 2, Parent = bgFrame })
+local infoMsg = New("TextLabel", { Size = UDim2.new(1, -20, 1, -20), Position = UDim2.new(0, 10, 0, 10), BackgroundTransparency = 1, Text = [[
+BIENVENIDO A ALEXXHUB
+
+Todas las funciones de ejecución táctica, modificadores de Hitbox Pro, Silent Aim 360 y el Mezclador Avanzado de Animaciones están cargados con éxito.
+
+---------------------------------------
+- CREADOR: [ ALEXXHUB ]
+
+- CREDITOS:
+- DC: ALEXX.TT
+- TK: XITALEXX
+---------------------------------------
+]], TextColor3 = Color3.fromRGB(240, 240, 240), Font = Enum.Font.GothamMedium, TextSize = 13, TextWrapped = true, Parent = bgFrame })
+
+local sCombat = Sec(pgCombat, "Silent Aim 360°")
+Tog(sCombat, "Activar Silent Aim", false, function(v) S.saEn = v end)
+Tog(sCombat, "Solo con Arma", false, function(v) S.saOnlyGun = v end)
+Tog(sCombat, "Wall Check", false, function(v) S.wallCheck = v end)
+Tog(sCombat, "Ocultar FOV", false, function(v) S.hideFovCircle = v end)
+Sli(sCombat, "Radio de FOV", 30, 800, 150, function(v) S.saFOV = v end)
+Sli(sCombat, "Fuerza Máxima", 50, 1000, 300, function(v) S.saDist = v end)
+LineSlider(sCombat, "Predicción", 0, 100, 100, function(v) S.saPrediction = v end)
+
+local sAuto = Sec(pgCombat, "Auto Combat")
+Tog(sAuto, "Auto Shoot", false, function(v) S.autoShoot = v end)
+Sli(sAuto, "Distancia de Disparo", 10, 1000, 250, function(v) S.shootDist = v end)
+
+local sHB = Sec(pgHitbox, "Hitbox Expander Pro")
+Tog(sHB, "Activar Hitbox", false, function(v) S.hbEn = v end)
+Sli(sHB, "Tamaño de Hitbox", 2, 60, 10, function(v) S.hbSize = v end)
+
+local sKill = Sec(pgHitbox, "Acciones Letales")
+Tog(sKill, "AUTO KILL (EN MANTENIMIENTO)", false, function(v) S.autoKill = v end)
+
+Tog(Sec(pgVisual, "Visuales"), "Highlight Brillo", false, function(v) S.eP = v end)
+local sExtra = Sec(pgVisual, "Extras Visuales")
+Tog(sExtra, "ESP Líneas", false, function(v) S.espLines = v end)
+Tog(sExtra, "ESP Cajas", false, function(v) S.espBoxes = v end)
+
+local sColorPicker = Sec(pgVisual, "Color ESP")
+local function updateESPColor() S.espColor = Color3.fromRGB(S.espR, S.espG, S.espB) end
+LineSlider(sColorPicker, "Rojo", 0, 255, S.espR, function(v) S.espR = v updateESPColor() end)
+LineSlider(sColorPicker, "Verde", 0, 255, S.espG, function(v) S.espG = v updateESPColor() end)
+LineSlider(sColorPicker, "Azul", 0, 255, S.espB, function(v) S.espB = v updateESPColor() end)
+
+-- ====================================================================
+-- SECCIÓN DE TAGS (INYECCIÓN DIRECTA AL JUGADOR)
+-- ====================================================================
+local sTags = Sec(pgTags, "Personalización de Etiquetas")
+Tog(sTags, "Activar Etiqueta [MOD] (Local)", false, function(v)
+S.modTagEn = v
+
+-- Si se desactiva, limpiamos el tag físico de la cabeza inmediatamente
+if activeTag then
+pcall(function() activeTag:Destroy() end)
+activeTag = nil
+end
+
+if S.modTagEn then
+-- Creamos el tag de inmediato en el personaje vivo actual
+CrearTagFisico(LocalPlayer.Character)
+else
+-- Volver a activar la visibilidad del nombre original si se apaga el cheat
+local char = LocalPlayer.Character
+local hum = char and char:FindFirstChildOfClass("Humanoid")
+if hum then
+hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+end
+end
+end)
+
+-- Asegurar que el tag permanezca activo o se vuelva a calcular si mueres o reseteas
+LocalPlayer.CharacterAdded:Connect(function(char)
+if S.modTagEn then
+CrearTagFisico(char)
+end
+end)
+
+local sCam = Sec(pgCamera, "Cámara")
+Tog(sCam, "Activar FOV Custom", false, function(v) S.fovEn = v end)
+Sli(sCam, "Valor FOV", 30, 120, 70, function(v) S.fovVal = v end)
+
+local sMove = Sec(pgCamera, "Movement")
+Tog(sMove, "Activar Noclip", false, function(v) S.ncEn = v end)
+Tog(sMove, "Activar Speed", false, function(v) S.spdEn = v end)
+Sli(sMove, "Velocidad", 16, 300, 200, function(v) S.spdVal = v end)
+
+local sSize = Sec(pgSettings, "Interfaz")
+LineSlider(sSize, "Tamaño del Menú", 540, 900, 560, function(v)
+local optimizedValue = math.round(v / 20) * 20
+winMain.Size = UDim2.new(0, optimizedValue, 0, optimizedValue * 0.74)
+end)
+
+local sAnims = Sec(pgAnims, "Script de Animaciones")
+local CategoriasMenu = {"Inactividad", "Marcha", "Carrera", "Salto", "Caida", "Escala", "Nado"}
+
+for _, catName in ipairs(CategoriasMenu) do
+local Box = New("Frame", { Size = UDim2.new(1, 0, 0, 42), BackgroundColor3 = T.panel2, Parent = sAnims }) Cor(Box, 6) New("UIStroke", { Color = Color3.fromRGB(0,0,0), Thickness = 2, Parent = Box })
+New("TextLabel", { Size = UDim2.new(0, 130, 1, 0), Position = UDim2.new(0, 12, 0, 0), Text = catName, TextColor3 = Color3.fromRGB(255, 255, 255), Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, BackgroundTransparency = 1, Parent = Box })
+local SelectorFrame = New("Frame", { Size = UDim2.new(0, 160, 0, 26), Position = UDim2.new(1, -172, 0.5, -11), BackgroundColor3 = Color3.fromRGB(12, 12, 12), Parent = Box }) Cor(SelectorFrame, 4) New("UIStroke", { Color = T.red, Thickness = 1, Parent = SelectorFrame })
+local PackLabel = New("TextLabel", { Size = UDim2.new(1, -40, 1, 0), Position = UDim2.new(0, 20, 0, 0), Text = "Predeterminado", TextColor3 = Color3.fromRGB(130, 130, 130), Font = Enum.Font.GothamMedium, TextSize = 11, BackgroundTransparency = 1, Parent = SelectorFrame })
+local CurrentIdx = 1
+local function CambiarFilaAnim(dir)
+CurrentIdx = CurrentIdx + dir if CurrentIdx > #Packs then CurrentIdx = 1 elseif CurrentIdx < 1 then CurrentIdx = #Packs end
+local elegido = Packs[CurrentIdx] PackLabel.Text = elegido PackLabel.TextColor3 = elegido == "Predeterminado" and Color3.fromRGB(130, 130, 130) or Color3.fromRGB(255, 255, 255)
+pcall(function()
+
+    if elegido == "Predeterminado" then
+
+        EquippedAnimations[catName] = nil
+
+    else
+
+        EquippedAnimations[catName] = AnimIDs[elegido][catName]
+
+    end
+
+    ApplyCustomAnimation(catName)
+
+end)
+end
+local LeftBtn = New("TextButton", { Size = UDim2.new(0, 20, 1, 0), BackgroundTransparency = 1, Text = "<", TextColor3 = T.red, Font = Enum.Font.GothamBlack, TextSize = 12, Parent = SelectorFrame }) LeftBtn.MouseButton1Click:Connect(function() CambiarFilaAnim(-1) end)
+local RightBtn = New("TextButton", { Size = UDim2.new(0, 20, 1, 0), Position = UDim2.new(1, -20, 0, 0), BackgroundTransparency = 1, Text = ">", TextColor3 = T.red, Font = Enum.Font.GothamBlack, TextSize = 12, Parent = SelectorFrame }) RightBtn.MouseButton1Click:Connect(function() CambiarFilaAnim(1) end)
+end
+
+local function addTab(nm, iconId)
+local b = New("TextButton", { Size = UDim2.new(1, 0, 0, 42), BackgroundTransparency = 1, Text = "", Parent = sidebar })
+local btnBg = New("Frame", { Size = UDim2.new(1, 0, 1, 0), BackgroundColor3 = T.panel2, Parent = b }) Cor(btnBg, 6)
+local stroke = New("UIStroke", { Color = T.border, Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Parent = btnBg })
+local icon = New("ImageLabel", { Size = UDim2.new(0, 18, 0, 18), Position = UDim2.new(0, 10, 0.5, 0), AnchorPoint = Vector2.new(0, 0.5), BackgroundTransparency = 1, Image = iconId, ImageColor3 = T.muted, Parent = btnBg })
+local txt = New("TextLabel", { Size = UDim2.new(1, -40, 1, 0), Position = UDim2.new(0, 36, 0, 0), BackgroundTransparency = 1, Text = nm, TextColor3 = T.muted, Font = Enum.Font.GothamBold, TextSize = 13, TextXAlignment = Enum.TextXAlignment.Left, Parent = btnBg })
+b.MouseButton1Click:Connect(function()
+for _, obj in ipairs(sidebar:GetChildren()) do if obj:IsA("TextButton") then local bg = obj:FindFirstChildOfClass("Frame") if bg then TW(bg:FindFirstChildOfClass("UIStroke"), 0.2, {Color = T.border, Thickness = 1.5}) TW(bg:FindFirstChildOfClass("ImageLabel"), 0.2, {ImageColor3 = T.muted}) TW(bg:FindFirstChildOfClass("TextLabel"), 0.2, {TextColor3 = T.muted}) end end end
+for name, pg in pairs(pages) do pg.Visible = (name == nm) end TW(stroke, 0.2, {Color = T.red, Thickness = 2}) TW(icon, 0.2, {ImageColor3 = Color3.new(1,1,1)}) TW(txt, 0.2, {TextColor3 = Color3.new(1,1,1)})
+end)
+end
+
+addTab("Info", "rbxassetid://107373779810379")
+addTab("Combat", "rbxassetid://118115903634266")
+addTab("Hitbox Expander", "rbxassetid://77556334267498")
+addTab("Visual", "rbxassetid://89399443859302")
+addTab("Animaciones", "rbxassetid://106749486390001")
+addTab("Tags", "rbxassetid://108492040441996")
+addTab("Camera", "rbxassetid://84844770718081")
+addTab("Settings", "rbxassetid://135494523653513")
+
+local floatIcon = New("TextButton", { Size = UDim2.new(0, 50, 0, 50), Position = UDim2.new(0, 20, 0.5, -25), BackgroundColor3 = T.panel, Parent = GUI }) Cor(floatIcon, 25) New("UIStroke", { Color = T.red, Thickness = 2, Parent = floatIcon })
+local floatTxt = New("TextLabel", { Size = UDim2.fromScale(1,1), BackgroundTransparency = 1, Text = "A", TextColor3 = Color3.new(1,1,1), Font = Enum.Font.GothamBlack, TextSize = 18, Parent = floatIcon })
+
+local winOpen = true
+local function toggle()
+winOpen = not winOpen
+if winOpen then winMain.Visible = true winMain.Position = UDim2.fromScale(0.5, 1.2) TW(winMain, 0.3, {Position = UDim2.fromScale(0.5, 0.5)}) else
+local a = TW(winMain, 0.3, {Position = UDim2.fromScale(0.5, 1.2)}) a.Completed:Connect(function() if not winOpen then winMain.Visible = false end end)
+end
+end
+floatIcon.MouseButton1Click:Connect(toggle) closeX.MouseButton1Click:Connect(toggle)
+
+local function makeDraggable(obj, target)
+local dragStart, startPos, dragging
+obj.InputBegan:Connect(function(i) if i.UserInputType == Enum.UserInputType.MouseButton1 or i.UserInputType == Enum.UserInputType.Touch then dragging = true dragStart = i.Position startPos = target.Position end end)
+UserInputService.InputChanged:Connect(function(i) if dragging and (i.UserInputType == Enum.UserInputType.MouseMovement or i.UserInputType == Enum.UserInputType.Touch) then local del = i.Position - dragStart target.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + del.X, startPos.Y.Scale, startPos.Y.Offset + del.Y) end end)
+obj.InputEnded:Connect(function() dragging = false end)
+end
+makeDraggable(floatIcon, floatIcon) makeDraggable(titleBar, winMain)
+
+RunService.Heartbeat:Connect(function()
+if LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Humanoid") then
+local hum = LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+if S.spdEn then if not originalSpeed then originalSpeed = hum.WalkSpeed end hum.WalkSpeed = S.spdVal elseif originalSpeed then hum.WalkSpeed = originalSpeed originalSpeed = nil end
+for _, v in ipairs(LocalPlayer.Character:GetDescendants()) do if v:IsA("BasePart") then v.CanCollide = not S.ncEn end end
+end
+for _, p in ipairs(Players:GetPlayers()) do
+if p ~= LocalPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+local hrp = p.Character.HumanoidRootPart local esEnemigo = isEnemyByAttribute(p)
+if S.hbEn and esEnemigo then hrp.Size = Vector3.new(S.hbSize, S.hbSize, S.hbSize) hrp.Transparency = 0.6 hrp.Color = T.red hrp.Material = Enum.Material.Neon hrp.CanCollide = false
+elseif hrp.Size ~= Vector3.new(2, 2, 1) then hrp.Size = Vector3.new(2, 2, 1) hrp.Transparency = 1 end
+local hl = p.Character:FindFirstChild("ALEXX_HL")
+if S.eP and esEnemigo then if not hl then hl = Instance.new("Highlight", p.Character) hl.Name = "ALEXX_HL" hl.FillTransparency = 0.5 hl.OutlineTransparency = 0 end hl.FillColor = S.espColor hl.OutlineColor = S.espColor
+elseif hl then hl:Destroy() end
+end
+end
+end)
+
+local function hasGun() local char = LocalPlayer.Character return char and char:FindFirstChildOfClass("Tool") and char:FindFirstChildOfClass("Tool"):FindFirstChild("fire") ~= nil end
+
+local function getClosest()
+local targetPart, targetPlayer, closest = nil, nil, S.saFOV
+for _, p in ipairs(Players:GetPlayers()) do
+if p ~= LocalPlayer and p.Character and isEnemy(p) then
+local char = p.Character local part = char:FindFirstChild(S.saPart or "Head")
+if part and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid") and char:FindFirstChildOfClass("Humanoid").Health > 0 then
+local distance = (Cam.CFrame.Position - char.HumanoidRootPart.Position).Magnitude
+if distance <= S.saDist then
+local pos, onScreen = Cam:WorldToViewportPoint(part.Position)
+if onScreen then
+local mouseDist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)).Magnitude
+if mouseDist < closest then closest = mouseDist targetPart = part targetPlayer = p end
+end
+end
+end
+end
+end
+return targetPart, targetPlayer
+end
+
+if hookmetamethod and checkcaller then
+local oldIndex
+oldIndex = hookmetamethod(game, "__index", function(self, index)
+if not checkcaller() and S.saEn and index == "Hit" and self == Mouse then
+if S.saOnlyGun and not hasGun() then return oldIndex(self, index) end
+local targetPart, targetPlayer = getClosest()
+if targetPart and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+local predFactor = S.saPrediction / 100 return CFrame.new(targetPart.Position + targetPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity * 0.08 * predFactor)
+end
+end
+return oldIndex(self, index)
+end)
+end
+
+local fovCircle = Drawing.new("Circle") fovCircle.Thickness = 1.5 fovCircle.Color = T.red fovCircle.Filled = false
+RunService.RenderStepped:Connect(function() fovCircle.Visible = S.saEn and not S.hideFovCircle fovCircle.Radius = S.saFOV fovCircle.Position = Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2) if S.fovEn then Cam.FieldOfView = S.fovVal end end)
+
+local ESP_Objects = {}
+local function createESP(p)
+local line = Drawing.new("Line") line.Visible = false line.Color = S.espColor line.Thickness = 1
+local box = Drawing.new("Square") box.Visible = false box.Color = S.espColor box.Thickness = 1 box.Filled = false
+ESP_Objects[p] = {Line = line, Box = box}
+end
+for _, p in ipairs(Players:GetPlayers()) do if p ~= LocalPlayer then createESP(p) end end
+Players.PlayerAdded:Connect(function(p) createESP(p) end)
+Players.PlayerRemoving:Connect(function(p) if ESP_Objects[p] then ESP_Objects[p].Line:Remove() ESP_Objects[p].Box:Remove() ESP_Objects[p] = nil end end)
+
+RunService.RenderStepped:Connect(function()
+for p, obj in pairs(ESP_Objects) do
+if p.Character and p.Character:FindFirstChild("HumanoidRootPart") and p.Character:FindFirstChildOfClass("Humanoid") and p.Character:FindFirstChildOfClass("Humanoid").Health > 0 then
+local distancia = (LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") and (LocalPlayer.Character.HumanoidRootPart.Position - p.Character.HumanoidRootPart.Position).Magnitude or 500)
+if isEnemyByAttribute(p) and distancia < 350 then
+local pos, onScreen = Cam:WorldToViewportPoint(p.Character.HumanoidRootPart.Position)
+if onScreen then
+if S.espLines then obj.Line.Visible = true obj.Line.From = Vector2.new(Cam.ViewportSize.X / 2, 0) obj.Line.To = Vector2.new(pos.X, pos.Y) obj.Line.Color = S.espColor else obj.Line.Visible = false end
+if S.espBoxes then local z = math.clamp(pos.Z, 1, 1000) local sizeX, sizeY = 1200 / z, 1800 / z obj.Box.Visible = true obj.Box.Size = Vector2.new(sizeX, sizeY) obj.Box.Position = Vector2.new(pos.X - sizeX / 2, pos.Y - sizeY / 2) obj.Box.Color = S.espColor else obj.Box.Visible = false end
+else obj.Line.Visible = false obj.Box.Visible = false end
+else obj.Line.Visible = false obj.Box.Visible = false end
+else obj.Line.Visible = false obj.Box.Visible = false end
+end
+end)
+
+local lastAutoFire, fireDelay = 0, 0.01
+RunService.Heartbeat:Connect(function()
+if S.autoShoot and not (tick() - lastAutoFire < fireDelay) then
+local targetPart = getClosest()
+if targetPart and LocalPlayer.Character and LocalPlayer.Character:FindFirstChildOfClass("Tool") and LocalPlayer.Character:FindFirstChildOfClass("Tool"):FindFirstChild("fire") then
+local weapon = LocalPlayer.Character:FindFirstChildOfClass("Tool") lastAutoFire = tick()
+pcall(function() weapon.fire:FireServer() if weapon:FindFirstChild("kill") and LocalPlayer.Character:FindFirstChild("HumanoidRootPart") then weapon.kill:FireServer(Players:GetPlayerFromCharacter(targetPart.Parent), (targetPart.Position - LocalPlayer.Character.HumanoidRootPart.Position).Unit, LocalPlayer.Character.HumanoidRootPart.Position) end end)
+end
+end
+end)
+
+pages["Info"].Visible = true
