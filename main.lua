@@ -6,27 +6,30 @@
 
 
 
-$$\    $$\ $$$$$$$$\ $$\   $$\ $$$$$$$\   $$$$$$\         $$$$$$\  $$\   $$\       $$$$$$$$\  $$$$$$\  $$$$$$$\        $$\ 
-$$ |   $$ |$$  _____|$$ |  $$ |$$  __$$\ $$  __$$\       $$  __$$\ $$$\  $$ |      \__$$  __|$$  __$$\ $$  __$$\       $$ |
-$$ |   $$ |$$ |      \$$\ $$  |$$ |  $$ |$$ /  $$ |      $$ /  $$ |$$$$\ $$ |         $$ |   $$ /  $$ |$$ |  $$ |      $$ |
-\$$\  $$  |$$$$$\     \$$$$  / $$$$$$$  |$$ |  $$ |      $$ |  $$ |$$ $$\$$ |         $$ |   $$ |  $$ |$$$$$$$  |      $$ |
- \$$\$$  / $$  __|    $$  $$<  $$  __$$< $$ |  $$ |      $$ |  $$ |$$ \$$$$ |         $$ |   $$ |  $$ |$$  ____/       \__|
-  \$$$  /  $$ |      $$  /\$$\ $$ |  $$ |$$ |  $$ |      $$ |  $$ |$$ |\$$$ |         $$ |   $$ |  $$ |$$ |                
-   \$  /   $$$$$$$$\ $$ /  $$ |$$ |  $$ | $$$$$$  |       $$$$$$  |$$ | \$$ |         $$ |    $$$$$$  |$$ |            $$\ 
-    \_/    \________|\__|  \__|\__|  \__| \______/        \______/ \__|  \__|         \__|    \______/ \__|            \__|
+  /$$$$$$  /$$       /$$$$$$$$ /$$   /$$ /$$   /$$       /$$   /$$ /$$   /$$ /$$$$$$$ 
+ /$$__  $$| $$      | $$_____/| $$  / $$| $$  / $$      | $$  | $$| $$  | $$| $$__  $$
+| $$  \ $$| $$      | $$      |  $$/ $$/|  $$/ $$/      | $$  | $$| $$  | $$| $$  \ $$
+| $$$$$$$$| $$      | $$$$$    \  $$$$/  \  $$$$/       | $$$$$$$$| $$  | $$| $$$$$$$ 
+| $$__  $$| $$      | $$__/     >$$  $$   >$$  $$       | $$__  $$| $$  | $$| $$__  $$
+| $$  | $$| $$      | $$       /$$/\  $$ /$$/\  $$      | $$  | $$| $$  | $$| $$  \ $$
+| $$  | $$| $$$$$$$$| $$$$$$$$| $$  \ $$| $$  \ $$      | $$  | $$|  $$$$$$/| $$$$$$$/
+|__/  |__/|________/|________/|__/  |__/|__/  |__/      |__/  |__/ \______/ |_______/ 
+                                                                                      
+                                                                                      
+                                                                                      
                                                                                                                            
                                                                                                                            
                                                                                                                            
 ]]
 
 pcall(function()
-	local b = game:GetService("Lighting"):FindFirstChild("VexroGlassBlur")
+	local b = game:GetService("Lighting"):FindFirstChild("AlexxGlassBlur")
 	if b then b:Destroy() end
 end)
 local _genv = (type(getgenv) == "function") and getgenv or function() return {} end
-if _genv().VexroEmotesCleanup then
-	pcall(_genv().VexroEmotesCleanup)
-	_genv().VexroEmotesCleanup = nil
+if _genv().AlexxEmotesCleanup then
+	pcall(_genv().AlexxEmotesCleanup)
+	_genv().AlexxEmotesCleanup = nil
 end
 
 local Players = game:GetService("Players")
@@ -39,14 +42,14 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui", 10)
 if not playerGui then return end
 
-local old = playerGui:FindFirstChild("VexroEmotes")
+local old = playerGui:FindFirstChild("AlexxEmotes")
 if old then old:Destroy() end
 
 -- ===============================================================
 -- DATA SYSTEM
 -- ===============================================================
 
-local DATA_FILE = "VexroEmotes_Data.json"
+local DATA_FILE = "AlexxEmotes_Data.json"
 local Settings = {theme = "Dark", speed = 1, notifications = true, loopEmote = true, language = nil, copyEmoteEnabled = false, stopOnWalk = true, showHUD = true}
 
 local FriendData = {
@@ -333,7 +336,7 @@ end
 local function Notify(title, text, iconId)
 	if not Settings.notifications then return end
 	pcall(function()
-		local screenGui = playerGui:FindFirstChild("VexroEmotes") or game:GetService("CoreGui"):FindFirstChild("VexroEmotes")
+		local screenGui = playerGui:FindFirstChild("AlexxEmotes") or game:GetService("CoreGui"):FindFirstChild("AlexxEmotes")
 		if not screenGui then
 			game:GetService("StarterGui"):SetCore("SendNotification", {Title = title, Text = text, Duration = 3})
 			return
@@ -469,7 +472,7 @@ end
 -- ===============================================================
 
 local gui = Instance.new("ScreenGui")
-gui.Name = "VexroEmotes"
+gui.Name = "AlexxEmotes"
 gui.ResetOnSpawn = false
 gui.IgnoreGuiInset = true
 gui.DisplayOrder = 999
@@ -915,7 +918,7 @@ local logo = Instance.new("TextLabel")
 logo.Size = UDim2.new(1, -24, 0, 60)
 logo.Position = UDim2.new(0, 12, 0, 70)
 logo.BackgroundTransparency = 1
-logo.Text = "Vexro Emotes"
+logo.Text = "Alexx Emotes"
 logo.TextColor3 = _splashTheme.text
 logo.Font = Enum.Font.GothamBlack
 logo.TextScaled = true
@@ -956,7 +959,7 @@ task.spawn(function()
 	local dots = {"", ".", "..", "..."}
 	local i = 1
 	while loadingLbl.Parent do
-		loadingLbl.Text = "Vexro Emotes " .. L.loading .. dots[i]
+		loadingLbl.Text = "Alexx Emotes " .. L.loading .. dots[i]
 		i = i % 4 + 1
 		task.wait(0.4)
 	end
@@ -1014,7 +1017,7 @@ task.wait(0.3)
 
 local function LoadEmotes()
 	local success, result = pcall(function()
-		local response = game:HttpGet("https://raw.githubusercontent.com/zyrovell/Vexro/main/emotes.json")
+		local response = game:HttpGet("https://raw.githubusercontent.com/zyrovell/Alexx/main/emotes.json")
 		return HttpService:JSONDecode(response)
 	end)
 	
@@ -1187,8 +1190,8 @@ end
 local function StopEmote(showNotif)
 	StopAllTracks()
 	if showNotif then Notify(L.stopped, "", 113416463749658) end
-	if _genv().VexroBroadcastStop then
-		pcall(_genv().VexroBroadcastStop)
+	if _genv().AlexxBroadcastStop then
+		pcall(_genv().AlexxBroadcastStop)
 	end
 end
 
@@ -1212,7 +1215,7 @@ local function PlayEmote(id, name, silent)
 	
 	StopAllTracks()
 	
-	_genv().lastVexroEmote = {id = id, name = name}
+	_genv().lastAlexxEmote = {id = id, name = name}
 	
 	local success, err = pcall(function()
 		local anim = _animCache[id]
@@ -1258,8 +1261,8 @@ local function PlayEmote(id, name, silent)
 			Notify(L.playing .. speedTxt, name, 129338178452237)
 		end
 		lastEmoteTime = tick()
-		if _genv().VexroBroadcastSync then
-			pcall(_genv().VexroBroadcastSync, id, name)
+		if _genv().AlexxBroadcastSync then
+			pcall(_genv().AlexxBroadcastSync, id, name)
 		end
 	else
 		Notify(utf8.char(0x274C), L.emoteLoadFail)
@@ -1319,15 +1322,15 @@ ApplyTheme = function(name)
 	_glassApplyBase(name)
 	local isGlass = name == "FrostedGlass" or name == "DarkGlass"
 	pcall(function()
-		local b = game:GetService("Lighting"):FindFirstChild("VexroGlassBlur")
+		local b = game:GetService("Lighting"):FindFirstChild("AlexxGlassBlur")
 		if b then b:Destroy() end
 	end)
 	TweenService:Create(main, TweenInfo.new(0.3), {BackgroundTransparency = isGlass and 0.18 or 0}):Play()
-	local noiseOverlay = main:FindFirstChild("VexroGlassNoise")
+	local noiseOverlay = main:FindFirstChild("AlexxGlassNoise")
 	if isGlass then
 		if not noiseOverlay then
 			noiseOverlay = Instance.new("ImageLabel")
-			noiseOverlay.Name = "VexroGlassNoise"
+			noiseOverlay.Name = "AlexxGlassNoise"
 			noiseOverlay.Size = UDim2.new(1, 0, 1, 0)
 			noiseOverlay.BackgroundTransparency = 1
 			noiseOverlay.Image = "rbxassetid://9968344672"
@@ -1340,10 +1343,10 @@ ApplyTheme = function(name)
 	elseif noiseOverlay then
 		noiseOverlay:Destroy()
 	end
-	local gradFrame = main:FindFirstChild("VexroGradFrame")
+	local gradFrame = main:FindFirstChild("AlexxGradFrame")
 	if not gradFrame then
 		gradFrame = Instance.new("Frame")
-		gradFrame.Name = "VexroGradFrame"
+		gradFrame.Name = "AlexxGradFrame"
 		gradFrame.Size = UDim2.new(1, 0, 1, 0)
 		gradFrame.BackgroundColor3 = Color3.new(1, 1, 1)
 		gradFrame.BackgroundTransparency = 0
@@ -1352,11 +1355,11 @@ ApplyTheme = function(name)
 		gradFrame.Parent = main
 		Instance.new("UICorner", gradFrame).CornerRadius = UDim.new(0, 20)
 		local grad = Instance.new("UIGradient")
-		grad.Name = "VexroMainGrad"
+		grad.Name = "AlexxMainGrad"
 		grad.Parent = gradFrame
 	end
 	TweenService:Create(gradFrame, TweenInfo.new(0.3), {BackgroundTransparency = isGlass and 0.45 or 0}):Play()
-	local grad = gradFrame:FindFirstChild("VexroMainGrad")
+	local grad = gradFrame:FindFirstChild("AlexxMainGrad")
 	if grad then
 		local g = ThemeGradients[name] or ThemeGradients.Dark
 		grad.Color = ColorSequence.new{
@@ -2268,7 +2271,7 @@ do
 	local row = MakeRow("103179694587186", L.loopText or "Loop", "", 11)
 	MakePillToggle(row, Settings.loopEmote, function(v)
 		Settings.loopEmote = v
-		_genv().autoReloadEnabled_Vexro = v
+		_genv().autoReloadEnabled_Alexx = v
 		SaveData()
 	end)
 end
@@ -2317,14 +2320,14 @@ do
 		SaveData()
 		gui:Destroy()
 		pcall(function()
-			if _genv().lastVexroEmote then _genv().lastVexroEmote = nil end
+			if _genv().lastAlexxEmote then _genv().lastAlexxEmote = nil end
 		end)
-		loadstring(game:HttpGet("https://raw.githubusercontent.com/zyrovell/Vexro/main/vexroemotes.lua"))()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/zyrovell/Alexx/main/Alexxemotes.lua"))()
 	end)
 end
 
 
-local PROMPT_TAG = "VexroCopyEmotePrompt"
+local PROMPT_TAG = "AlexxCopyEmotePrompt"
 
 local function MakeCopyPrompt(targetChar)
 	local root = targetChar:FindFirstChild("HumanoidRootPart")
@@ -2443,13 +2446,13 @@ local function _SaveFriend()
 			playFriendEmote = FriendData.playFriendEmote,
 			syncEmote      = FriendData.syncEmote,
 		})
-		_genv().VexroFriendSave = enc
+		_genv().AlexxFriendSave = enc
 	end)
 end
 
 local function _LoadFriend()
 	pcall(function()
-		local raw = _genv().VexroFriendSave
+		local raw = _genv().AlexxFriendSave
 		if not raw then return end
 		local ok, d = pcall(HttpService.JSONDecode, HttpService, raw)
 		if not ok then return end
@@ -2489,7 +2492,7 @@ ShowFriendRequestPanel = function(senderUserId, senderName)
 
 	local brand = Instance.new("TextLabel")
 	brand.Size = UDim2.new(1, 0, 0, 20); brand.Position = UDim2.new(0,0,0,8)
-	brand.BackgroundTransparency = 1; brand.Text = "Vexro Emote Player"
+	brand.BackgroundTransparency = 1; brand.Text = "Alexz Emote Player"
 	brand.TextColor3 = currentTheme.accent; brand.Font = Enum.Font.GothamBold
 	brand.TextSize = 11; brand.ZIndex = 98002; brand.Parent = panel
 
@@ -2660,7 +2663,7 @@ local function _WatchAll()
 					pcall(function()
 						if not FriendData.addModeActive then return end
 						local head = c:FindFirstChild("Head")
-						if head and not head:FindFirstChild("VexroFriendBB") then
+						if head and not head:FindFirstChild("AlexxFriendBB") then
 							_MakeBillboard(p)
 						end
 					end)
@@ -2687,7 +2690,7 @@ local function _RemoveBillboard(p)
 	pcall(function()
 		local head = p.Character and p.Character:FindFirstChild("Head")
 		if head then
-			local bb = head:FindFirstChild("VexroFriendBB")
+			local bb = head:FindFirstChild("AlexxFriendBB")
 			if bb then bb:Destroy() end
 		end
 	end)
@@ -2697,10 +2700,10 @@ _MakeBillboard = function(p)
 	if not p.Character then return end
 	if FriendData.friends[tostring(p.UserId)] then return end
 	local head = p.Character:FindFirstChild("Head")
-	if not head or head:FindFirstChild("VexroFriendBB") then return end
+	if not head or head:FindFirstChild("AlexxFriendBB") then return end
 
 	local bb = Instance.new("BillboardGui")
-	bb.Name = "VexroFriendBB"
+	bb.Name = "AlexxFriendBB"
 	bb.Size = UDim2.new(0, 140, 0, 34)
 	bb.StudsOffset = Vector3.new(0, 2.8, 0)
 	bb.AlwaysOnTop = false
@@ -2793,7 +2796,7 @@ local function _SetAddMode(on)
 end
 
 
-_genv().VexroBroadcastSync = function(emoteId, emoteName)
+_genv().AlexxBroadcastSync = function(emoteId, emoteName)
 	if not FriendData.syncEmote then return end
 	local hasSyncFriend = false
 	for _, fd in pairs(FriendData.friends) do
@@ -2803,7 +2806,7 @@ _genv().VexroBroadcastSync = function(emoteId, emoteName)
 	_MyAttr(ATTR_SYNC, tostring(emoteId) .. "|" .. tostring(emoteName))
 end
 
-_genv().VexroBroadcastStop = function()
+_genv().AlexxBroadcastStop = function()
 	_MyAttr(ATTR_STOP, tostring(tick()))
 	FriendData.currentSyncPartner = nil
 end
@@ -3012,14 +3015,14 @@ do
 	end)
 end
 
-local _prevClean = _genv().VexroEmotesCleanup
-_genv().VexroEmotesCleanup = function()
+local _prevClean = _genv().AlexxEmotesCleanup
+_genv().AlexxEmotesCleanup = function()
 	if _prevClean then pcall(_prevClean) end
 	for _, c in ipairs(_friendConns) do pcall(function() c:Disconnect() end) end
 	_friendConns = {}
 	_SetAddMode(false)
-	pcall(function() _genv().VexroBroadcastSync = nil end)
-	pcall(function() _genv().VexroBroadcastStop = nil end)
+	pcall(function() _genv().AlexxBroadcastSync = nil end)
+	pcall(function() _genv().AlexxBroadcastStop = nil end)
 end
 
 end
@@ -3169,11 +3172,11 @@ end
 -- ===============================================================
 
 local function ShowKeybindDialog(emoteId, emote, isEdit)
-	local existing = main:FindFirstChild("VexroKeybindOverlay")
+	local existing = main:FindFirstChild("AlexxKeybindOverlay")
 	if existing then existing:Destroy() end
 
 	local overlay = Instance.new("TextButton")
-	overlay.Name = "VexroKeybindOverlay"
+	overlay.Name = "AlexxKeybindOverlay"
 	overlay.Size = UDim2.new(1, 0, 1, 0)
 	overlay.BackgroundColor3 = Color3.new(0, 0, 0)
 	overlay.BackgroundTransparency = 0.5
@@ -4171,13 +4174,13 @@ local function _CleanupScript()
 	pcall(function() if _keybindInputConn then _keybindInputConn:Disconnect() end end)
 	pcall(function() DisableCopyEmotePrompts() end)
 	pcall(function() StopHUDTracking() end)
-	_genv().VexroEmotesCleanup = nil
-	_genv().lastVexroEmote = nil
-	_genv().autoReloadEnabled_Vexro = nil
+	_genvAlexxEmotesCleanup = nil
+	_genv().lastAlexxEmote = nil
+	_genv().autoReloadEnabled_Alexx = nil
 	pcall(function() gui:Destroy() end)
 end
 
-_genv().VexroEmotesCleanup = _CleanupScript
+_genv().AlexxEmotesCleanup = _CleanupScript
 
 closeBtn.MouseButton1Click:Connect(function()
 	gui.Enabled = false
@@ -4278,7 +4281,7 @@ end
 -- CHARACTER RESPAWN & AUTO-RELOAD
 -- ===============================================================
 
-_genv().autoReloadEnabled_Vexro = Settings.loopEmote
+_genv().autoReloadEnabled_Alexx = Settings.loopEmote
 
 local _charAddedConn = player.CharacterAdded:Connect(function(newChar)
 	local newHum = newChar:WaitForChild("Humanoid", 5)
@@ -4291,9 +4294,9 @@ local _charAddedConn = player.CharacterAdded:Connect(function(newChar)
 		return
 	end
 	
-	if _genv().lastVexroEmote and _genv().autoReloadEnabled_Vexro then
+	if _genv().lastAlexxEmote and _genv().autoReloadEnabled_Alexx then
 		task.wait(1)
-		PlayEmote(_genv().lastVexroEmote.id, _genv().lastVexroEmote.name, true)
+		PlayEmote(_genv().lastAlexxEmote.id, _genv().lastAlexxEmote.name, true)
 		Notify("[R]", L.ready or "Emote reapplied")
 	end
 end)
@@ -4336,12 +4339,12 @@ task.wait(0.25)
 Notify(utf8.char(0x2705) .. " " .. L.ready, #Emotes .. " emotes")
 
 -- ================================================================
--- VEXRO EXTENDED MODULES v1.0
+-- ALEXX EXTENDED MODULES v1.0
 -- Bölüm 1: Dinamik Tema  |  Bölüm 2: Animation Blending & Combo
 -- Bölüm 3: Canlı Emote HUD  |  Bölüm 4: Entegrasyon
 -- NOT: do...end bloğu Lua'nın 200 local sınırını aşmamak için
 -- ================================================================
-local function _VexroExtend()
+local function _AlexxExtend()
 
 -- ----------------------------------------------------------------
 -- ----------------------------------------------------------------
@@ -4407,7 +4410,7 @@ local function PlayComboStep(emoteId, emoteName)
 		end)
 
 		currentAnimTrack = track
-		_genv().lastVexroEmote = {id = emoteId, name = emoteName}
+		_genv().lastAlexxEmote = {id = emoteId, name = emoteName}
 		AddToRecent(emoteId)
 
 		task.defer(function()
@@ -4474,7 +4477,7 @@ local hudTrackerConn = nil
 local _hudHideToken  = 0
 
 HUD = Instance.new("Frame")
-HUD.Name                   = "VexroHUD"
+HUD.Name                   = "AlexxHUD"
 HUD.Size                   = isMobile and UDim2.new(0, 320, 0, 100) or UDim2.new(0, 500, 0, 104)
 HUD.Position               = UDim2.new(0.5, 0, 1, -120)
 HUD.AnchorPoint            = Vector2.new(0.5, 1)
@@ -4550,7 +4553,7 @@ local hudCreator = Instance.new("TextLabel")
 hudCreator.Size                   = UDim2.new(1, -130, 0, 15)
 hudCreator.Position               = UDim2.new(0, 44, 0, 30)
 hudCreator.BackgroundTransparency = 1
-hudCreator.Text                   = "Vexro Emotes"
+hudCreator.Text                   = "Alexx Emotes"
 hudCreator.TextColor3             = Color3.fromRGB(120, 120, 145)
 hudCreator.Font                   = Enum.Font.Gotham
 hudCreator.TextSize               = isMobile and 10 or 11
@@ -4670,7 +4673,7 @@ for si, spd in ipairs(HUD_SPEEDS) do
 end
 
 infoPanel = Instance.new("Frame")
-infoPanel.Name                   = "VexroInfoPanel"
+infoPanel.Name                   = "AlexxInfoPanel"
 infoPanel.Size                   = UDim2.new(0, 270, 0, 260)
 infoPanel.Position               = UDim2.new(0, -290, 1, -285)
 infoPanel.BackgroundColor3       = Color3.fromRGB(10, 10, 18)
@@ -4947,7 +4950,7 @@ local function _applyMetaToInfoPanel(meta)
 	else
 		infoDateLbl.Text = "—"
 	end
-	hudCreator.Text = (meta.creatorName and meta.creatorName ~= "") and meta.creatorName or "Vexro Emotes"
+	hudCreator.Text = (meta.creatorName and meta.creatorName ~= "") and meta.creatorName or "Alexx Emotes"
 end
 
 local function _fetchAndCacheMeta(numId, targetId)
@@ -5012,7 +5015,7 @@ local function OpenInfoPanel(emoteId, emoteName)
 		infoPriceLbl.TextColor3 = Color3.fromRGB(160, 160, 185)
 		infoFavLbl.Text     = "…"
 		infoDateLbl.Text    = "…"
-		hudCreator.Text     = "Vexro Emotes"
+		hudCreator.Text     = "Alexx Emotes"
 		if numId and numId > 0 then
 			task.spawn(_fetchAndCacheMeta, numId, numId)
 		end
@@ -5180,7 +5183,7 @@ ShowEmoteHUD = function(emoteId, emoteName)
 
 	RefreshHUDFavBtn()
 	hudName.Text    = emoteName or "Emote"
-	hudCreator.Text = "Vexro Emotes"
+	hudCreator.Text = "Alexx Emotes"
 
 	_isPaused = false
 	RefreshHudPauseBtn()
@@ -5464,4 +5467,4 @@ do
 end
 
 end
-_VexroExtend()
+_AlexxExtend()
