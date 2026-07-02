@@ -350,17 +350,13 @@ if hookmetamethod and checkcaller then
     end)
 end
 
-
+-- Bucle de renderizado del círculo (en medio)
 game:GetService("RunService").RenderStepped:Connect(function()
-    -- Solo dibujamos si el SilentAim está activo Y la opción "Ocultar FOV" está en false
-    if getgenv().SilentAim.Enabled and not getgenv().SilentAim.HideFov then
-        fovCircle.Visible = true
-        fovCircle.Radius = getgenv().SilentAim.FOV
-        fovCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
-    else
-        fovCircle.Visible = false
-    end
+    fovCircle.Visible = getgenv().SilentAim.Enabled
+    fovCircle.Radius = getgenv().SilentAim.FOV
+    fovCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
 end)
+
 
 local AimTab = Window:Tab({ Title = "Silent Aim 🎯", Icon = "crosshair" })
 
@@ -380,13 +376,5 @@ AimTab:Slider({
     Title = "Predicción",
     Value = { Min = 0, Max = 100, Default = 100 },
     Callback = function(v) getgenv().SilentAim.Prediction = v end
-})
-
-AimTab:Toggle({
-    Title = "Ocultar FOV",
-    Value = false,
-    Callback = function(v) 
-        getgenv().SilentAim.HideFov = v 
-    end
 })
 
