@@ -137,11 +137,12 @@ HitboxTab:Toggle({
     Callback = function(state) getgenv().EspEnabled = state end
 })
 
--- === 3. BUCLE HITBOX (Independiente y con Limpieza) ===
+-- === 3. BUCLE HITBOX (Ahora respeta a la Pro para evitar parpadeo) ===
 task.spawn(function()
     while true do
         task.wait(0.2)
-        if getgenv().HitboxEnabled then
+        -- Solo ejecutamos esto si Hitbox Pro NO está encendida
+        if getgenv().HitboxEnabled and not getgenv().Hitbox2_Enabled then
             for _, player in pairs(Players:GetPlayers()) do
                 local char = player.Character
                 local hum = char and char:FindFirstChild("Humanoid")
@@ -152,17 +153,13 @@ task.spawn(function()
                     hrp.Transparency = 0.5
                     hrp.CanCollide = false
                     hrp.Material = Enum.Material.Neon
-                else
-                    -- Limpiamos solo si el tamaño está alterado
-                    if hrp and hrp.Size ~= Vector3.new(2, 2, 1) then
-                        hrp.Size = Vector3.new(2, 2, 1)
-                        hrp.Transparency = 1
-                    end
+                elseif hrp and hrp.Size ~= Vector3.new(2, 2, 1) then
+                    hrp.Size = Vector3.new(2, 2, 1)
+                    hrp.Transparency = 1
                 end
             end
-        else
-            -- === ESTA ES LA PARTE QUE FALTABA ===
-            -- Esto se ejecuta cuando apagas el Toggle
+        elseif not getgenv().Hitbox2_Enabled then
+            -- Solo reseteamos si NO estamos en modo Pro
             for _, player in pairs(Players:GetPlayers()) do
                 local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if hrp and hrp.Size ~= Vector3.new(2, 2, 1) then
@@ -173,6 +170,7 @@ task.spawn(function()
         end
     end
 end)
+
 
 
 -- === 4. BUCLE ESP (Independiente) ===
@@ -198,3 +196,64 @@ task.spawn(function()
         end
     end
 end)
+
+-- === PESTAÑA Y LÓGICA HITBOX PRO ===
+local HitboxProTab = Window:Tab({ Title = "Hitbox Pro 🎯", Icon = "target" })
+
+-- Slider exclusivo para Hitbox Pro
+HitboxProTab:Slider({
+    Title = "Tamaño Hitbox Pro",
+    Value = { Min = 1, Max = 100, Default = 10 },
+    Callback = function(v) getgenv().HitboxSize2 = v end
+})
+
+-- Toggle exclusivo para Hitbox Pro
+HitboxProTab:Toggle({
+    Title = "Activar Hitbox Pro (Paredes)",
+    Value = false,
+    Callback = function(state) getgenv().Hitbox2_Enabled = state end
+})
+
+-- Bucle exclusivo (Solo se activa si el toggle anterior está en ON)
+task.spawn(function()
+    while task.wait(0.1) do
+        if getgenv().Hitbox2_Enabled then
+            local myHRP = LocalPlayer.Character and LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            
+            for _, player in pairs(Players:GetPlayers()) do
+                local char = player.Character
+                local hrp = char and char:FindFirstChild("HumanoidRootPart")
+                local hum = char and char:FindFirstChild("Humanoid")
+                
+                if char and hum and hum.Health > 0 and hrp and isEnemy(player) then
+                    -- Raycast para detectar pared
+                    local isVisible = true
+                    if myHRP then
+                        local rayParams = RaycastParams.new()
+                        rayParams.FilterDescendantsInstances = {LocalPlayer.Character, workspace.CurrentCamera}
+                        rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+                        local ray = workspace:Raycast(myHRP.Position, (hrp.Position - myHRP.Position), rayParams)
+                        
+                        if ray and not ray.Instance:IsDescendantOf(char) then
+                            isVisible = false
+                        end
+                    end
+                    
+                    -- Aplicar tamaño solo si es visible
+                    if isVisible then
+                        hrp.Size = Vector3.new(getgenv().HitboxSize2, getgenv().HitboxSize2, getgenv().HitboxSize2)
+                        hrp.Transparency = 0.5
+                        hrp.Material = Enum.Material.Neon
+                        hrp.Color = Color3.fromRGB(255, 0, 0)
+                        hrp.CanCollide = false
+                    else
+                        -- Reset si está detrás de pared
+                        hrp.Size = Vector3.new(2, 2, 1)
+                        hrp.Transparency = 1
+                    end
+                end
+            end
+        end
+    end
+end)
+
