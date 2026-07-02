@@ -7,6 +7,19 @@ local localPlayer = Players.LocalPlayer
 local SelectedTargetName = nil -- Guardamos el nombre en lugar del objeto
 _G.AutoTeleport = false
 _G.SuperBypass = false
+local Drawing = Drawing -- Asegúrate de que tu executor lo soporte
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 1.5
+fovCircle.Color = Color3.fromRGB(255, 0, 0)
+fovCircle.Filled = false
+fovCircle.Visible = false
+
+getgenv().SilentAim = {
+    Enabled = false,
+    FOV = 150,
+    Prediction = 0.1, -- 0.1 es el estándar para velocidad
+    Dist = 300
+}
 
 -- 3. Ventana y Pestaña
 local Window = WindUI:CreateWindow({ Title = "ALEXX HUB", Icon = "apple" })
@@ -256,4 +269,124 @@ task.spawn(function()
         end
     end
 end)
+
+-- ====================================================================
+-- LÓGICA ORIGINAL (IDÉNTICA A TU REFERENCIA)
+-- ====================================================================
+
+-- Creamos un Mouse falso para que la lógica de tu script original no falle al buscar "Mouse.Hit"
+local UserInputService = game:GetService("UserInputService")
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Mouse = LocalPlayer:GetMouse() -- Aunque estés en móvil, esto inicializa la propiedad en la mayoría de ejecutores
+
+getgenv().SilentAim = {
+    Enabled = false,
+    FOV = 150,
+    Prediction = 100, -- Mantenemos el valor base de tu script (100)
+    Part = "Head"
+}
+
+local fovCircle = Drawing.new("Circle")
+fovCircle.Thickness = 1.5
+fovCircle.Color = Color3.fromRGB(220, 20, 20)
+fovCircle.Filled = false
+fovCircle.Visible = false
+
+local function getClosest()
+    local targetPart, targetPlayer, closest = nil, nil, getgenv().SilentAim.FOV
+    local Cam = workspace.CurrentCamera
+    
+    for _, p in ipairs(Players:GetPlayers()) do
+        if p ~= LocalPlayer and p.Character and isEnemy(p) then
+            local char = p.Character 
+            local part = char:FindFirstChild(getgenv().SilentAim.Part)
+            
+            if part and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid").Health > 0 then
+                
+                -- NUEVA LÓGICA DE WALLCHECK
+                local ray = Ray.new(Cam.CFrame.Position, (part.Position - Cam.CFrame.Position).Unit * 500)
+                local hit = workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, Cam})
+                local isVisible = hit and hit:IsDescendantOf(char)
+                
+                -- Solo lo elegimos si está visible (o si desactivaste el WallCheck en tu menú)
+                if isVisible then
+                    local pos, onScreen = Cam:WorldToViewportPoint(part.Position)
+                    if onScreen then
+                        local mouseDist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)).Magnitude
+                        if mouseDist < closest then
+                            closest = mouseDist 
+                            targetPart = part 
+                            targetPlayer = p 
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return targetPart, targetPlayer
+end
+
+-- El Hook corregido (para que no bloquee los disparos)
+if hookmetamethod and checkcaller then
+    local oldIndex
+    oldIndex = hookmetamethod(game, "__index", function(self, index)
+        -- Si el SilentAim está desactivado, o no es el Mouse, o no es la propiedad Hit, regresamos a lo normal inmediatamente
+        if not getgenv().SilentAim.Enabled or self ~= Mouse or index ~= "Hit" or checkcaller() then
+            return oldIndex(self, index)
+        end
+
+        local targetPart, targetPlayer = getClosest()
+        
+        -- Si encontramos un objetivo, devolvemos la posición predicha
+        if targetPart and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+            local predFactor = getgenv().SilentAim.Prediction / 100 
+            return CFrame.new(targetPart.Position + targetPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity * 0.08 * predFactor)
+        end
+
+        -- IMPORTANTE: Si NO hay objetivo, debemos devolver el Mouse.Hit original 
+        -- para que puedas seguir disparando normalmente al aire o a donde quieras
+        return oldIndex(self, index)
+    end)
+end
+
+
+game:GetService("RunService").RenderStepped:Connect(function()
+    -- Solo dibujamos si el SilentAim está activo Y la opción "Ocultar FOV" está en false
+    if getgenv().SilentAim.Enabled and not getgenv().SilentAim.HideFov then
+        fovCircle.Visible = true
+        fovCircle.Radius = getgenv().SilentAim.FOV
+        fovCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
+    else
+        fovCircle.Visible = false
+    end
+end)
+
+local AimTab = Window:Tab({ Title = "Silent Aim 🎯", Icon = "crosshair" })
+
+AimTab:Toggle({
+    Title = "Activar Silent Aim",
+    Value = false,
+    Callback = function(v) getgenv().SilentAim.Enabled = v end
+})
+
+AimTab:Slider({
+    Title = "Radio FOV",
+    Value = { Min = 30, Max = 800, Default = 150 },
+    Callback = function(v) getgenv().SilentAim.FOV = v end
+})
+
+AimTab:Slider({
+    Title = "Predicción",
+    Value = { Min = 0, Max = 100, Default = 100 },
+    Callback = function(v) getgenv().SilentAim.Prediction = v end
+})
+
+AimTab:Toggle({
+    Title = "Ocultar FOV",
+    Value = false,
+    Callback = function(v) 
+        getgenv().SilentAim.HideFov = v 
+    end
+})
 
