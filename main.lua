@@ -36,28 +36,26 @@ MoveTab:Button({
     Callback = function() PlayerDropdown:Refresh(GetPlayerList()) end
 })
 
--- 5. Bucle de Seguimiento Inteligente (Persistente en rondas)
 task.spawn(function()
     while task.wait(0.5) do
         if _G.AutoTeleport and SelectedTargetName then
-            -- Buscamos al jugador por nombre en cada ciclo (evita errores de ronda)
-            local player = Players:FindFirstChild(SelectedTargetName)
+            local player = game:GetService("Players"):FindFirstChild(SelectedTargetName)
             local char = player and player.Character
-            local hum = char and char:FindFirstChild("Humanoid")
-            local myHRP = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
             local targetHRP = char and char:FindFirstChild("HumanoidRootPart")
+            local myHRP = game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             
-            -- Si el jugador está vivo, procedemos
-            if player and char and hum and hum.Health > 0 and targetHRP and myHRP then
-                -- Solo teletransporta si estás lejos (más de 5 studs)
-                local distancia = (myHRP.Position - targetHRP.Position).Magnitude
-                if distancia > 5 then
-                    myHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 3)
-                end
+            -- Si el personaje es nuevo (nueva ronda o respawn) y no es el que ya guardamos
+            if char and targetHRP and myHRP and char ~= LastTeleportedCharacter then
+                -- Teletransporta una vez
+                myHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 3)
+                
+                -- Guarda este personaje para NO volver a teletransportar hasta que sea uno nuevo
+                LastTeleportedCharacter = char
             end
         end
     end
 end)
+
 
 MoveTab:Toggle({
     Title = "🔥 Activar Seguimiento Auto",
