@@ -121,7 +121,7 @@ getgenv().HitboxSize = 10 -- Valor por defecto
 
 HitboxTab:Slider({
     Title = "Tamaño Hitbox",
-    Value = { Min = 1, Max = 100, Default = 10 },
+    Value = { Min = 1, Max = 20, Default = 1 },
     Callback = function(v) getgenv().HitboxSize = v end
 })
 
@@ -203,7 +203,7 @@ local HitboxProTab = Window:Tab({ Title = "Hitbox Pro 🎯", Icon = "target" })
 -- Slider exclusivo para Hitbox Pro
 HitboxProTab:Slider({
     Title = "Tamaño Hitbox Pro",
-    Value = { Min = 1, Max = 100, Default = 10 },
+    Value = { Min = 1, Max = 20, Default = 1},
     Callback = function(v) getgenv().HitboxSize2 = v end
 })
 
