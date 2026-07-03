@@ -464,3 +464,28 @@ game:GetService("UserInputService").JumpRequest:Connect(function()
     end
 end)
 
+-- === CAMBIADOR DE FOV CON TOGGLE ===
+_G.FOVEnabled = false
+local Camera = workspace.CurrentCamera
+local DefaultFOV = 70 -- Valor base
+
+LocalTab:Toggle({
+    Title = "Activar FOV Personalizado",
+    Default = false,
+    Callback = function(state)
+        _G.FOVEnabled = state
+        if not state then
+            Camera.FieldOfView = DefaultFOV -- Regresa a 70 al desactivar
+        end
+    end
+})
+
+LocalTab:Slider({
+    Title = "Valor FOV",
+    Value = { Min = 70, Max = 120, Default = 70 },
+    Callback = function(v)
+        if _G.FOVEnabled then
+            Camera.FieldOfView = v
+        end
+    end
+})
