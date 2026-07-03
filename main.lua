@@ -298,22 +298,24 @@ local function getClosest()
     local Cam = workspace.CurrentCamera
     
     for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and p.Character and isEnemy(p) then
-            local char = p.Character 
+        if p ~= LocalPlayer and p.Character then
+            local char = p.Character
+            local hrp = char:FindFirstChild("HumanoidRootPart")
             local part = char:FindFirstChild(getgenv().SilentAim.Part)
+            local hum = char:FindFirstChildOfClass("Humanoid")
             
-            if part and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChildOfClass("Humanoid").Health > 0 then
-                
-                -- NUEVA LÓGICA DE WALLCHECK
+            if part and hrp and hum and hum.Health > 0 then
+                -- MEJORA: Aumentamos el IgnoreList para incluir todo tu modelo
                 local ray = Ray.new(Cam.CFrame.Position, (part.Position - Cam.CFrame.Position).Unit * 500)
-                local hit = workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, Cam})
+                local hit, pos = workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, Cam})
+                
+                -- RELAJAMOS EL WALLCHECK: Si el hit es parte del enemigo O está muy cerca, lo toma como válido
                 local isVisible = hit and hit:IsDescendantOf(char)
                 
-                -- Solo lo elegimos si está visible (o si desactivaste el WallCheck en tu menú)
                 if isVisible then
-                    local pos, onScreen = Cam:WorldToViewportPoint(part.Position)
+                    local screenPos, onScreen = Cam:WorldToViewportPoint(part.Position)
                     if onScreen then
-                        local mouseDist = (Vector2.new(pos.X, pos.Y) - Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)).Magnitude
+                        local mouseDist = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(Cam.ViewportSize.X / 2, Cam.ViewportSize.Y / 2)).Magnitude
                         if mouseDist < closest then
                             closest = mouseDist 
                             targetPart = part 
@@ -326,6 +328,7 @@ local function getClosest()
     end
     return targetPart, targetPlayer
 end
+
 
 -- El Hook corregido (para que no bloquee los disparos)
 if hookmetamethod and checkcaller then
@@ -378,3 +381,36 @@ AimTab:Slider({
     Callback = function(v) getgenv().SilentAim.Prediction = v end
 })
 
+-- === NOCLIP Y LIBERTAD DE MOVIMIENTO (SIN TOCAR CÁMARA) ===
+local runService = game:GetService("RunService")
+local player = game.Players.LocalPlayer
+local noclip = false
+
+-- Esta función hace que tu personaje sea "fantasma" y atraviese todo
+runService.Stepped:Connect(function()
+    if noclip and player.Character then
+        for _, part in pairs(player.Character:GetDescendants()) do
+            if part:IsA("BasePart") then
+                part.CanCollide = false
+            end
+        end
+    end
+end)
+
+-- === INTEGRACIÓN EN TU HUB ===
+local LocalTab = Window:Tab({ Title = "Movimiento 🚶", Icon = "map" })
+
+LocalTab:Toggle({
+    Title = "Atravesar Paredes (Noclip)",
+    Callback = function(state)
+        noclip = state
+        -- Si desactivas el Noclip, devolvemos la colisión para no caer al vacío
+        if not state and player.Character then
+            for _, part in pairs(player.Character:GetDescendants()) do
+                if part:IsA("BasePart") then
+                    part.CanCollide = true
+                end
+            end
+        end
+    end
+})
