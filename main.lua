@@ -447,3 +447,19 @@ game:GetService("RunService").RenderStepped:Connect(function()
         end
     end
 end)
+
+_G.InfiniteJump = false
+
+LocalTab:Toggle({
+    Title = "Salto Infinito",
+    Default = false,
+    Callback = function(state)
+        _G.InfiniteJump = state
+    end
+})
+
+game:GetService("UserInputService").JumpRequest:Connect(function()
+    if _G.InfiniteJump then
+        game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+    end
+end)
