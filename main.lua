@@ -489,3 +489,29 @@ LocalTab:Slider({
         end
     end
 })
+
+-- 1. La variable global para controlar el estado
+_G.WallClimb = false
+
+-- 2. El Toggle en tu LocalTab
+LocalTab:Toggle({
+    Title = "Escalar Paredes (Wall Climb)",
+    Default = false,
+    Callback = function(state)
+        _G.WallClimb = state
+    end
+})
+
+-- 3. La lógica que corre constantemente en segundo plano
+game:GetService("RunService").RenderStepped:Connect(function()
+    if _G.WallClimb then
+        local char = game.Players.LocalPlayer.Character
+        local hum = char and char:FindFirstChildOfClass("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        
+        -- Verifica si te estás moviendo contra una pared (MoveDirection.Magnitude > 0)
+        if hum and hrp and hum.MoveDirection.Magnitude > 0 then
+            hrp.Velocity = Vector3.new(hrp.Velocity.X, 25, hrp.Velocity.Z)
+        end
+    end
+end)
