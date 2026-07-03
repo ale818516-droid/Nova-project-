@@ -71,7 +71,7 @@ end)
 
 
 MoveTab:Toggle({
-    Title = "🔥 Activar Seguimiento Auto",
+    Title = "Teletransport Player",
     Value = false,
     Callback = function(state)
         _G.AutoTeleport = state
@@ -80,7 +80,7 @@ MoveTab:Toggle({
 
 -- 6. Anti-Freeze
 MoveTab:Toggle({
-    Title = "❄️ Anti-Freeze",
+    Title = "Anti Contador",
     Value = false,
     Callback = function(state)
         _G.SuperBypass = state
@@ -211,7 +211,7 @@ task.spawn(function()
 end)
 
 -- === PESTAÑA Y LÓGICA HITBOX PRO ===
-local HitboxProTab = Window:Tab({ Title = "Hitbox Pro 🎯", Icon = "target" })
+local HitboxProTab = Window:Tab({ Title = "Hitbox Disimulada🎯", Icon = "target" })
 
 -- Slider exclusivo para Hitbox Pro
 HitboxProTab:Slider({
@@ -398,10 +398,10 @@ runService.Stepped:Connect(function()
 end)
 
 -- === INTEGRACIÓN EN TU HUB ===
-local LocalTab = Window:Tab({ Title = "Movimiento 🚶", Icon = "map" })
+local LocalTab = Window:Tab({ Title = "Players", Icon = "map" })
 
 LocalTab:Toggle({
-    Title = "Atravesar Paredes (Noclip)",
+    Title = "Atravesar Paredes",
     Callback = function(state)
         noclip = state
         -- Si desactivas el Noclip, devolvemos la colisión para no caer al vacío
@@ -427,7 +427,7 @@ LocalTab:Toggle({
 })
 
 LocalTab:Slider({
-    Title = "Speed Multiplier",
+    Title = "Speed Slider",
     Value = { Min = 0, Max = 100, Default = 0 },
     Callback = function(v) 
         _G.SpeedMultiplier = v / 100 
@@ -470,7 +470,7 @@ local Camera = workspace.CurrentCamera
 local DefaultFOV = 70 -- Valor base
 
 LocalTab:Toggle({
-    Title = "Activar FOV Personalizado",
+    Title = "Activar FOV",
     Default = false,
     Callback = function(state)
         _G.FOVEnabled = state
@@ -495,7 +495,7 @@ _G.WallClimb = false
 
 -- 2. El Toggle en tu LocalTab
 LocalTab:Toggle({
-    Title = "Escalar Paredes (Wall Climb)",
+    Title = "Wall Climb",
     Default = false,
     Callback = function(state)
         _G.WallClimb = state
