@@ -414,3 +414,36 @@ LocalTab:Toggle({
         end
     end
 })
+-- === CONTROLES SPEED (LocalTab) ===
+_G.SpeedEnabled = false
+_G.SpeedMultiplier = 0
+
+LocalTab:Toggle({
+    Title = "Activar Speed",
+    Default = false,
+    Callback = function(state)
+        _G.SpeedEnabled = state
+    end
+})
+
+LocalTab:Slider({
+    Title = "Speed Multiplier",
+    Value = { Min = 0, Max = 100, Default = 0 },
+    Callback = function(v) 
+        _G.SpeedMultiplier = v / 100 
+    end
+})
+
+-- === LÓGICA SPEED (Indetectable) ===
+game:GetService("RunService").RenderStepped:Connect(function()
+    -- Solo ejecuta si el toggle está activo Y hay velocidad asignada
+    if _G.SpeedEnabled and _G.SpeedMultiplier > 0 then
+        local char = game.Players.LocalPlayer.Character
+        local hum = char and char:FindFirstChild("Humanoid")
+        local hrp = char and char:FindFirstChild("HumanoidRootPart")
+        
+        if hrp and hum and hum.MoveDirection.Magnitude > 0 then
+            hrp.CFrame = hrp.CFrame + (hum.MoveDirection * _G.SpeedMultiplier)
+        end
+    end
+end)
