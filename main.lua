@@ -540,7 +540,7 @@ ExternalTab:Button({
 })
 
 ExternalTab:Button({
-    Title = "Ejecutar Script(7yd7)",
+    Title = "Emotes Vexro",
     Callback = function()
       loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Vexro-Emote-Player-40K-Emotes-Keyless-229963"))()
     end
