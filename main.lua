@@ -1,13 +1,36 @@
--- 1. Carga de Librería
+local HttpService = game:GetService("HttpService")
+local CONFIG_FILE = "AlexxHub_Config.json"
+
+local Settings = {
+    AutoTeleport = false,
+    HitboxEnabled = false,
+    EspEnabled = false,
+    SilentAim = false,
+    SpeedEnabled = false,
+    Hitbox2_Enabled = false,
+    InfiniteJump = false,
+    FOVEnabled = false,
+    WallClimb = false
+}
+
+-- Cargar datos
+if isfile(CONFIG_FILE) then
+    local success, data = pcall(function() return HttpService:JSONDecode(readfile(CONFIG_FILE)) end)
+    if success then Settings = data end
+end
+
+local function Save()
+    writefile(CONFIG_FILE, HttpService:JSONEncode(Settings))
+end
+
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/azurelw/azurehub/refs/heads/main/main.lua"))()
 
--- 2. Variables Globales
 local Players = game:GetService("Players")
 local localPlayer = Players.LocalPlayer
-local SelectedTargetName = nil -- Guardamos el nombre en lugar del objeto
-_G.AutoTeleport = false
+local SelectedTargetName = nil 
+_G.AutoTeleport = Settings.AutoTeleport
 _G.SuperBypass = false
-local Drawing = Drawing -- Asegúrate de que tu executor lo soporte
+local Drawing = Drawing 
 local fovCircle = Drawing.new("Circle")
 fovCircle.Thickness = 1.5
 fovCircle.Color = Color3.fromRGB(255, 0, 0)
@@ -15,17 +38,15 @@ fovCircle.Filled = false
 fovCircle.Visible = false
 
 getgenv().SilentAim = {
-    Enabled = false,
+    Enabled = Settings.SilentAim,
     FOV = 150,
-    Prediction = 0.1, -- 0.1 es el estándar para velocidad
+    Prediction = 0.1, 
     Dist = 300
 }
 
--- 3. Ventana y Pestaña
 local Window = WindUI:CreateWindow({ Title = "ALEXX HUB", Icon = "apple" })
 local MoveTab = Window:Tab({ Title = "Bypass Movimiento 🔓", Icon = "move" })
 
--- Función para actualizar lista
 local function GetPlayerList()
     local list = {}
     for _, v in pairs(Players:GetPlayers()) do
@@ -34,16 +55,14 @@ local function GetPlayerList()
     return #list > 0 and list or {"Esperando jugadores..."}
 end
 
--- 4. Dropdown de Selección
 local PlayerDropdown = MoveTab:Dropdown({
     Title = "Seleccionar Jugador",
     List = GetPlayerList(),
     Callback = function(Option)
-        SelectedTargetName = Option -- Guardamos el nombre como referencia constante
+        SelectedTargetName = Option 
     end
 })
 
--- Botón para refrescar
 MoveTab:Button({
     Title = "🔄 Refrescar Lista",
     Callback = function() PlayerDropdown:Refresh(GetPlayerList()) end
@@ -57,28 +76,24 @@ task.spawn(function()
             local targetHRP = char and char:FindFirstChild("HumanoidRootPart")
             local myHRP = game:GetService("Players").LocalPlayer.Character and game:GetService("Players").LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
             
-            -- Si el personaje es nuevo (nueva ronda o respawn) y no es el que ya guardamos
             if char and targetHRP and myHRP and char ~= LastTeleportedCharacter then
-                -- Teletransporta una vez
                 myHRP.CFrame = targetHRP.CFrame * CFrame.new(0, 0, 3)
-                
-                -- Guarda este personaje para NO volver a teletransportar hasta que sea uno nuevo
                 LastTeleportedCharacter = char
             end
         end
     end
 end)
 
-
 MoveTab:Toggle({
     Title = "Teletransport Player",
-    Value = false,
+    Value = Settings.AutoTeleport,
     Callback = function(state)
         _G.AutoTeleport = state
+        Settings.AutoTeleport = state
+        Save()
     end
 })
 
--- 6. Anti-Freeze
 MoveTab:Toggle({
     Title = "Anti Contador",
     Value = false,
@@ -104,10 +119,8 @@ MoveTab:Toggle({
     end
 })
 
--- Refresco inicial
 task.spawn(function() task.wait(2) PlayerDropdown:Refresh(GetPlayerList()) end)
 
--- === 1. LÓGICA DE DETECCIÓN (Mejorada) ===
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
@@ -124,13 +137,12 @@ local function isEnemy(player)
         return LocalPlayer.Team ~= player.Team
     end
     
-    return false -- Ajustado para juegos de equipo (MM2, etc)
+    return false 
 end
 
--- === 2. INTERFAZ ===
 local HitboxTab = Window:Tab({ Title = "Combate ⚔️", Icon = "sword" })
 
-getgenv().HitboxSize = 10 -- Valor por defecto
+getgenv().HitboxSize = 10 
 
 HitboxTab:Slider({
     Title = "Tamaño Hitbox",
@@ -140,21 +152,27 @@ HitboxTab:Slider({
 
 HitboxTab:Toggle({
     Title = "Activar Hitbox",
-    Value = false,
-    Callback = function(state) getgenv().HitboxEnabled = state end
+    Value = Settings.HitboxEnabled,
+    Callback = function(state) 
+        getgenv().HitboxEnabled = state 
+        Settings.HitboxEnabled = state
+        Save()
+    end
 })
 
 HitboxTab:Toggle({
     Title = "Activar ESP",
-    Value = false,
-    Callback = function(state) getgenv().EspEnabled = state end
+    Value = Settings.EspEnabled,
+    Callback = function(state) 
+        getgenv().EspEnabled = state 
+        Settings.EspEnabled = state
+        Save()
+    end
 })
 
--- === 3. BUCLE HITBOX (Ahora respeta a la Pro para evitar parpadeo) ===
 task.spawn(function()
     while true do
         task.wait(0.2)
-        -- Solo ejecutamos esto si Hitbox Pro NO está encendida
         if getgenv().HitboxEnabled and not getgenv().Hitbox2_Enabled then
             for _, player in pairs(Players:GetPlayers()) do
                 local char = player.Character
@@ -172,7 +190,6 @@ task.spawn(function()
                 end
             end
         elseif not getgenv().Hitbox2_Enabled then
-            -- Solo reseteamos si NO estamos en modo Pro
             for _, player in pairs(Players:GetPlayers()) do
                 local hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
                 if hrp and hrp.Size ~= Vector3.new(2, 2, 1) then
@@ -184,9 +201,6 @@ task.spawn(function()
     end
 end)
 
-
-
--- === 4. BUCLE ESP (Independiente) ===
 task.spawn(function()
     while true do
         task.wait(0.5)
@@ -210,24 +224,24 @@ task.spawn(function()
     end
 end)
 
--- === PESTAÑA Y LÓGICA HITBOX PRO ===
 local HitboxProTab = Window:Tab({ Title = "Hitbox Disimulada🎯", Icon = "target" })
 
--- Slider exclusivo para Hitbox Pro
 HitboxProTab:Slider({
     Title = "Tamaño Hitbox Pro",
     Value = { Min = 1, Max = 20, Default = 1},
     Callback = function(v) getgenv().HitboxSize2 = v end
 })
 
--- Toggle exclusivo para Hitbox Pro
 HitboxProTab:Toggle({
     Title = "Activar Hitbox Pro (Paredes)",
-    Value = false,
-    Callback = function(state) getgenv().Hitbox2_Enabled = state end
+    Value = Settings.Hitbox2_Enabled,
+    Callback = function(state) 
+        getgenv().Hitbox2_Enabled = state 
+        Settings.Hitbox2_Enabled = state
+        Save()
+    end
 })
 
--- Bucle exclusivo (Solo se activa si el toggle anterior está en ON)
 task.spawn(function()
     while task.wait(0.1) do
         if getgenv().Hitbox2_Enabled then
@@ -239,7 +253,6 @@ task.spawn(function()
                 local hum = char and char:FindFirstChild("Humanoid")
                 
                 if char and hum and hum.Health > 0 and hrp and isEnemy(player) then
-                    -- Raycast para detectar pared
                     local isVisible = true
                     if myHRP then
                         local rayParams = RaycastParams.new()
@@ -252,7 +265,6 @@ task.spawn(function()
                         end
                     end
                     
-                    -- Aplicar tamaño solo si es visible
                     if isVisible then
                         hrp.Size = Vector3.new(getgenv().HitboxSize2, getgenv().HitboxSize2, getgenv().HitboxSize2)
                         hrp.Transparency = 0.5
@@ -260,7 +272,6 @@ task.spawn(function()
                         hrp.Color = Color3.fromRGB(255, 0, 0)
                         hrp.CanCollide = false
                     else
-                        -- Reset si está detrás de pared
                         hrp.Size = Vector3.new(2, 2, 1)
                         hrp.Transparency = 1
                     end
@@ -270,20 +281,15 @@ task.spawn(function()
     end
 end)
 
--- ====================================================================
--- LÓGICA ORIGINAL (IDÉNTICA A TU REFERENCIA)
--- ====================================================================
-
--- Creamos un Mouse falso para que la lógica de tu script original no falle al buscar "Mouse.Hit"
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
-local Mouse = LocalPlayer:GetMouse() -- Aunque estés en móvil, esto inicializa la propiedad en la mayoría de ejecutores
+local Mouse = LocalPlayer:GetMouse() 
 
 getgenv().SilentAim = {
-    Enabled = false,
+    Enabled = Settings.SilentAim,
     FOV = 150,
-    Prediction = 100, -- Mantenemos el valor base de tu script (100)
+    Prediction = 100, 
     Part = "Head"
 }
 
@@ -298,18 +304,16 @@ local function getClosest()
     local Cam = workspace.CurrentCamera
     
     for _, p in ipairs(Players:GetPlayers()) do
-        if p ~= LocalPlayer and p.Character then
+        if p ~= LocalPlayer and p.Character and isEnemy(p) then
             local char = p.Character
             local hrp = char:FindFirstChild("HumanoidRootPart")
             local part = char:FindFirstChild(getgenv().SilentAim.Part)
             local hum = char:FindFirstChildOfClass("Humanoid")
             
             if part and hrp and hum and hum.Health > 0 then
-                -- MEJORA: Aumentamos el IgnoreList para incluir todo tu modelo
                 local ray = Ray.new(Cam.CFrame.Position, (part.Position - Cam.CFrame.Position).Unit * 500)
                 local hit, pos = workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, Cam})
                 
-                -- RELAJAMOS EL WALLCHECK: Si el hit es parte del enemigo O está muy cerca, lo toma como válido
                 local isVisible = hit and hit:IsDescendantOf(char)
                 
                 if isVisible then
@@ -329,49 +333,61 @@ local function getClosest()
     return targetPart, targetPlayer
 end
 
-
--- El Hook corregido (para que no bloquee los disparos)
 if hookmetamethod and checkcaller then
     local oldIndex
     oldIndex = hookmetamethod(game, "__index", function(self, index)
-        -- Si el SilentAim está desactivado, o no es el Mouse, o no es la propiedad Hit, regresamos a lo normal inmediatamente
         if not getgenv().SilentAim.Enabled or self ~= Mouse or index ~= "Hit" or checkcaller() then
             return oldIndex(self, index)
         end
 
         local targetPart, targetPlayer = getClosest()
         
-        -- Si encontramos un objetivo, devolvemos la posición predicha
         if targetPart and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local predFactor = getgenv().SilentAim.Prediction / 100 
             return CFrame.new(targetPart.Position + targetPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity * 0.08 * predFactor)
         end
 
-        -- IMPORTANTE: Si NO hay objetivo, debemos devolver el Mouse.Hit original 
-        -- para que puedas seguir disparando normalmente al aire o a donde quieras
         return oldIndex(self, index)
     end)
 end
 
--- Bucle de renderizado del círculo (en medio)
 game:GetService("RunService").RenderStepped:Connect(function()
     fovCircle.Visible = getgenv().SilentAim.Enabled
     fovCircle.Radius = getgenv().SilentAim.FOV
     fovCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
 end)
 
-
 local AimTab = Window:Tab({ Title = "Silent Aim 🎯", Icon = "crosshair" })
 
 AimTab:Toggle({
     Title = "Activar Silent Aim",
+    Value = Settings.SilentAim,
+    Callback = function(v) 
+        getgenv().SilentAim.Enabled = v 
+        Settings.SilentAim = v
+        Save()
+    end
+})
+
+AimTab:Toggle({
+    Title = "Apuntar a Cabeza",
+    Value = true,
+    Callback = function(v)
+        if v then getgenv().SilentAim.Part = "Head" end
+    end
+})
+
+AimTab:Toggle({
+    Title = "Apuntar a Torso",
     Value = false,
-    Callback = function(v) getgenv().SilentAim.Enabled = v end
+    Callback = function(v)
+        if v then getgenv().SilentAim.Part = "HumanoidRootPart" end
+    end
 })
 
 AimTab:Slider({
     Title = "Radio FOV",
-    Value = { Min = 30, Max = 800, Default = 150 },
+    Value = { Min = 30, Max = 1000, Default = 150 },
     Callback = function(v) getgenv().SilentAim.FOV = v end
 })
 
@@ -381,12 +397,10 @@ AimTab:Slider({
     Callback = function(v) getgenv().SilentAim.Prediction = v end
 })
 
--- === NOCLIP Y LIBERTAD DE MOVIMIENTO (SIN TOCAR CÁMARA) ===
 local runService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 local noclip = false
 
--- Esta función hace que tu personaje sea "fantasma" y atraviese todo
 runService.Stepped:Connect(function()
     if noclip and player.Character then
         for _, part in pairs(player.Character:GetDescendants()) do
@@ -397,14 +411,13 @@ runService.Stepped:Connect(function()
     end
 end)
 
--- === INTEGRACIÓN EN TU HUB ===
 local LocalTab = Window:Tab({ Title = "Players", Icon = "map" })
 
 LocalTab:Toggle({
     Title = "Atravesar Paredes",
+    Value = false,
     Callback = function(state)
         noclip = state
-        -- Si desactivas el Noclip, devolvemos la colisión para no caer al vacío
         if not state and player.Character then
             for _, part in pairs(player.Character:GetDescendants()) do
                 if part:IsA("BasePart") then
@@ -414,15 +427,17 @@ LocalTab:Toggle({
         end
     end
 })
--- === CONTROLES SPEED (LocalTab) ===
-_G.SpeedEnabled = false
+
+_G.SpeedEnabled = Settings.SpeedEnabled
 _G.SpeedMultiplier = 0
 
 LocalTab:Toggle({
     Title = "Activar Speed",
-    Default = false,
+    Value = Settings.SpeedEnabled,
     Callback = function(state)
         _G.SpeedEnabled = state
+        Settings.SpeedEnabled = state
+        Save()
     end
 })
 
@@ -434,9 +449,7 @@ LocalTab:Slider({
     end
 })
 
--- === LÓGICA SPEED (Indetectable) ===
 game:GetService("RunService").RenderStepped:Connect(function()
-    -- Solo ejecuta si el toggle está activo Y hay velocidad asignada
     if _G.SpeedEnabled and _G.SpeedMultiplier > 0 then
         local char = game.Players.LocalPlayer.Character
         local hum = char and char:FindFirstChild("Humanoid")
@@ -448,13 +461,15 @@ game:GetService("RunService").RenderStepped:Connect(function()
     end
 end)
 
-_G.InfiniteJump = false
+_G.InfiniteJump = Settings.InfiniteJump
 
 LocalTab:Toggle({
     Title = "Salto Infinito",
-    Default = false,
+    Value = Settings.InfiniteJump,
     Callback = function(state)
         _G.InfiniteJump = state
+        Settings.InfiniteJump = state
+        Save()
     end
 })
 
@@ -464,18 +479,19 @@ game:GetService("UserInputService").JumpRequest:Connect(function()
     end
 end)
 
--- === CAMBIADOR DE FOV CON TOGGLE ===
-_G.FOVEnabled = false
+_G.FOVEnabled = Settings.FOVEnabled
 local Camera = workspace.CurrentCamera
-local DefaultFOV = 70 -- Valor base
+local DefaultFOV = 70 
 
 LocalTab:Toggle({
     Title = "Activar FOV",
-    Default = false,
+    Value = Settings.FOVEnabled,
     Callback = function(state)
         _G.FOVEnabled = state
+        Settings.FOVEnabled = state
+        Save()
         if not state then
-            Camera.FieldOfView = DefaultFOV -- Regresa a 70 al desactivar
+            Camera.FieldOfView = DefaultFOV 
         end
     end
 })
@@ -490,28 +506,124 @@ LocalTab:Slider({
     end
 })
 
--- 1. La variable global para controlar el estado
-_G.WallClimb = false
+_G.WallClimb = Settings.WallClimb
 
--- 2. El Toggle en tu LocalTab
 LocalTab:Toggle({
     Title = "Wall Climb",
-    Default = false,
+    Value = Settings.WallClimb,
     Callback = function(state)
         _G.WallClimb = state
+        Settings.WallClimb = state
+        Save()
     end
 })
 
--- 3. La lógica que corre constantemente en segundo plano
 game:GetService("RunService").RenderStepped:Connect(function()
     if _G.WallClimb then
         local char = game.Players.LocalPlayer.Character
         local hum = char and char:FindFirstChildOfClass("Humanoid")
         local hrp = char and char:FindFirstChild("HumanoidRootPart")
         
-        -- Verifica si te estás moviendo contra una pared (MoveDirection.Magnitude > 0)
         if hum and hrp and hum.MoveDirection.Magnitude > 0 then
             hrp.Velocity = Vector3.new(hrp.Velocity.X, 25, hrp.Velocity.Z)
         end
     end
+end)
+
+local ExternalTab = Window:Tab({ Title = "External", Icon = "file-code" })
+
+ExternalTab:Button({
+    Title = "Ejecutar Script(7yd7)",
+    Callback = function()
+        loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-7yd7-I-Emote-Script-48024"))()
+    end
+})
+
+ExternalTab:Button({
+    Title = "Ejecutar Script(7yd7)",
+    Callback = function()
+      loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Vexro-Emote-Player-40K-Emotes-Keyless-229963"))()
+    end
+})
+
+HitboxTab:Button({
+   Title = "INVISIBLE",
+   Callback = function()
+       local char = localPlayer.Character
+       if char then
+           local root = char:FindFirstChild("HumanoidRootPart")
+           if root then
+               local pos = root.CFrame 
+               local clone = root:Clone()
+               clone.Name = "HumanoidRootPart" 
+               clone.Parent = char
+               root:Destroy() 
+               clone.CFrame = pos 
+               for _, v in pairs(char:GetDescendants()) do
+                   if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                       v.Transparency = 0.5 
+                   end
+               end
+           end
+       end
+   end,
+})
+
+local TraerTodosActivo = false
+HitboxTab:Toggle({
+    Title = "TRAER A TODOS LOS ENEMIGOS 🧲",
+    Value = false,
+    Callback = function(state)
+        TraerTodosActivo = state
+    end
+})
+
+game:GetService("RunService").Heartbeat:Connect(function()
+    if TraerTodosActivo then
+        local myHRP = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if not myHRP then return end
+        for _, p in pairs(Players:GetPlayers()) do
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                local dist = (myHRP.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                if isEnemy(p) and dist < 200 then 
+                    local enemyHRP = p.Character.HumanoidRootPart
+                    enemyHRP.CFrame = myHRP.CFrame * CFrame.new(0, 0, -4)
+                    enemyHRP.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                end
+            end
+        end
+    end
+end)
+
+local AutoFarmActivo = false
+HitboxTab:Toggle({
+    Title = "Auto Farm 💰",
+    Value = false,
+    Callback = function(state)
+        AutoFarmActivo = state
+        if AutoFarmActivo then
+            task.spawn(function()
+                local container = game:GetService("Workspace"):WaitForChild("SpawnablesClient")
+                while AutoFarmActivo do
+                    for _, obj in pairs(container:GetChildren()) do
+                        if AutoFarmActivo then
+                            local touchPart = obj:FindFirstChild("Touch")
+                            if touchPart then
+                                pcall(function()
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, touchPart, 0)
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, touchPart, 1)
+                                end)
+                            end
+                        end
+                    end
+                    task.wait(0.5)
+                end
+            end)
+        end
+    end
+})
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if gameProcessed then return end
+    if input.KeyCode == Enum.KeyCode.Z then Window:Toggle() end
 end)
