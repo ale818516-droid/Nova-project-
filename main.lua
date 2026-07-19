@@ -290,9 +290,11 @@ local Camera = workspace.CurrentCamera
 
 getgenv().SilentAim = {
     Enabled = Settings.SilentAim,
-    FOV = 150,
+    FOV = 150,           
     Prediction = 100, 
-    Part = "Head"
+    Part = "Head",
+    HideFOV = false,
+    InternalFOV = 1000    -- ← Cambiado a 1000
 }
 
 local fovCircle = Drawing.new("Circle")
@@ -302,7 +304,8 @@ fovCircle.Filled = false
 fovCircle.Visible = false
 
 local function getClosest()
-    local targetPart, targetPlayer, closest = nil, nil, getgenv().SilentAim.FOV
+    local currentFOV = getgenv().SilentAim.HideFOV and getgenv().SilentAim.InternalFOV or getgenv().SilentAim.FOV
+local targetPart, targetPlayer, closest = nil, nil, currentFOV
     local Cam = workspace.CurrentCamera
     
     for _, p in ipairs(Players:GetPlayers()) do
@@ -359,12 +362,14 @@ if hookmetamethod and checkcaller then
     end)
 end
 
--- Actualización del círculo más estable
-RunService.RenderStepped:Connect(function()
-    fovCircle.Visible = getgenv().SilentAim.Enabled
+game:GetService("RunService").RenderStepped:Connect(function()
+    local shouldShowCircle = getgenv().SilentAim.Enabled and not getgenv().SilentAim.HideFOV
+    
+    fovCircle.Visible = shouldShowCircle
     fovCircle.Radius = getgenv().SilentAim.FOV
-    fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    fovCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
 end)
+
 local AimTab = Window:Tab({ Title = "Silent Aim 🎯", Icon = "crosshair" })
 
 AimTab:Toggle({
@@ -405,6 +410,13 @@ AimTab:Slider({
     Callback = function(v) getgenv().SilentAim.Prediction = v end
 })
 
+AimTab:Toggle({
+    Title = "Ocultar FOV Circle",
+    Value = false,
+    Callback = function(v) 
+        getgenv().SilentAim.HideFOV = v 
+    end
+})
 local runService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
 local noclip = false
