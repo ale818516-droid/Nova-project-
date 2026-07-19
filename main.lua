@@ -2,25 +2,39 @@ local HttpService = game:GetService("HttpService")
 local CONFIG_FILE = "AlexxHub_Config.json"
 
 local Settings = {
+    SilentAim = false,
+    SilentAim_Part = "Head",
+    SilentAim_FOV = 150,
+    SilentAim_Prediction = 100,
+    SilentAim_HideFOV = false,
+    
     AutoTeleport = false,
     HitboxEnabled = false,
     EspEnabled = false,
-    SilentAim = false,
     SpeedEnabled = false,
     Hitbox2_Enabled = false,
     InfiniteJump = false,
     FOVEnabled = false,
-    WallClimb = false
+    WallClimb = false,
+    -- Agrega aquí más settings en el futuro
 }
 
--- Cargar datos
+-- Cargar configuración
 if isfile(CONFIG_FILE) then
-    local success, data = pcall(function() return HttpService:JSONDecode(readfile(CONFIG_FILE)) end)
-    if success then Settings = data end
+    local success, data = pcall(function()
+        return HttpService:JSONDecode(readfile(CONFIG_FILE))
+    end)
+    if success and data then
+        for k, v in pairs(data) do
+            Settings[k] = v
+        end
+    end
 end
 
 local function Save()
-    writefile(CONFIG_FILE, HttpService:JSONEncode(Settings))
+    pcall(function()
+        writefile(CONFIG_FILE, HttpService:JSONEncode(Settings))
+    end)
 end
 
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/azurelw/azurehub/refs/heads/main/main.lua"))()
@@ -642,7 +656,8 @@ HitboxTab:Toggle({
         end
     end
 })
-
+ConfigTab:Section("Archivo")
+ConfigTab:Label("Archivo guardado como: " .. CONFIG_FILE)
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.Z then Window:Toggle() end
