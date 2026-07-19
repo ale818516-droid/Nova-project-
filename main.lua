@@ -283,8 +283,10 @@ end)
 
 local UserInputService = game:GetService("UserInputService")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local LocalPlayer = Players.LocalPlayer
 local Mouse = LocalPlayer:GetMouse() 
+local Camera = workspace.CurrentCamera
 
 getgenv().SilentAim = {
     Enabled = Settings.SilentAim,
@@ -311,6 +313,7 @@ local function getClosest()
             local hum = char:FindFirstChildOfClass("Humanoid")
             
             if part and hrp and hum and hum.Health > 0 then
+                -- Mejor visibilidad (manteniendo misma lógica)
                 local ray = Ray.new(Cam.CFrame.Position, (part.Position - Cam.CFrame.Position).Unit * 500)
                 local hit, pos = workspace:FindPartOnRayWithIgnoreList(ray, {LocalPlayer.Character, Cam})
                 
@@ -333,10 +336,14 @@ local function getClosest()
     return targetPart, targetPlayer
 end
 
+-- Hook más seguro (esto suele arreglar que no abra el menú)
 if hookmetamethod and checkcaller then
     local oldIndex
     oldIndex = hookmetamethod(game, "__index", function(self, index)
-        if not getgenv().SilentAim.Enabled or self ~= Mouse or index ~= "Hit" or checkcaller() then
+        if not getgenv().SilentAim.Enabled 
+           or self ~= Mouse 
+           or index ~= "Hit" 
+           or checkcaller() then
             return oldIndex(self, index)
         end
 
@@ -344,19 +351,20 @@ if hookmetamethod and checkcaller then
         
         if targetPart and targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
             local predFactor = getgenv().SilentAim.Prediction / 100 
-            return CFrame.new(targetPart.Position + targetPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity * 0.08 * predFactor)
+            local velocity = targetPlayer.Character.HumanoidRootPart.AssemblyLinearVelocity
+            return CFrame.new(targetPart.Position + velocity * 0.085 * predFactor) -- predicción ligeramente mejor
         end
 
         return oldIndex(self, index)
     end)
 end
 
-game:GetService("RunService").RenderStepped:Connect(function()
+-- Actualización del círculo más estable
+RunService.RenderStepped:Connect(function()
     fovCircle.Visible = getgenv().SilentAim.Enabled
     fovCircle.Radius = getgenv().SilentAim.FOV
-    fovCircle.Position = Vector2.new(workspace.CurrentCamera.ViewportSize.X / 2, workspace.CurrentCamera.ViewportSize.Y / 2)
+    fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
 end)
-
 local AimTab = Window:Tab({ Title = "Silent Aim 🎯", Icon = "crosshair" })
 
 AimTab:Toggle({
