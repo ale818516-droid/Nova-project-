@@ -577,6 +577,101 @@ game:GetService("RunService").Heartbeat:Connect(function()
     end
 end)
 
+-- 1. LÓGICA DE FUNCIONAMIENTO (KillAll)
+local plrs = game:GetService("Players")
+local rs = game:GetService("ReplicatedStorage")
+local lp = plrs.LocalPlayer
+local net = rs:WaitForChild("Packages"):WaitForChild("Net")
+
+local g = (getgenv and getgenv()) or _G
+g.__RE_FINDER = g.__RE_FINDER or {}
+local key = game.JobId
+
+local on = false
+local found = g.__RE_FINDER[key]
+
+function isEnemy(v)
+    if not v or v == lp then return false end
+    local localTeam = lp:GetAttribute("Team")
+    local targetTeam = v:GetAttribute("Team")
+    return (localTeam == nil or targetTeam == nil) or (localTeam ~= targetTeam)
+end
+
+function getTarget()
+    local m, gm = lp:GetAttribute("Map"), lp:GetAttribute("Game")
+    for _, v in ipairs(plrs:GetPlayers()) do
+        if v ~= lp and v.Character and v.Character:FindFirstChild("Humanoid") then
+            if v.Character.Humanoid.Health > 0 and isEnemy(v) and v:GetAttribute("Map") == m and v:GetAttribute("Game") == gm then
+                return v
+            end
+        end
+    end
+end
+
+function fire(name, target)
+    local re = net:FindFirstChild(name)
+    if re and target and target.Character and target.Character.Humanoid.Health > 0 then
+        re:FireServer("bb15e94b-1af0-48fe-be2b-b2f9e007565a", target)
+    end
+end
+
+function test(name)
+    local tg = getTarget()
+    if not tg then return false end
+    local startHealth = tg.Character.Humanoid.Health
+    local t = os.clock()
+    while os.clock() - t < 0.15 do
+        fire(name, tg)
+        if tg.Character.Humanoid.Health < startHealth then return true end
+        task.wait(0.03)
+    end
+    return false
+end
+
+-- Bucle principal del KillAll
+task.spawn(function()
+    local lastMap = lp:GetAttribute("Map")
+    while true do
+        local currentMap = lp:GetAttribute("Map")
+        if currentMap ~= lastMap then found = nil lastMap = currentMap end
+        if on then
+            if not found then
+                local tg = getTarget()
+                if tg then
+                    for _, o in ipairs(net:GetChildren()) do
+                        if o:IsA("RemoteEvent") and o.Name:sub(1, 3) == "RE/" then
+                            if test(o.Name) then
+                                found = o.Name
+                                g.__RE_FINDER[key] = found
+                                break
+                            end
+                        end
+                    end
+                end
+            else
+                local tg = getTarget()
+                if tg then fire(found, tg) end
+            end
+        end
+        task.wait(0.05)
+    end
+end)
+
+HitboxTab:Section({ Title = "⚠️ Riesgo de Baneo" })
+HitboxTab:Label({ Title = "El KillAll es altamente detectable." })
+HitboxTab:Label({ Title = "Uso bajo tu propia responsabilidad." })
+
+HitboxTab:Section({ Title = "Funciones" })
+
+HitboxTab:Toggle({
+    Title = "Activar KillAll",
+    Value = false,
+    Callback = function(state)
+        on = state
+    end
+})
+
+
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
     if input.KeyCode == Enum.KeyCode.Z then Window:Toggle() end
