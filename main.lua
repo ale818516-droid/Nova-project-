@@ -1,6 +1,7 @@
-local PlaceId = 135856908115931
-if game.PlaceId ~= PlaceId then
-    game:GetService("Players").LocalPlayer:Kick("Script no autorizado para este juego.")
+local PlaceIds = {135856908115931, 131117978948830}
+
+if not table.find(PlaceIds, game.PlaceId) then
+    game:GetService("Players").LocalPlayer:Kick("No autorizado")
     return 
 end
 
