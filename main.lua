@@ -1,4 +1,3 @@
--- REPARA EL ERROR DE INICIO: Define la tabla Settings que eliminaste
 local Settings = {
     AutoTeleport = false,
     SilentAim = false,
@@ -15,9 +14,8 @@ local Settings = {
     WallClimb = false
 }
 
--- Función vacía de Save para que no dé error al presionar botones
+
 local function Save() 
-    -- Si no quieres guardar, esto evita que el script se cierre por error
 end
 
 
@@ -158,7 +156,6 @@ HitboxTab:Toggle({
     end
 })
 
--- (Mantengo tus loops de hitbox y esp tal como estaban)
 task.spawn(function()
     while true do
         task.wait(0.2)
@@ -211,7 +208,6 @@ task.spawn(function()
     end
 end)
 
--- Variable global de control
 local AutoFarmActivo = false
 
 HitboxTab:Toggle({
@@ -259,7 +255,6 @@ HitboxProTab:Toggle({
     end
 })
 
--- (Mantengo tu loop de Hitbox Pro)
 task.spawn(function()
     while task.wait(0.1) do
         if getgenv().Hitbox2_Enabled then
@@ -299,7 +294,6 @@ local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Camera = workspace.CurrentCamera
 
--- Función optimizada para obtener el objetivo (funciona en móvil y PC)
 local function getClosest()
     local currentFOV = getgenv().SilentAim.HideFOV and getgenv().SilentAim.InternalFOV or getgenv().SilentAim.FOV
     local targetPart, targetPlayer, closest = nil, nil, currentFOV
@@ -334,16 +328,9 @@ local function getClosest()
     return targetPart, targetPlayer
 end
 
--- Hook para evitar el uso del Mouse.Hit y hacerlo compatible
-
 if hookmetamethod then
     local oldIndex
     oldIndex = hookmetamethod(game, "__index", function(self, index)
-        -- Solo interviene si:
-        -- 1. No somos nosotros mismos (evita errores internos)
-        -- 2. El SilentAim está prendido
-        -- 3. Buscan "Hit" o "Target"
-        -- 4. UserInputService detecta que estamos disparando (Mouse1 o Touch)
         
         local isShooting = UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) or 
                            UserInputService:IsMouseButtonPressed(Enum.UserInputType.Touch)
@@ -362,10 +349,6 @@ if hookmetamethod then
     end)
 end
 
--- Asegúrate de inicializar fovCircle fuera del bucle para no crearlo cada vez
--- Si no lo tienes, añádelo antes de este bloque.
-
--- 1. FUNCIÓN CENTRALIZADA (Debe ir antes de los Toggles)
 local function UpdateFOV()
     if fovCircle then
         local shouldShow = getgenv().SilentAim.Enabled and not getgenv().SilentAim.HideFOV
@@ -373,9 +356,8 @@ local function UpdateFOV()
     end
 end
 
--- 2. RENDERSTEPPED OPTIMIZADO (Solo actualiza posición/radio si es visible)
 RunService.RenderStepped:Connect(function()
-    -- Solo actualizamos la posición si el círculo ya está visible
+    
     if fovCircle and fovCircle.Visible then
         fovCircle.Position = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
         fovCircle.Radius = getgenv().SilentAim.FOV
@@ -383,10 +365,9 @@ RunService.RenderStepped:Connect(function()
 end)
 
 
--- 3. INTERFAZ Y TOGGLES
+
 local AimTab = Window:Tab({ Title = "Silent Aim 🎯", Icon = "crosshair" })
 
--- Toggle 1: Activar Silent Aim (Controla también el FOV)
 AimTab:Toggle({
     Title = "Activar Silent Aim",
     Value = Settings.SilentAim,
@@ -394,8 +375,7 @@ AimTab:Toggle({
         getgenv().SilentAim.Enabled = v 
         Settings.SilentAim = v
         
-        -- ESTA ES LA LÓGICA QUE FALTABA:
-        -- Si activas el Silent, el círculo se muestra (siempre que no esté marcado como oculto)
+        
         if fovCircle then
             fovCircle.Visible = v and not getgenv().SilentAim.HideFOV
         end
@@ -404,14 +384,14 @@ AimTab:Toggle({
     end
 })
 
--- Toggle 2: Ocultar FOV Circle
+
 AimTab:Toggle({
     Title = "Ocultar FOV Circle",
     Value = getgenv().SilentAim.HideFOV,
     Callback = function(v) 
         getgenv().SilentAim.HideFOV = v 
         
-        -- Si desmarcas "Ocultar", el círculo solo aparece si el Silent Aim está prendido
+       
         if fovCircle then
             fovCircle.Visible = getgenv().SilentAim.Enabled and not v
         end
@@ -423,9 +403,6 @@ AimTab:Toggle({ Title = "Apuntar a Torso", Value = getgenv().SilentAim.Part == "
 
 AimTab:Slider({ Title = "Radio FOV", Value = { Min = 30, Max = 1000, Default = 150 }, Callback = function(v) getgenv().SilentAim.FOV = v end })
 AimTab:Slider({ Title = "Predicción", Value = { Min = 0, Max = 100, Default = 100 }, Callback = function(v) getgenv().SilentAim.Prediction = v end })
-
--- Resto de tabs (Players, External, etc.) se mantienen igual...
--- (Pega el resto de tu script desde "local runService = ..." hasta el final)
 
 local runService = game:GetService("RunService")
 local player = game.Players.LocalPlayer
