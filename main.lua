@@ -226,6 +226,40 @@ task.spawn(function()
     end
 end)
 
+-- Variable global de control
+local AutoFarmActivo = false
+
+HitboxTab:Toggle({
+    Title = "Auto Farm 💰",
+    Value = false,
+    Callback = function(state)
+        AutoFarmActivo = state
+        
+        if AutoFarmActivo then
+            task.spawn(function()
+                -- Definimos el contenedor fuera del bucle para mejor rendimiento
+                local container = game:GetService("Workspace"):WaitForChild("SpawnablesClient")
+                
+                while AutoFarmActivo do
+                    -- Iteramos sobre los hijos
+                    for _, obj in pairs(container:GetChildren()) do
+                        if AutoFarmActivo then
+                            local touchPart = obj:FindFirstChild("Touch")
+                            if touchPart then
+                                -- Usamos la lógica de firetouchinterest que confirmaste
+                                pcall(function()
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, touchPart, 0)
+                                    firetouchinterest(game.Players.LocalPlayer.Character.HumanoidRootPart, touchPart, 1)
+                                end)
+                            end
+                        end
+                    end
+                    task.wait(0.5) -- Intervalo de medio segundo
+                end
+            end)
+        end
+    end
+})
 local HitboxProTab = Window:Tab({ Title = "Hitbox Disimulada🎯", Icon = "target" })
 
 HitboxProTab:Slider({ Title = "Tamaño Hitbox Pro", Value = { Min = 1, Max = 20, Default = 1}, Callback = function(v) getgenv().HitboxSize2 = v end })
