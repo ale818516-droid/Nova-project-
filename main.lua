@@ -1,40 +1,25 @@
-local HttpService = game:GetService("HttpService")
-local CONFIG_FILE = "AlexxHub_Config.json"
-
+-- REPARA EL ERROR DE INICIO: Define la tabla Settings que eliminaste
 local Settings = {
+    AutoTeleport = false,
     SilentAim = false,
-    SilentAim_Part = "Head",
     SilentAim_FOV = 150,
     SilentAim_Prediction = 100,
+    SilentAim_Part = "Head",
     SilentAim_HideFOV = false,
-    
-    AutoTeleport = false,
     HitboxEnabled = false,
     EspEnabled = false,
-    SpeedEnabled = false,
     Hitbox2_Enabled = false,
+    SpeedEnabled = false,
     InfiniteJump = false,
     FOVEnabled = false,
-    WallClimb = false,
+    WallClimb = false
 }
 
--- Cargar configuración
-if isfile(CONFIG_FILE) then
-    local success, data = pcall(function()
-        return HttpService:JSONDecode(readfile(CONFIG_FILE))
-    end)
-    if success and data then
-        for k, v in pairs(data) do
-            Settings[k] = v
-        end
-    end
+-- Función vacía de Save para que no dé error al presionar botones
+local function Save() 
+    -- Si no quieres guardar, esto evita que el script se cierre por error
 end
 
-local function Save()
-    pcall(function()
-        writefile(CONFIG_FILE, HttpService:JSONEncode(Settings))
-    end)
-end
 
 local WindUI = loadstring(game:HttpGet("https://raw.githubusercontent.com/azurelw/azurehub/refs/heads/main/main.lua"))()
 
@@ -527,69 +512,70 @@ local ExternalTab = Window:Tab({ Title = "External", Icon = "file-code" })
 ExternalTab:Button({ Title = "Ejecutar Script(7yd7)", Callback = function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-7yd7-I-Emote-Script-48024"))() end })
 ExternalTab:Button({ Title = "Emotes Vexro", Callback = function() loadstring(game:HttpGet("https://rawscripts.net/raw/Universal-Script-Vexro-Emote-Player-40K-Emotes-Keyless-229963"))() end })
 
--- Configuración Tab (ya corregida)
-local ConfigTab = Window:Tab({ Title = "💾 Configuración", Icon = "save" })
+-- Agrega este botón justo debajo de tu pestaña "Combate ⚔️"
+HitboxTab:Button({
+   Title = "INVISIBLE",
+   Callback = function()
+       local char = localPlayer.Character
+       if char then
+           -- 1. Engañamos al servidor eliminando el motor de animaciones y el root
+           local root = char:FindFirstChild("HumanoidRootPart")
+           if root then
+               local pos = root.CFrame -- Guardamos posición para evitar flotar
+               local clone = root:Clone()
+               clone.Name = "HumanoidRootPart" -- Mantenemos el nombre para que te puedas mover
+               clone.Parent = char
+               root:Destroy() -- Aquí es donde te vuelves invisible/bugeado para los demás
+               
+               clone.CFrame = pos -- Forzamos la posición en suelo
+               
+               -- 2. Quitamos la transparencia para que tú sí te veas pero ellos no
+               for _, v in pairs(char:GetDescendants()) do
+                   if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
+                       v.Transparency = 0.5 -- Tú te ves fantasma, ellos no ven nada
+                   end
+               end
+           end
+       end
+   end,
+})
 
-ConfigTab:Button({ Title = "💾 Guardar Configuración Actual", Callback = function() 
-    -- (el mismo código de guardar que te di antes)
-    Settings.SilentAim = getgenv().SilentAim.Enabled
-    Settings.SilentAim_Part = getgenv().SilentAim.Part
-    Settings.SilentAim_FOV = getgenv().SilentAim.FOV
-    Settings.SilentAim_Prediction = getgenv().SilentAim.Prediction
-    Settings.SilentAim_HideFOV = getgenv().SilentAim.HideFOV or false
-    Settings.AutoTeleport = _G.AutoTeleport or false
-    Settings.HitboxEnabled = getgenv().HitboxEnabled or false
-    Settings.EspEnabled = getgenv().EspEnabled or false
-    Settings.Hitbox2_Enabled = getgenv().Hitbox2_Enabled or false
-    Settings.SpeedEnabled = _G.SpeedEnabled or false
-    Settings.InfiniteJump = _G.InfiniteJump or false
-    Settings.FOVEnabled = _G.FOVEnabled or false
-    Settings.WallClimb = _G.WallClimb or false
-    Save()
-    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "AlexxHub", Text = "✅ Guardado", Duration = 3})
-end })
+-- Variable de control
+local TraerTodosActivo = false
 
-ConfigTab:Button({ Title = "🔄 Cargar Configuración", Callback = function() 
-    -- (el mismo código de cargar que te di antes)
-    if isfile(CONFIG_FILE) then
-        local success, data = pcall(function() return HttpService:JSONDecode(readfile(CONFIG_FILE)) end)
-        if success and data then
-            if data.SilentAim ~= nil then getgenv().SilentAim.Enabled = data.SilentAim end
-            if data.SilentAim_Part then getgenv().SilentAim.Part = data.SilentAim_Part end
-            if data.SilentAim_FOV then getgenv().SilentAim.FOV = data.SilentAim_FOV end
-            if data.SilentAim_Prediction then getgenv().SilentAim.Prediction = data.SilentAim_Prediction end
-            if data.SilentAim_HideFOV ~= nil then getgenv().SilentAim.HideFOV = data.SilentAim_HideFOV end
-            if data.AutoTeleport ~= nil then _G.AutoTeleport = data.AutoTeleport end
-            if data.HitboxEnabled ~= nil then getgenv().HitboxEnabled = data.HitboxEnabled end
-            if data.EspEnabled ~= nil then getgenv().EspEnabled = data.EspEnabled end
-            if data.Hitbox2_Enabled ~= nil then getgenv().Hitbox2_Enabled = data.Hitbox2_Enabled end
-            if data.SpeedEnabled ~= nil then _G.SpeedEnabled = data.SpeedEnabled end
-            if data.InfiniteJump ~= nil then _G.InfiniteJump = data.InfiniteJump end
-            if data.FOVEnabled ~= nil then _G.FOVEnabled = data.FOVEnabled end
-            if data.WallClimb ~= nil then _G.WallClimb = data.WallClimb end
-            game:GetService("StarterGui"):SetCore("SendNotification", {Title = "AlexxHub", Text = "✅ Cargado", Duration = 3})
+HitboxTab:Toggle({
+    Title = "TRAER A TODOS LOS ENEMIGOS 🧲",
+    Value = false,
+    Callback = function(state)
+        TraerTodosActivo = state
+    end
+})
+
+-- Monitor constante para traer a TODOS (Corregido)
+game:GetService("RunService").Heartbeat:Connect(function()
+    if TraerTodosActivo then
+        local myHRP = localPlayer.Character and localPlayer.Character:FindFirstChild("HumanoidRootPart")
+        if not myHRP then return end
+        
+        for _, p in pairs(Players:GetPlayers()) do
+            -- 1. Validaciones básicas
+            if p ~= localPlayer and p.Character and p.Character:FindFirstChild("HumanoidRootPart") then
+                
+                -- 2. Filtro de distancia (ejemplo: 200 studs) para ignorar gente de otra partida
+                local dist = (myHRP.Position - p.Character.HumanoidRootPart.Position).Magnitude
+                
+                -- 3. Tu filtro isEnemy + Distancia
+                if isEnemy(p) and dist < 200 then 
+                    local enemyHRP = p.Character.HumanoidRootPart
+                    
+                    -- Teletransporte
+                    enemyHRP.CFrame = myHRP.CFrame * CFrame.new(0, 0, -4)
+                    enemyHRP.AssemblyLinearVelocity = Vector3.new(0, 0, 0)
+                end
+            end
         end
     end
-end })
-
-ConfigTab:Button({ Title = "🗑️ Resetear Configuración", Callback = function() 
-    -- Reset code...
-    getgenv().SilentAim.Enabled = false
-    getgenv().SilentAim.Part = "Head"
-    getgenv().SilentAim.FOV = 150
-    getgenv().SilentAim.Prediction = 100
-    getgenv().SilentAim.HideFOV = false
-    _G.AutoTeleport = false
-    getgenv().HitboxEnabled = false
-    getgenv().EspEnabled = false
-    getgenv().Hitbox2_Enabled = false
-    _G.SpeedEnabled = false
-    _G.InfiniteJump = false
-    _G.FOVEnabled = false
-    _G.WallClimb = false
-    Save()
-    game:GetService("StarterGui"):SetCore("SendNotification", {Title = "AlexxHub", Text = "🗑️ Reseteado", Duration = 3})
-end })
+end)
 
 UserInputService.InputBegan:Connect(function(input, gameProcessed)
     if gameProcessed then return end
