@@ -1,3 +1,9 @@
+local PlaceId = 135856908115931
+if game.PlaceId ~= PlaceId then
+    game:GetService("Players").LocalPlayer:Kick("Script no autorizado para este juego.")
+    return 
+end
+
 local Settings = {
     AutoTeleport = false,
     SilentAim = false,
