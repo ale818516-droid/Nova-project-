@@ -36,16 +36,38 @@ local player = Players.LocalPlayer
 local RunService = game:GetService("RunService")
 local camera = workspace.CurrentCamera
 
--- Variables de Estado del Hitbox Expander
+-- Variables de Estado
 local UIElements = {}
 local hitboxEnabled = false
 local hitboxInvisible = false
 local hitboxSize = 10
 local hitboxColor = Color3.fromRGB(255, 255, 255)
 
--- Función opcional de verificación de lobby/enemigos (por defecto retorna true si no existe una externa)
-local function isEnemy(v)
-    return true
+local espEnabled = false
+local espColor = Color3.fromRGB(255, 0, 0)
+
+-- ==========================================
+-- FUNCIÓN isEnemy (Verificación de Equipos)
+-- ==========================================
+local LocalPlayer = Players.LocalPlayer
+
+local function isEnemy(target)
+    if target == LocalPlayer then
+        return false
+    end
+
+    local myTeam = LocalPlayer:GetAttribute("Team")
+    local targetTeam = target:GetAttribute("Team")
+
+    if myTeam and targetTeam then
+        return myTeam ~= targetTeam
+    end
+
+    if LocalPlayer.Team and target.Team then
+        return LocalPlayer.Team ~= target.Team
+    end
+
+    return false
 end
 
 local function estaEnLobby()
@@ -117,9 +139,31 @@ UIElements.ColHitbox = Tabs.Aim:Colorpicker({
     Callback = function(c) hitboxColor = c end
 })
 
+-- ==========================================
+-- ESP (HIGHLIGHT CONTORNO)
+-- ==========================================
+Tabs.Aim:Section({Title = "Visuales de Enemigos"})
+
+UIElements.TogEsp = Tabs.Aim:Toggle({
+    Title = "Activar ESP (Solo Contorno)",
+    Desc = "Remarca la silueta del Humanoid a través de las paredes.",
+    Callback = function(s) 
+        espEnabled = s 
+    end
+})
+
+UIElements.ColEsp = Tabs.Aim:Colorpicker({
+    Title = "Color del ESP", 
+    Default = Color3.fromRGB(255, 0, 0), 
+    Callback = function(c) espColor = c end
+})
+
+-- ==========================================
+-- BUCLE PRINCIPAL (HITBOX & ESP)
+-- ==========================================
 task.spawn(function()
-    if getgenv().AstraHitboxLoop then getgenv().AstraHitboxLoop = false task.wait(0.2) end
-    getgenv().AstraHitboxLoop = true
+    if getgenv().AstraLoopRunning then getgenv().AstraLoopRunning = false task.wait(0.2) end
+    getgenv().AstraLoopRunning = true
 
     local function limpiarHitbox(v)
         if v and v.Character and v.Character:FindFirstChild("HumanoidRootPart") then
@@ -136,25 +180,45 @@ task.spawn(function()
     local params = RaycastParams.new()
     params.FilterType = Enum.RaycastFilterType.Exclude
 
-    while getgenv().AstraHitboxLoop and task.wait(0.1) do
+    while getgenv().AstraLoopRunning and task.wait(0.1) do
         local enLobby = false 
         pcall(function() enLobby = estaEnLobby() end)
         
-        if hitboxEnabled and not enLobby then
-            for _, v in pairs(Players:GetPlayers()) do
-                if v ~= player and isEnemy(v) and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
-                    local hrp = v.Character.HumanoidRootPart 
+        for _, v in pairs(Players:GetPlayers()) do
+            if v ~= player then
+                local char = v.Character
+                local esEnemigoValido = isEnemy(v) and char and char:FindFirstChild("Humanoid") and char.Humanoid.Health > 0
+
+                -- 1. LÓGICA DEL ESP
+                if espEnabled and esEnemigoValido and not enLobby then
+                    local hl = char:FindFirstChild("OnyxESP")
+                    if not hl then
+                        hl = Instance.new("Highlight")
+                        hl.Name = "OnyxESP"
+                        hl.FillTransparency = 1 -- 1 = Transparente (No rellena el cuerpo)
+                        hl.OutlineTransparency = 0 -- 0 = Visible (Solo el contorno)
+                        hl.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+                        hl.Parent = char
+                    end
+                    hl.OutlineColor = espColor
+                else
+                    if char and char:FindFirstChild("OnyxESP") then
+                        char.OnyxESP:Destroy()
+                    end
+                end
+
+                -- 2. LÓGICA DE LA HITBOX
+                if hitboxEnabled and esEnemigoValido and not enLobby and char:FindFirstChild("HumanoidRootPart") then
+                    local hrp = char.HumanoidRootPart 
                     
-                    -- Verificamos si está a la vista (fuera de la pared) mediante un Raycast
                     local aLaVista = false
                     if player.Character and player.Character:FindFirstChild("Head") then
                         local origin = camera.CFrame.Position 
-                        params.FilterDescendantsInstances = {player.Character, v.Character}
+                        params.FilterDescendantsInstances = {player.Character, char}
                         local result = workspace:Raycast(origin, hrp.Position - origin, params) 
                         aLaVista = not result 
                     end
                     
-                    -- Si está detrás de la pared (no visible), tamaño normal (2,2,1). Si sale, se agranda al tamaño configurado.
                     local targetSize = aLaVista and Vector3.new(hitboxSize, hitboxSize, hitboxSize) or Vector3.new(2, 2, 1)
                     
                     if hrp.Size ~= targetSize then hrp.Size = targetSize end
@@ -191,8 +255,6 @@ task.spawn(function()
                     limpiarHitbox(v) 
                 end
             end
-        else 
-            for _, v in pairs(Players:GetPlayers()) do if v ~= player then limpiarHitbox(v) end end 
         end
     end
 end)
