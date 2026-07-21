@@ -258,3 +258,179 @@ task.spawn(function()
         end
     end
 end)
+
+-- ==========================================
+-- MÓDULO FINAL: MACRO DE PISTOLA + ZONA MUERTA (FUNCIONAL Y ESTABLE)
+-- ==========================================
+
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local player = Players.LocalPlayer
+
+-- Asegurar contenedor visual
+local screenGui = player:FindFirstChild("PlayerGui"):FindFirstChild("AstraScreenGui")
+if not screenGui then
+    screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "AstraScreenGui"
+    screenGui.ResetOnSpawn = false
+    screenGui.Parent = player:WaitForChild("PlayerGui")
+end
+
+-- Función de arrastre táctil/mouse segura
+local function makeDraggableSafe(frame, handle)
+    local dragging, dragInput, dragStart, startPos
+    handle.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStart = input.Position
+            startPos = frame.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then
+                    dragging = false
+                end
+            end)
+        end
+    end)
+    handle.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInput = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInput and dragging then
+            local delta = input.Position - dragStart
+            frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+        end
+    end)
+end
+
+-- 1. CREACIÓN DE LA ZONA MUERTA (FRAME VISUAL)
+local deadZoneFrame = Instance.new("Frame")
+deadZoneFrame.Size = UDim2.new(0, 150, 0, 150)
+deadZoneFrame.Position = UDim2.new(0.8, -75, 0.8, -75) 
+deadZoneFrame.BackgroundColor3 = Color3.fromRGB(255, 50, 50) 
+deadZoneFrame.BackgroundTransparency = 0.5
+deadZoneFrame.Visible = false
+deadZoneFrame.ZIndex = 100
+deadZoneFrame.Parent = screenGui 
+Instance.new("UICorner", deadZoneFrame).CornerRadius = UDim.new(0, 16)
+
+local dzStroke = Instance.new("UIStroke", deadZoneFrame)
+dzStroke.Color = Color3.fromRGB(255, 255, 255)
+dzStroke.Thickness = 2
+dzStroke.LineJoinMode = Enum.LineJoinMode.Round
+
+local dzLabel = Instance.new("TextLabel", deadZoneFrame)
+dzLabel.Size = UDim2.new(1, 0, 1, 0)
+dzLabel.BackgroundTransparency = 1
+dzLabel.Text = "ZONA MUERTA\n(Arrastrar)"
+dzLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+dzLabel.Font = Enum.Font.GothamBold
+dzLabel.TextSize = 14
+dzLabel.TextWrapped = true
+
+makeDraggableSafe(deadZoneFrame, deadZoneFrame)
+
+-- 2. LÓGICA DE DETECCIÓN DE ARMAS Y DAÑO
+getgenv().AutoEquipEnabled = false
+local startPos = Vector2.new(0, 0)
+local startTime = 0 
+local CLICK_THRESHOLD = 20 
+
+local function buscarArma()
+    local backpack = player:FindFirstChild("Backpack")
+    local char = player.Character
+    local arma = nil
+    
+    if backpack then
+        for _, item in pairs(backpack:GetChildren()) do
+            if item:IsA("Tool") and item:FindFirstChild("fire") then
+                arma = item
+                break
+            end
+        end
+    end
+    
+    if not arma and char then
+        for _, item in pairs(char:GetChildren()) do
+            if item:IsA("Tool") and item:FindFirstChild("fire") then
+                arma = item
+                break
+            end
+        end
+    end
+    
+    return arma
+end
+
+local function ejecutarAccionMacro()
+    local char = player.Character
+    if not char or not char:FindFirstChild("Humanoid") or char.Humanoid.Health <= 0 then return end
+    local backpack = player:FindFirstChild("Backpack")
+    local arma = buscarArma()
+    
+    if arma then
+        task.spawn(function()
+            char.Humanoid:EquipTool(arma)
+            task.wait(0.05)
+            arma:Activate()
+            task.wait(0.12)
+            if arma.Parent == char and backpack then
+                arma.Parent = backpack
+            end
+        end)
+    end
+end
+
+-- 3. INTERACCIÓN TÁCTIL Y DE TOQUES (EXCLUYENDO LA ZONA MUERTA)
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not getgenv().AutoEquipEnabled or gameProcessed then return end
+    
+    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+        ejecutarAccionMacro()
+    elseif input.UserInputType == Enum.UserInputType.Touch then
+        startPos = input.Position
+        startTime = tick() 
+    end
+end)
+
+UserInputService.InputEnded:Connect(function(input, gameProcessed)
+    if not getgenv().AutoEquipEnabled or gameProcessed or input.UserInputType ~= Enum.UserInputType.Touch then return end
+    
+    local pos = input.Position
+    local dzPos = deadZoneFrame.AbsolutePosition
+    local dzSize = deadZoneFrame.AbsoluteSize
+    local tocoZonaMuerta = (pos.X >= dzPos.X) and (pos.X <= dzPos.X + dzSize.X) and (pos.Y >= dzPos.Y) and (pos.Y <= dzPos.Y + dzSize.Y)
+    
+    if tocoZonaMuerta then return end
+    
+    if (input.Position - startPos).Magnitude < CLICK_THRESHOLD and (tick() - startTime) < 0.25 then
+        ejecutarAccionMacro()
+    end
+end)
+
+-- 4. CONTROLES DE INTERFAZ (UI) PARA CONECTAR A TU MENÚ (WINDUI)
+local AimTab = Window:Tab({ Title = "Aimbot", Icon = "target" })
+AimTab:Section({Title = "Macro (Pistola)"})
+
+AimTab:Toggle({
+    Title = "Activar Macro", 
+    Desc = "Dispara con un solo toque.",
+    Value = false,
+    Callback = function(state) 
+        getgenv().AutoEquipEnabled = state 
+    end
+})
+
+AimTab:Toggle({
+    Title = "Mostrar/Acomodar Zona Muerta", 
+    Value = false,
+    Callback = function(s) deadZoneFrame.Visible = s end
+})
+
+AimTab:Slider({
+    Title = "Tamaño de Zona Muerta", 
+    Step = 10,
+    Value = {Min = 80, Max = 400, Default = 150}, 
+    Callback = function(v) deadZoneFrame.Size = UDim2.new(0, v, 0, v) end
+})
