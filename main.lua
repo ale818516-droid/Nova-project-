@@ -163,11 +163,26 @@ MinimizeButton.ZIndex = 999
 local Sidebar = Instance.new("Frame")
 Sidebar.Name = "Sidebar"
 Sidebar.Parent = MainFrame
-Sidebar.BackgroundColor3 = Colors.PanelBg
+Sidebar.BackgroundColor3 = Color3.fromRGB(18,22,28)
 Sidebar.BorderSizePixel = 0
 Sidebar.Position = UDim2.new(0, 10, 0, 45)
-Sidebar.Size = UDim2.new(0, 50, 0, 265)
-Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 6)
+Sidebar.Size = UDim2.new(0, 58, 0, 265)
+
+local SideCorner = Instance.new("UICorner")
+SideCorner.Parent = Sidebar
+SideCorner.CornerRadius = UDim.new(0,10)
+
+local SideStroke = Instance.new("UIStroke")
+SideStroke.Parent = Sidebar
+SideStroke.Color = Colors.Accent
+SideStroke.Thickness = 1.5
+SideStroke.Transparency = 0.45
+
+local SideGlow = Instance.new("UIStroke")
+SideGlow.Parent = Sidebar
+SideGlow.Color = Colors.Accent
+SideGlow.Thickness = 5
+SideGlow.Transparency = 0.82
 
 -- Área de Contenido Vacía
 local ContentArea = Instance.new("Frame")
