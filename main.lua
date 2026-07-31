@@ -184,6 +184,89 @@ SideGlow.Color = Colors.Accent
 SideGlow.Thickness = 5
 SideGlow.Transparency = 0.82
 
+-- Contenedor de pestañas
+local TabContainer = Instance.new("Frame")
+TabContainer.Parent = Sidebar
+TabContainer.BackgroundTransparency = 1
+TabContainer.Size = UDim2.new(1,0,1,-10)
+TabContainer.Position = UDim2.new(0,0,0,5)
+
+local Layout = Instance.new("UIListLayout")
+Layout.Parent = TabContainer
+Layout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+Layout.Padding = UDim.new(0,8)
+Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local function CreateTab(Name, Icon)
+
+	local Holder = Instance.new("Frame")
+	Holder.Parent = TabContainer
+	Holder.BackgroundTransparency = 1
+	Holder.Size = UDim2.new(1,0,0,58)
+
+	local Button = Instance.new("ImageButton")
+	Button.Parent = Holder
+	Button.BackgroundTransparency = 1
+	Button.AnchorPoint = Vector2.new(0.5,0)
+	Button.Position = UDim2.new(0.5,0,0,0)
+	Button.Size = UDim2.new(0,40,0,40)
+	Button.Image = Icon
+	Button.ImageColor3 = Colors.Text
+	Button.AutoButtonColor = false
+
+	local Label = Instance.new("TextLabel")
+	Label.Parent = Holder
+	Label.BackgroundTransparency = 1
+	Label.AnchorPoint = Vector2.new(0.5,0)
+	Label.Position = UDim2.new(0.5,0,0,42)
+	Label.Size = UDim2.new(1,0,0,14)
+	Label.Font = Enum.Font.GothamBold
+	Label.Text = Name
+	Label.TextSize = 10
+	Label.TextColor3 = Colors.Text
+
+	return Button
+end
+
+local TabLayout = Instance.new("UIListLayout")
+TabLayout.Parent = TabContainer
+TabLayout.HorizontalAlignment = Enum.HorizontalAlignment.Center
+TabLayout.Padding = UDim.new(0,8)
+TabLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
+local function CreateTab(Name, Icon)
+
+	local Holder = Instance.new("Frame")
+	Holder.Parent = TabContainer
+	Holder.BackgroundTransparency = 1
+	Holder.Size = UDim2.new(1,0,0,56)
+
+	local Button = Instance.new("ImageButton")
+	Button.Parent = Holder
+	Button.AnchorPoint = Vector2.new(0.5,0)
+	Button.Position = UDim2.new(0.5,0,0,0)
+	Button.Size = UDim2.new(0,40,0,40)
+	Button.BackgroundTransparency = 1
+	Button.Image = Icon
+	Button.ImageColor3 = Colors.Text
+	Button.AutoButtonColor = false
+
+	local Label = Instance.new("TextLabel")
+	Label.Parent = Holder
+	Label.AnchorPoint = Vector2.new(0.5,0)
+	Label.Position = UDim2.new(0.5,0,0,42)
+	Label.Size = UDim2.new(1,0,0,12)
+	Label.BackgroundTransparency = 1
+	Label.Font = Enum.Font.GothamBold
+	Label.Text = Name
+	Label.TextColor3 = Colors.Text
+	Label.TextSize = 10
+
+	return Button
+end
+
+CreateTab("Combat","rbxassetid://6031265976")
+
 -- Área de Contenido Vacía
 local ContentArea = Instance.new("Frame")
 ContentArea.Name = "ContentArea"
