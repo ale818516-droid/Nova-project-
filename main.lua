@@ -64,8 +64,9 @@ function Library:CreateWindow(windowName)
     ScreenGui.Parent = PlayerGui
     ScreenGui.ResetOnSpawn = false
     ScreenGui.IgnoreGuiInset = true
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 
-    -- Marco Principal (Ventana)
+    -- Marco Principal
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
     MainFrame.Parent = ScreenGui
@@ -76,6 +77,7 @@ function Library:CreateWindow(windowName)
     MainFrame.Position = UDim2.new(0.5, 0, 0.5, 0)
     MainFrame.Size = UDim2.new(0, 520, 0, 320)
     MainFrame.ClipsDescendants = true
+    MainFrame.Visible = true
 
     makeDraggable(MainFrame, MainFrame)
 
@@ -170,7 +172,7 @@ function Library:CreateWindow(windowName)
     PagesContainer.Name = "PagesContainer"
     PagesContainer.Parent = MainFrame
 
-    -- BOTÓN FLOTANTE DE APERTURA (Centrado Arriba)
+    -- BOTÓN FLOTANTE DE APERTURA
     local OpenButton = Instance.new("TextButton")
     OpenButton.Parent = ScreenGui
     OpenButton.BackgroundColor3 = Colors.Background
@@ -324,14 +326,14 @@ function Library:CreateWindow(windowName)
                 TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Colors.PanelBg}):Play()
             end)
         end
-
+       
+       
         return TabSection
     end
 
     return Window
 end
 
--- ==========================================
--- Abre la ventana vacía
--- ==========================================
+-- Abre la ventana
 local Window = Library:CreateWindow("Yisus Hub")
+print("Ventana creada correctamente")
