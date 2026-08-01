@@ -1,0 +1,5 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/ale818516-droid/Nova-project-/refs/heads/main/yisus.lua"))()
+
+local Window = Library:CreateWindow({
+    Title = "Yisus Hub"
+})
