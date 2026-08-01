@@ -335,7 +335,7 @@ function Library:CreateWindow(windowName)
 
     return Window
 end
-
+ 
 -- Abre la ventana
 local Window = Library:CreateWindow("Yisus Hub")
 print("Ventana creada correctamente")
