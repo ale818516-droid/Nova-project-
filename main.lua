@@ -483,4 +483,4 @@ end
 -- ======================
 -- ESTO ABRE EL MENÚ VACÍO
 -- ======================
-local Window = Library:CreateWindow("Yisus Hub")
+return Library
