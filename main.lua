@@ -1,5 +1,3 @@
---Puedes hacer esto como una librería completa coml la de WinDui
-
 --[[
     Onyx Library - Versión Estable y Centrada
 ]]
@@ -328,11 +326,13 @@ function Library:CreateWindow(windowName)
                 TweenService:Create(Button, TweenInfo.new(0.2), {BackgroundColor3 = Colors.PanelBg}):Play()
             end)
         end
-       
-       
+
         return TabSection
     end
 
     return Window
 end
- return Library
+
+-- Abre la ventana
+local Window = Library:CreateWindow("Yisus Hub")
+print("Ventana creada correctamente")
