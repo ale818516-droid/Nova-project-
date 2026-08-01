@@ -54,8 +54,45 @@ Title.TextColor3 = Color3.fromRGB(240,240,240)
 Title.TextSize = 16
 Title.TextXAlignment = Enum.TextXAlignment.Left
 
+-- Botón flotante
+local OpenButton = Instance.new("TextButton")
+OpenButton.Parent = ScreenGui
+OpenButton.Name = "OpenButton"
+OpenButton.Size = UDim2.new(0,110,0,38)
+OpenButton.Position = UDim2.new(0,300,0,12)
+OpenButton.BackgroundColor3 = Color3.fromRGB(20,25,30)
+OpenButton.BackgroundTransparency = 0.2
+OpenButton.BorderSizePixel = 0
+OpenButton.Text = ""
+
+local ButtonCorner = Instance.new("UICorner")
+ButtonCorner.Parent = OpenButton
+ButtonCorner.CornerRadius = UDim.new(1,0)
+
+local ButtonStroke = Instance.new("UIStroke")
+ButtonStroke.Parent = OpenButton
+ButtonStroke.Color = Color3.fromRGB(0,255,255)
+ButtonStroke.Thickness = 2
+
+local ButtonTitle = Instance.new("TextLabel")
+ButtonTitle.Parent = OpenButton
+ButtonTitle.BackgroundTransparency = 1
+ButtonTitle.Size = UDim2.new(1,0,1,0)
+ButtonTitle.Font = Enum.Font.GothamBold
+ButtonTitle.Text = WindowObject.Title
+ButtonTitle.TextColor3 = Color3.fromRGB(240,240,240)
+ButtonTitle.TextSize = 12
+
+local IsOpen = true
+
+OpenButton.MouseButton1Click:Connect(function()
+	IsOpen = not IsOpen
+	Main.Visible = IsOpen
+end)
+
 WindowObject.Gui = ScreenGui
 WindowObject.Main = Main
+WindowObject.OpenButton = OpenButton
 
 return WindowObject
 
