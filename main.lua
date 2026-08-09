@@ -1,6 +1,4 @@
---[[
-    Onyx Library - Versión Estable y Centrada
-]]
+
 
 local Library = {}
 
